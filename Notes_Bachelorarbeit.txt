@@ -1,0 +1,25 @@
+- Fehlerwerte für verschiedene Input- und Prognoselänen
+
+- Verbesserung aus Präsentation Implementieren
+		Mehr Daten für Prognose
+				FETTISCH Vorhersagedaten
+				Sonneneinstrahlung [s]
+				Windstärke [m/s]
+				Cloud Cover [%]
+				Feiertage
+				Samstag - Sonntag Unterscheidung
+				Einspeiseprognosen
+		Optimierung der Parameter (Wird jetzt übernommen)
+		Einzelne Modelle für Zeitabschnitte
+
+- Vergleich zu anderen Methoden
+
+- Mehr Prognosen machen, um Fehlerwert zu vergleichen
+
+- statsmodels für statistische Prognosen
+
+- Daten in Trend, Saisonalität und Residual aufteilen
+		ARIMA für Trend und Saisonalität
+		NN für Residual
+
+- Guthub oder Jupyter für Daten
