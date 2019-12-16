@@ -30,25 +30,26 @@ def updatePowerprice():
 ##############################################################################################################
 ###############################################Wetterhistory##################################################
 ##############################################################################################################
-def updateWeatherHistory(parameter=["air_temperature","cloudiness","sun","wind"],shortform=["TT_TU"," V_N","SD_SO","   F"],times=["historical","recent"]):
+def updateWeatherHistory(parameter=["air_temperature","cloudiness","sun","wind"],shortform=["TT_TU"," V_N","SD_SO","   F"],times=["recent","historical"],
+                            start='1/1/2016', end='11/12/2019'):
     dateparse = lambda x: pd.datetime.strptime(x, '%Y%m%d%H')
     i=0
-    finalFrame=pd.DataFrame(pd.date_range(start='1/1/2016', end='11/12/2019',freq ="H"),columns=["MESS_DATUM"])
+    finalFrame=pd.DataFrame(pd.date_range(start=start, end=end,freq ="H"),columns=["MESS_DATUM"])
     finalFrame.set_index("MESS_DATUM",inplace=True)
     testFrame=pd.DataFrame()
     for param in parameter:
         timesCombinedFrame=pd.DataFrame(columns=["MESS_DATUM",shortform[i]])
         timesCombinedFrame.set_index("MESS_DATUM",inplace=True)
         for timeMode in times:
-            df=pd.DataFrame(columns=["MESS_DATUM",shortform[i]])
+            df=pd.DataFrame(pd.date_range(start=start, end=end,freq ="H"),columns=["MESS_DATUM"])
             df.set_index("MESS_DATUM",inplace=True)
             print("")
             _URL="https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/{}/{}/".format(param,timeMode)
             r = urlopen(_URL)
             soup = bs(r.read(),features="html.parser")
-            test=soup.findAll('a')
-            maximum=len(test)
-            for j, link in enumerate(test[1:30]) :
+            links=soup.findAll('a')
+            maximum=len(links)
+            for j, link in enumerate(links[1:10]) :
                 print("\r{} {}:{}/{}".format(param,timeMode,j,maximum), sep=' ', end='', flush=True)
                 if link.get('href').endswith('.zip'):
                     _FULLURL = _URL + link.get('href')
@@ -58,15 +59,23 @@ def updateWeatherHistory(parameter=["air_temperature","cloudiness","sun","wind"]
                     tempdf=pd.read_csv(zipfile.open(file),sep=';').set_index("MESS_DATUM")
                     tempdf.index = pd.to_datetime(tempdf.index,format='%Y%m%d%H')
                     df[shortform[i]]=pd.concat([df, tempdf[shortform[i]]], axis=1).mean(axis=1)
-            timesCombinedFrame=pd.concat([timesCombinedFrame, df], axis=0)
-            print(timesCombinedFrame)
-        finalFrame = finalFrame.join(timesCombinedFrame,how="left")
-        print(finalFrame)
+            df.dropna(inplace=True)
+            if timeMode=="recent":
+                df=df.loc[df.index>start]
+                recentFirstDate=df.index[0]
+            if timeMode=="historical":
+                mask = (df.index > start) & (df.index <= recentFirstDate)
+                df=df.loc[mask]
+                df=df.loc[df.index>start]
+            df.to_csv("Data/{}_{}.csv".format(param,timeMode))
+
+        # finalFrame = finalFrame.join(timesCombinedFrame,how="left")
+        
         i+=1
-    finalFrame = finalFrame.loc[finalFrame.index.drop_duplicates()]
-    finalFrame.index = pd.to_datetime(finalFrame.index,format='%Y%m%d%H')
-    print("Writing to weatherHistory.csv")
-    finalFrame.to_csv("Data/weatherHistory2.csv")
+    # finalFrame = finalFrame.loc[finalFrame.index.drop_duplicates()]
+    # finalFrame.index = pd.to_datetime(finalFrame.index,format='%Y%m%d%H')
+    # print("Writing to weatherHistory.csv")
+    # finalFrame.to_csv("Data/weatherHistory2.csv")
 ##############################################################################################################
 ###############################################Vorhersage#####################################################
 ##############################################################################################################
@@ -103,7 +112,7 @@ def updateForecast(properties=["FF","N","SunD1","TTT"],WriteXML=False, updateGer
     lastFrame.set_index("Date",inplace=True)
     lastFrame.columns=["Windgeschwindigkeit","Bewölkung", "Sonnensekunden","Temperatur 2m"]
     print("writing to forecast.csv")
-    lastFrame.to_csv("Data/forecast.csv",index=False)
+    lastFrame.to_csv("Data/forecast.csv")
 
     # if(updateGermanCities):
     #     print("updating germanCities.csv")

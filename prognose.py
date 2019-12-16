@@ -92,10 +92,10 @@ EPOCHS = 50
 isTraining = True
 # isTraining=False
 
-if(False):
+if(True):
   dl.updateWeatherHistory()
-  dl.updateForecast()
-  dl.updatePowerprice()
+  # dl.updateForecast()
+  # dl.updatePowerprice()
 data = dr.getData()
 # data = data.drop(['diffScaledPrice'], axis=1)
 data = data.drop(['Price'], axis=1)
