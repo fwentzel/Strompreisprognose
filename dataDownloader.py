@@ -31,7 +31,7 @@ def updatePowerprice():
 ###############################################Wetterhistory##################################################
 ##############################################################################################################
 def updateWeatherHistory(parameter=["air_temperature","cloudiness","sun","wind"],shortform=["TT_TU"," V_N","SD_SO","   F"],times=["recent","historical"],
-                            start='1/1/2016', end='11/12/2019'):
+                            start='1/1/2016', end='2019-12-16'):
     dateparse = lambda x: pd.datetime.strptime(x, '%Y%m%d%H')
     i=0
     finalFrame=pd.DataFrame(pd.date_range(start=start, end=end,freq ="H"),columns=["MESS_DATUM"])
@@ -56,7 +56,7 @@ def updateWeatherHistory(parameter=["air_temperature","cloudiness","sun","wind"]
                     resp=urlopen(_FULLURL)
                     zipfile = ZipFile(BytesIO(resp.read()))
                     file=zipfile.namelist()[-1]
-                    tempdf=pd.read_csv(zipfile.open(file),sep=';').set_index("MESS_DATUM")
+                    tempdf=pd.read_csv(zipfile.open(file),sep=';',index_col="MESS_DATUM")
                     tempdf.index = pd.to_datetime(tempdf.index,format='%Y%m%d%H')
                     df[shortform[i]]=pd.concat([df, tempdf[shortform[i]]], axis=1).mean(axis=1)
             df.dropna(inplace=True)
@@ -64,13 +64,13 @@ def updateWeatherHistory(parameter=["air_temperature","cloudiness","sun","wind"]
                 df=df.loc[df.index>start]
                 recentFirstDate=df.index[0]
             if timeMode=="historical":
-                mask = (df.index > start) & (df.index <= recentFirstDate)
+                mask = (df.index > start) & (df.index < recentFirstDate)
                 df=df.loc[mask]
                 df=df.loc[df.index>start]
             df.to_csv("Data/{}_{}.csv".format(param,timeMode))
 
         # finalFrame = finalFrame.join(timesCombinedFrame,how="left")
-        
+
         i+=1
     # finalFrame = finalFrame.loc[finalFrame.index.drop_duplicates()]
     # finalFrame.index = pd.to_datetime(finalFrame.index,format='%Y%m%d%H')

@@ -14,17 +14,14 @@ import os
 mpl.rcParams['figure.figsize'] = (8, 6)
 mpl.rcParams['axes.grid'] = False
 
-clear = lambda: os.system('cls')
-clear()
+os.system('cls')
+
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
 
                   #dataset, dataset[:, 0], 0,TRAIN_SPLIT, past_history,future_target, STEP)
 
 def multivariate_data(dataset, target, start_index, end_index, history_size,
                       target_size, step, single_step=False):
-    
-    
-
     data = []
     labels = []
     start_index = start_index + history_size
@@ -33,6 +30,10 @@ def multivariate_data(dataset, target, start_index, end_index, history_size,
     for i in range(start_index, end_index):
         indices = range(i - history_size, i, step)
         data.append(dataset[indices])
+
+        data=np.append(data,dataset[i:i+target_size,1:],axis=1)
+        print(data)
+        print("********++")
         if single_step:
             labels.append(target[i + target_size])
         else:
@@ -81,8 +82,8 @@ def plot_train_history(history, title):
     plt.show()
 
 
-past_history = 48# inputtimesteps
-future_target = 24  # timesteps into future
+past_history = 3# inputtimesteps
+future_target = 2  # timesteps into future
 TEST_LENGTH= 12600 #Stunden
 STEP = 1
 BATCH_SIZE = 256
@@ -92,7 +93,7 @@ EPOCHS = 50
 isTraining = True
 # isTraining=False
 
-if(True):
+if(False):
   dl.updateWeatherHistory()
   # dl.updateForecast()
   # dl.updatePowerprice()
@@ -128,7 +129,7 @@ multi_step_model.add(tf.keras.layers.GRU(past_history, return_sequences=True, in
 # multi_step_model.add(tf.keras.layers.GRU(int(past_history/2), return_sequences=True))
 multi_step_model.add(tf.keras.layers.GRU(int(past_history/2)))
 multi_step_model.add(tf.keras.layers.Dense(future_target))
-multi_step_model.compile(optimizer=tf.keras.optimizers.RMSprop(), loss='mae',learning_rate=0.0008)
+multi_step_model.compile(optimizer=tf.keras.optimizers.RMSprop(), loss='mae')
 
 if isTraining:
     multi_step_history = multi_step_model.fit(train_data_multi, epochs=EPOCHS,

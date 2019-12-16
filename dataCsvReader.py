@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler
-import holidays
+# import holidays
 from datetime import date
 
 
@@ -48,29 +48,28 @@ def inverse_transform( forecast, scaler,last_ob):
     return inv_diff
 
 
-def getData():
-    weatherHistory=pd.read_csv('Data/weatherHistory.csv')
-    weatherHistory.set_index("MESS_DATUM",inplace=True)
-    weatherHistory = weatherHistory.loc[~weatherHistory.index.duplicated(keep='first')]#remove duplicate Entries of row "  F"
-
+def getData(weatherparameter=["air_temperature","cloudiness","sun","wind"]):
+    weatherFrame=pd.DataFrame()
+    for param in weatherparameter:
+        paramFrame=pd.read_csv("Data/{}_historical.csv".format(param),index_col="MESS_DATUM")
+        paramFrame=paramFrame.append(pd.read_csv("Data/{}_recent.csv".format(param),index_col="MESS_DATUM"))
+        weatherFrame=pd.concat([weatherFrame,paramFrame],axis=1,sort=True)
     powerPrice=pd.read_csv('Data/powerpriceData.csv')
     powerPrice['Date'] = pd.to_datetime(powerPrice['Date'],unit='ms')
     powerPrice = powerPrice.set_index('Date')
-    powerPrice['Price']=pd.to_numeric(powerPrice['Price'], errors='coerce')    
+    powerPrice['Price']=pd.to_numeric(powerPrice['Price'], errors='coerce')
     powerPrice['diffScaledPrice']=differenceData(powerPrice['Price'],powerScaler)
 
-    data=powerPrice.join(weatherHistory, how='inner')
+    data=powerPrice.join(weatherFrame, how='inner')
     data['scaledTemp']= tempScaler.fit_transform(np.array(data['TT_TU']).reshape(-1,1))
     data.drop('TT_TU',axis=1,inplace=True)
     data['Weekend'] = (pd.DatetimeIndex(data.index).dayofweek>5).astype(int)
     data['Hour']=hourScaler.fit_transform(np.array(data.index.hour).reshape(-1,1))
 
-    holidaysGer=holidays.Germany()
-    data["Holiday"]=(pd.DatetimeIndex(data.index).date)
-    data["Holiday"]=data["Holiday"].apply(lambda dateToCheck :dateToCheck in holidaysGer).astype(float)
-    
+    # holidaysGer=holidays.Germany()
+    # data["Holiday"]=(pd.DatetimeIndex(data.index).date)
+    # data["Holiday"]=data["Holiday"].apply(lambda dateToCheck :dateToCheck in holidaysGer).astype(float)
     data=data.interpolate()
     data=data.fillna(value={"SD_SO":0," V_N":-1})
     return data
-
 
