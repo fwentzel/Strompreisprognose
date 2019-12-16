@@ -49,10 +49,10 @@ def multi_step_plot(history, true_future, prediction):
     num_out = len(true_future)
 
     plt.plot(num_in, np.array(history[:, 0]), label='History')
-    plt.plot(np.arange(num_out) / STEP, np.array(true_future), 'bo',
+    plt.plot(np.arange(num_out) / STEP, np.array(true_future), 'b',
              label='True Future')
     if prediction.any():
-        plt.plot(np.arange(num_out) / STEP, np.array(prediction), 'ro',
+        plt.plot(np.arange(num_out) / STEP, np.array(prediction), 'r',
                  label='Predicted Future')
     plt.legend(loc='upper left')
     plt.show()
@@ -81,13 +81,13 @@ def plot_train_history(history, title):
     plt.show()
 
 
-past_history = 5# inputtimesteps
+past_history = 48# inputtimesteps
 future_target = 24  # timesteps into future
 TEST_LENGTH= 12600 #Stunden
 STEP = 1
 BATCH_SIZE = 256
 BUFFER_SIZE = 10000
-EPOCHS = 10
+EPOCHS = 50
 
 isTraining = True
 # isTraining=False
@@ -97,8 +97,8 @@ if(False):
   dl.updateForecast()
   dl.updatePowerprice()
 data = dr.getData()
-data = data.drop(['diffScaledPrice'], axis=1)
-# data = data.drop(['Price'], axis=1)
+# data = data.drop(['diffScaledPrice'], axis=1)
+data = data.drop(['Price'], axis=1)
 dataset = data.values
 
 TRAIN_SPLIT = len(dataset)-TEST_LENGTH
@@ -125,16 +125,16 @@ val_data_multi = val_data_multi.batch(BATCH_SIZE).repeat()
 multi_step_model = tf.keras.models.Sequential()
 multi_step_model.add(tf.keras.layers.GRU(past_history, return_sequences=True, input_shape=x_train_multi.shape[-2:]))
 #multi_step_model.add(tf.keras.layers.GRU(int(past_history/2)))
-# multi_step_model.add(tf.keras.layers.GRU(past_history, return_sequences=True))
+# multi_step_model.add(tf.keras.layers.GRU(int(past_history/2), return_sequences=True))
 multi_step_model.add(tf.keras.layers.GRU(int(past_history/2)))
 multi_step_model.add(tf.keras.layers.Dense(future_target))
-multi_step_model.compile(optimizer=tf.keras.optimizers.RMSprop(), loss='mae')
+multi_step_model.compile(optimizer=tf.keras.optimizers.RMSprop(), loss='mae',learning_rate=0.0008)
 
 if isTraining:
     multi_step_history = multi_step_model.fit(train_data_multi, epochs=EPOCHS,
-                                          steps_per_epoch=2000,
+                                          steps_per_epoch=3000,
                                           validation_data=val_data_multi,
-                                          validation_steps=400)
+                                          validation_steps=800)
     plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
     multi_step_model.save_weights('./checkpoints/testing')
 else:
