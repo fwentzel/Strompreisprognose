@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler
-# import holidays
+import holidays
 from datetime import date
 
 
@@ -48,12 +48,13 @@ def inverse_transform( forecast, scaler,last_ob):
     return inv_diff
 
 
-def getData(weatherparameter=["air_temperature","cloudiness","sun","wind"]):
-    weatherFrame=pd.DataFrame()
+def getData( start='2016-1-1', end='2019-12-16',weatherparameter=["air_temperature","cloudiness","sun","wind"]):
+    weatherFrame=pd.DataFrame(pd.date_range(start=start, end=end,freq ="H"),columns=["MESS_DATUM"])
+    weatherFrame.set_index("MESS_DATUM",inplace=True)
     for param in weatherparameter:
         paramFrame=pd.read_csv("Data/{}_historical.csv".format(param),index_col="MESS_DATUM")
         paramFrame=paramFrame.append(pd.read_csv("Data/{}_recent.csv".format(param),index_col="MESS_DATUM"))
-        weatherFrame=pd.concat([weatherFrame,paramFrame],axis=1,sort=True)
+        weatherFrame=weatherFrame.join(paramFrame)
     powerPrice=pd.read_csv('Data/powerpriceData.csv')
     powerPrice['Date'] = pd.to_datetime(powerPrice['Date'],unit='ms')
     powerPrice = powerPrice.set_index('Date')
@@ -66,10 +67,11 @@ def getData(weatherparameter=["air_temperature","cloudiness","sun","wind"]):
     data['Weekend'] = (pd.DatetimeIndex(data.index).dayofweek>5).astype(int)
     data['Hour']=hourScaler.fit_transform(np.array(data.index.hour).reshape(-1,1))
 
-    # holidaysGer=holidays.Germany()
-    # data["Holiday"]=(pd.DatetimeIndex(data.index).date)
-    # data["Holiday"]=data["Holiday"].apply(lambda dateToCheck :dateToCheck in holidaysGer).astype(float)
+    holidaysGer=holidays.Germany()
+    data["Holiday"]=(pd.DatetimeIndex(data.index).date)
+    data["Holiday"]=data["Holiday"].apply(lambda dateToCheck :dateToCheck in holidaysGer).astype(float)
     data=data.interpolate()
     data=data.fillna(value={"SD_SO":0," V_N":-1})
+    data=data.fillna(method="bfill")
     return data
 

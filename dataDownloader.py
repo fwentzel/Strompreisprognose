@@ -31,7 +31,7 @@ def updatePowerprice():
 ###############################################Wetterhistory##################################################
 ##############################################################################################################
 def updateWeatherHistory(parameter=["air_temperature","cloudiness","sun","wind"],shortform=["TT_TU"," V_N","SD_SO","   F"],times=["recent","historical"],
-                            start='1/1/2016', end='2019-12-16'):
+                            start='2016-1-1', end='2019-12-16'):
     dateparse = lambda x: pd.datetime.strptime(x, '%Y%m%d%H')
     i=0
     finalFrame=pd.DataFrame(pd.date_range(start=start, end=end,freq ="H"),columns=["MESS_DATUM"])
@@ -49,7 +49,7 @@ def updateWeatherHistory(parameter=["air_temperature","cloudiness","sun","wind"]
             soup = bs(r.read(),features="html.parser")
             links=soup.findAll('a')
             maximum=len(links)
-            for j, link in enumerate(links[1:10]) :
+            for j, link in enumerate(links) :
                 print("\r{} {}:{}/{}".format(param,timeMode,j,maximum), sep=' ', end='', flush=True)
                 if link.get('href').endswith('.zip'):
                     _FULLURL = _URL + link.get('href')
@@ -64,7 +64,7 @@ def updateWeatherHistory(parameter=["air_temperature","cloudiness","sun","wind"]
                 df=df.loc[df.index>start]
                 recentFirstDate=df.index[0]
             if timeMode=="historical":
-                mask = (df.index > start) & (df.index < recentFirstDate)
+                mask = (df.index >= start) & (df.index < recentFirstDate)
                 df=df.loc[mask]
                 df=df.loc[df.index>start]
             df.to_csv("Data/{}_{}.csv".format(param,timeMode))
