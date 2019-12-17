@@ -110,7 +110,6 @@ def updateForecast(properties=["FF","N","SunD1","TTT"],WriteXML=False, updateGer
     lastFrame["Date"]=indexList
     lastFrame["Date"]=pd.to_datetime(lastFrame['Date'])
     lastFrame.set_index("Date",inplace=True)
-    lastFrame.columns=["Windgeschwindigkeit","Bewölkung", "Sonnensekunden","Temperatur 2m"]
     print("writing to forecast.csv")
     lastFrame.to_csv("Data/forecast.csv")
 

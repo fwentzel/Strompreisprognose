@@ -91,7 +91,7 @@ BUFFER_SIZE = 10000
 EPOCHS = 25
 
 
-start='2016-1-1' 
+start='2016-1-1'
 end='2019-12-16'
 isTraining = True
 # isTraining=False
@@ -103,6 +103,7 @@ if(False):
 data = dr.getData(start=start,end=end)
 # data = data.drop(['diffScaledPrice'], axis=1)
 data = data.drop(['Price'], axis=1)
+print(data)
 dataset = data.values
 TRAIN_SPLIT = len(dataset)-TEST_LENGTH
 # normalize the dataset using the mean and standard deviation of the training data
