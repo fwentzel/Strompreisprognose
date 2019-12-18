@@ -15,9 +15,6 @@ mpl.rcParams['figure.figsize'] = (8, 6)
 mpl.rcParams['axes.grid'] = False
 
 os.system('cls')
-
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
-
                   #dataset, dataset[:, 0], 0,TRAIN_SPLIT, past_history,future_target, STEP)
 
 def multivariate_data(dataset, target, start_index, end_index, history_size,
