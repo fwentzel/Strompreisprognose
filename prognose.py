@@ -77,11 +77,11 @@ def plot_train_history(history, title):
 
 past_history =72# inputtimesteps
 future_target= 24  # timesteps into future
-TEST_LENGTH= 12600 #Stunden
+TEST_LENGTH= 10 #in percent
 STEP = 1
 BATCH_SIZE = 256
 BUFFER_SIZE = 10000
-EPOCHS = 250
+EPOCHS = 50
 np.set_printoptions(linewidth =500,threshold=10,edgeitems =5,suppress=True)
 
 start='2015-1-1'
@@ -96,11 +96,13 @@ if(False):
   dl.updatePowerprice()
 data= dr.getData(start=start,end=end)
 dataset = data.values
-TRAIN_SPLIT = len(dataset)-TEST_LENGTH
+TRAIN_SPLIT = int(len(dataset)/TEST_LENGTH)
+
 # normalize the dataset using the mean and standard deviation of the training data
 # data_mean = dataset[:TRAIN_SPLIT].mean(axis=0)
 # data_std = dataset[:TRAIN_SPLIT].std(axis=0)
 # dataset = (dataset - data_mean) / data_std
+
 def multivariate_data_Single_Step(dataset, target, start_index,end_index, history_size,
                       target_size):
     data = []
@@ -125,7 +127,7 @@ x_val, y_val = multivariate_data_Single_Step(dataset, dataset[:, 0],
 # define model
 multi_step_model = tf.keras.models.Sequential()
 multi_step_model.add(tf.keras.layers.GRU(past_history, return_sequences=True, input_shape=x_train.shape[-2:]))
-multi_step_model.add(tf.keras.layers.GRU(past_history))
+multi_step_model.add(tf.keras.layers.GRU(int(past_history/2)))
 multi_step_model.add(tf.keras.layers.Dense(future_target))
 multi_step_model.compile(optimizer=tf.keras.optimizers.RMSprop(), loss='mae',lr=0.0001)
 
@@ -143,6 +145,5 @@ def multi_single_step_predict(inputs):
   for j in range(0, future_target):
       X_in=inputs[j:j+past_history].reshape(-1,past_history,inputs.shape[1])
       preds.append(multi_step_model.predict(X_in)[0][-1])
-      print(preds)
   return preds
 predictions=multi_single_step_predict(dataset[- past_history- future_target:])
