@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler
-# import holidays
+import holidays
 from datetime import date
 
 
@@ -49,36 +49,45 @@ def inverse_transform( forecast, scaler,last_ob):
 
 
 def getData( start='2016-1-1', end='2019-12-16',weatherparameter=["air_temperature","cloudiness","sun","wind"]):
-    weatherforecastFrame=pd.DataFrame(pd.date_range(start=start, end=end,freq ="H"),columns=["MESS_DATUM"])
-    weatherforecastFrame.set_index("MESS_DATUM",inplace=True)
+    weatherFrame=pd.DataFrame(pd.date_range(start=start, end=end,freq ="H"),columns=["MESS_DATUM"])
+    weatherFrame.set_index("MESS_DATUM",inplace=True)
     for param in weatherparameter:
-        paramforecastFrame=pd.read_csv("Data/{}_historical.csv".format(param),index_col="MESS_DATUM")
-        paramforecastFrame=paramforecastFrame.append(pd.read_csv("Data/{}_recent.csv".format(param),index_col="MESS_DATUM"))
-        weatherforecastFrame=weatherforecastFrame.join(paramforecastFrame)
-    weatherforecastFrame.columns=["TT_TU","V_N","SD_SO","F"]
-    forecastFrame=pd.read_csv("Data/forecast.csv")
-    forecastFrame["Date"]=pd.to_datetime(forecastFrame['Date'])
-    forecastFrame.columns=["MESS_DATUM","TT_TU","V_N","SD_SO","F"]
-    forecastFrame.set_index("MESS_DATUM",inplace=True)
-    forecastFrame=forecastFrame.tz_localize(None)
-    weatherforecastFrame=weatherforecastFrame.append(forecastFrame)#Date,Windgeschwindigkeit,Bewölkung,Sonnensekunden,Temperatur 2m
+        paramFrame=pd.read_csv("Data/{}_historical.csv".format(param),index_col="MESS_DATUM")
+        paramFrame2=pd.read_csv("Data/{}_recent.csv".format(param),index_col="MESS_DATUM")
+        if len(paramFrame.index)>2:
+            paramFrame=paramFrame.append(paramFrame2)
+        else:
+            paramFrame=paramFrame2
+        weatherFrame=weatherFrame.join(paramFrame)
+
+    
+    weatherFrame.columns=["TT_TU","V_N","SD_SO","F"]
+    # forecastFrame=pd.read_csv("Data/forecast.csv")
+    # forecastFrame["Date"]=pd.to_datetime(forecastFrame['Date'])
+    # forecastFrame.columns=["MESS_DATUM","TT_TU","V_N","SD_SO","F"]
+    # forecastFrame.set_index("MESS_DATUM",inplace=True)
+    # forecastFrame=forecastFrame.tz_localize(None)
+    # weatherFrame=weatherFrame.append(forecastFrame)
+
     powerPrice=pd.read_csv('Data/powerpriceData.csv')
     powerPrice['Date'] = pd.to_datetime(powerPrice['Date'],unit='ms')
     powerPrice = powerPrice.set_index('Date')
     powerPrice['Price']=pd.to_numeric(powerPrice['Price'], errors='coerce')
-    powerPrice['diffScaledPrice']=differenceData(powerPrice['Price'],powerScaler)
+    # powerPrice['diffScaledPrice']=differenceData(powerPrice['Price'],powerScaler)
 
-    data=powerPrice.join(weatherforecastFrame, how='outer')
-    data['scaledTemp']= tempScaler.fit_transform(np.array(data['TT_TU']).reshape(-1,1))
+    data=powerPrice.join(weatherFrame, how='outer')
+    # data['scaledTemp']= tempScaler.fit_transform(np.array(data['TT_TU']).reshape(-1,1))
+    data['Temp']= data['TT_TU']
     data.drop('TT_TU',axis=1,inplace=True)
     data['Weekend'] = (pd.DatetimeIndex(data.index).dayofweek>5).astype(int)
-    data['Hour']=hourScaler.fit_transform(np.array(data.index.hour).reshape(-1,1))
+    # data['Hour']=hourScaler.fit_transform(np.array(data.index.hour).reshape(-1,1))
+    data["Hour"]=data.index.hour
 
-    # holidaysGer=holidays.Germany()
-    # data["Holiday"]=(pd.DatetimeIndex(data.index).date)
-    # data["Holiday"]=data["Holiday"].apply(lambda dateToCheck :dateToCheck in holidaysGer).astype(float)
-    # data=data.interpolate()
-    data=data.fillna(value={"SD_SO":0,"V_N":-1,"F":0,"scaledTemp":0})
-    # data=data.fillna(method="bfill")
-    return data
+    holidaysGer=holidays.Germany()
+    data["Holiday"]=(pd.DatetimeIndex(data.index).date)
+    data["Holiday"]=data["Holiday"].apply(lambda dateToCheck :dateToCheck in holidaysGer).astype(float)
+
+    data=data.fillna(value={"SD_SO":0,"V_N":-1,"F":0,"scaledTemp":0,"Temp":0})
+    data.dropna(inplace=True)
+    return data#, forecastFrame.index[0]
 
