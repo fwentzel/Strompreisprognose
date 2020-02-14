@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AnalysisUIOptions">
-    <option name="SCOPE_TYPE" value="8" />
+    <option name="SCOPE_TYPE" value="3" />
     <option name="CUSTOM_SCOPE_NAME" value="Current File" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68c788c7-5bf5-44ad-a565-79828c80a8e0" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/Programm.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Programm.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Data/errors.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Data/errors.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Notes_Bachelorarbeit.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Notes_Bachelorarbeit.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataAnalysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataAnalysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dataCsvReader.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataCsvReader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dataDownloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataDownloader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/prognose.py" beforeDir="false" afterPath="$PROJECT_DIR$/prognose.py" afterDir="false" />
@@ -116,6 +114,14 @@
       <option name="presentableId" value="Default" />
       <updated>1573549103499</updated>
     </task>
+    <task id="LOCAL-00001" summary="Series decomposion using statsmodels STL">
+      <created>1581672558333</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1581672558333</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -131,34 +137,42 @@
       </map>
     </option>
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Series decomposion using statsmodels STL" />
+    <option name="LAST_COMMIT_MESSAGE" value="Series decomposion using statsmodels STL" />
+  </component>
   <component name="WindowStateProjectService">
     <state x="552" y="177" key="#Inspections" timestamp="1581671628942">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="552" y="177" key="#Inspections/0.0.1920.1040@0.0.1920.1040" timestamp="1581671628942" />
-    <state x="589" y="113" key="CommitChangelistDialog2" timestamp="1581595917745">
+    <state x="756" y="371" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1581674267117">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="589" y="113" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1581595917745" />
-    <state width="1899" height="199" key="GridCell.Tab.0.bottom" timestamp="1581672431070">
+    <state x="756" y="371" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.1920.1040@0.0.1920.1040" timestamp="1581674267117" />
+    <state x="589" y="113" key="CommitChangelistDialog2" timestamp="1581672557672">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="199" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1581672431070" />
-    <state width="1899" height="199" key="GridCell.Tab.0.center" timestamp="1581672431070">
+    <state x="589" y="113" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1581672557672" />
+    <state width="534" height="912" key="GridCell.Tab.0.bottom" timestamp="1581674887521">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="199" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1581672431070" />
-    <state width="1899" height="199" key="GridCell.Tab.0.left" timestamp="1581672431070">
+    <state width="534" height="912" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1581674887521" />
+    <state width="534" height="912" key="GridCell.Tab.0.center" timestamp="1581674887521">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="199" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1581672431070" />
-    <state width="1899" height="199" key="GridCell.Tab.0.right" timestamp="1581672431070">
+    <state width="534" height="912" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1581674887521" />
+    <state width="534" height="912" key="GridCell.Tab.0.left" timestamp="1581674887521">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="199" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1581672431070" />
-    <state x="461" y="161" key="SettingsEditor" timestamp="1581596216062">
+    <state width="534" height="912" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1581674887521" />
+    <state width="534" height="912" key="GridCell.Tab.0.right" timestamp="1581674887521">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="461" y="161" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1581596216062" />
+    <state width="534" height="912" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1581674887521" />
+    <state x="461" y="161" key="SettingsEditor" timestamp="1581672719769">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="461" y="161" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1581672719769" />
   </component>
 </project>
