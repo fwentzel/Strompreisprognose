@@ -8,99 +8,106 @@ import xml.etree.ElementTree as ET
 from zipfile import ZipFile
 import time
 
+
 ##############################################################################################################
 ###############################################Strompreis#####################################################
 ##############################################################################################################
 def updatePowerprice():
     print("downloading Powerprice")
     valueFrame = pd.DataFrame()
-    for year in range(16,20):
-    	for month in range(1,13):
-    		if(month<10):
-    			month="0"+ str(month)
-    		url="https://energy-charts.de/price/month_20{}_{}.json".format(year,month)
-    		json=urllib.request.urlopen(url)
-    		data= pd.read_json(json)
-    		valueSeries=pd.Series(data["values"].iloc[5])
-    		valueFrame = valueFrame.append(pd.DataFrame(valueSeries.values.tolist()))
+    for year in range(16, 20):
+        for month in range(1, 13):
+            if (month < 10):
+                month = "0" + str(month)
+            url = "https://energy-charts.de/price/month_20{}_{}.json".format(year, month)
+            json = urllib.request.urlopen(url)
+            data = pd.read_json(json)
+            valueSeries = pd.Series(data["values"].iloc[5])
+            valueFrame = valueFrame.append(pd.DataFrame(valueSeries.values.tolist()))
     print("Writing to powerpriceData.csv")
-    valueFrame.columns=["Date","Price"]
-    valueFrame.to_csv('Data/powerpriceData.csv',index=False)
+    valueFrame.columns = ["Date", "Price"]
+    valueFrame.to_csv('Data/powerpriceData.csv', index=False)
+
 
 ##############################################################################################################
 ###############################################Wetterhistory##################################################
 ##############################################################################################################
-def updateWeatherHistory(parameter=["air_temperature","cloudiness","sun","wind"],shortform=["TT_TU"," V_N","SD_SO","   F"],times=["recent","historical"],
-                            start='2016-1-1', end='2019-12-16'):
+def updateWeatherHistory(parameter=["air_temperature", "cloudiness", "sun", "wind"],
+                         shortform=["TT_TU", " V_N", "SD_SO", "   F"], times=["recent", "historical"],
+                         start='2016-1-1', end='2019-12-16'):
     dateparse = lambda x: pd.datetime.strptime(x, '%Y%m%d%H')
-    i=0
-    finalFrame=pd.DataFrame(pd.date_range(start=start, end=end,freq ="H"),columns=["MESS_DATUM"])
-    finalFrame.set_index("MESS_DATUM",inplace=True)
-    testFrame=pd.DataFrame()
+    i = 0
+    finalFrame = pd.DataFrame(pd.date_range(start=start, end=end, freq="H"), columns=["MESS_DATUM"])
+    finalFrame.set_index("MESS_DATUM", inplace=True)
+    testFrame = pd.DataFrame()
     for param in parameter:
-        timesCombinedFrame=pd.DataFrame(columns=["MESS_DATUM",shortform[i]])
-        timesCombinedFrame.set_index("MESS_DATUM",inplace=True)
+        timesCombinedFrame = pd.DataFrame(columns=["MESS_DATUM", shortform[i]])
+        timesCombinedFrame.set_index("MESS_DATUM", inplace=True)
         for timeMode in times:
-            df=pd.DataFrame(pd.date_range(start=start, end=end,freq ="H"),columns=["MESS_DATUM"])
-            df.set_index("MESS_DATUM",inplace=True)
+            df = pd.DataFrame(pd.date_range(start=start, end=end, freq="H"), columns=["MESS_DATUM"])
+            df.set_index("MESS_DATUM", inplace=True)
             print("")
-            _URL="https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/{}/{}/".format(param,timeMode)
+            _URL = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/{}/{}/".format(
+                param, timeMode)
             r = urlopen(_URL)
-            soup = bs(r.read(),features="html.parser")
-            links=soup.findAll('a')
-            maximum=len(links)
-            for j, link in enumerate(links[20:40]) :
-                print("\r{} {}:{}/{}".format(param,timeMode,j,maximum), sep=' ', end='', flush=True)
+            soup = bs(r.read(), features="html.parser")
+            links = soup.findAll('a')
+            maximum = len(links)
+            for j, link in enumerate(links[20:40]):
+                print("\r{} {}:{}/{}".format(param, timeMode, j, maximum), sep=' ', end='', flush=True)
                 if link.get('href').endswith('.zip'):
                     _FULLURL = _URL + link.get('href')
-                    resp=urlopen(_FULLURL)
+                    resp = urlopen(_FULLURL)
                     zipfile = ZipFile(BytesIO(resp.read()))
-                    file=zipfile.namelist()[-1]
-                    tempdf=pd.read_csv(zipfile.open(file),sep=';',index_col="MESS_DATUM")
-                    tempdf.index = pd.to_datetime(tempdf.index,format='%Y%m%d%H')
-                    df[shortform[i].strip()]=pd.concat([df, tempdf[shortform[i]]], axis=1).mean(axis=1)
+                    file = zipfile.namelist()[-1]
+                    tempdf = pd.read_csv(zipfile.open(file), sep=';', index_col="MESS_DATUM")
+                    tempdf.index = pd.to_datetime(tempdf.index, format='%Y%m%d%H')
+                    df[shortform[i].strip()] = pd.concat([df, tempdf[shortform[i]]], axis=1).mean(axis=1)
             df.dropna(inplace=True)
-            if timeMode=="recent":
-                recentFirstDate=df.index[0]
-            if timeMode=="historical":
-                df=df.loc[df.index < recentFirstDate]
-            df=df.loc[df.index>=start]    
-            df.to_csv("Data/{}_{}.csv".format(param,timeMode))
-        i+=1
+            if timeMode == "recent":
+                recentFirstDate = df.index[0]
+            if timeMode == "historical":
+                df = df.loc[df.index < recentFirstDate]
+            df = df.loc[df.index >= start]
+            df.to_csv("Data/{}_{}.csv".format(param, timeMode))
+        i += 1
+
+
 ##############################################################################################################
 ###############################################Vorhersage#####################################################
 ##############################################################################################################
-def updateForecast(properties=["FF","N","SunD1","TTT"],WriteXML=False, updateGermanCities=False,):
+def updateForecast(properties=["FF", "N", "SunD1", "TTT"], WriteXML=False, updateGermanCities=False, ):
     print("downloading Forecast")
-    resp=urllib.request.urlopen("https://opendata.dwd.de/weather/local_forecasts/mos/MOSMIX_S/all_stations/kml/MOSMIX_S_LATEST_240.kmz")
+    resp = urllib.request.urlopen(
+        "https://opendata.dwd.de/weather/local_forecasts/mos/MOSMIX_S/all_stations/kml/MOSMIX_S_LATEST_240.kmz")
     print("downloaded")
     kmz = ZipFile(BytesIO(resp.read()), 'r')
     kml = kmz.open(kmz.namelist()[0], 'r').read()
     root = ET.fromstring(kml)
 
-    namespace={"kml":"http://www.opengis.net/kml/2.2",
-                "dwd":"https://opendata.dwd.de/weather/lib/pointforecast_dwd_extension_V1_0.xsd"}
-    cities=pd.read_csv("Data/germanCities.csv")
-    cities=cities["Ort"].astype(str).values
-
+    namespace = {"kml": "http://www.opengis.net/kml/2.2",
+                 "dwd": "https://opendata.dwd.de/weather/lib/pointforecast_dwd_extension_V1_0.xsd"}
+    cities = pd.read_csv("Data/germanCities.csv")
+    cities = cities["Ort"].astype(str).values
 
     print("reading XML")
-    lastFrame=pd.DataFrame()
+    lastFrame = pd.DataFrame()
 
-    indexList=[]
+    indexList = []
     for TimeStep in root.iter('{https://opendata.dwd.de/weather/lib/pointforecast_dwd_extension_V1_0.xsd}TimeStep'):
         indexList.append(TimeStep.text)
     for prop in properties:
         for Placemark in root.iter('{http://www.opengis.net/kml/2.2}Placemark'):
-            city=Placemark.find("kml:description",namespace).text
-            if city in cities:#stadt in DE
-                df=pd.DataFrame()
-                forecast=Placemark.find("./kml:ExtendedData/dwd:Forecast[@dwd:elementName='{}']".format(prop),namespace)
-                df[city]=list(map(float,forecast[0].text.replace("-","-999").split()))
-                lastFrame[prop]=df.mean(axis=1)
-    lastFrame["Date"]=indexList
-    lastFrame["Date"]=pd.to_datetime(lastFrame['Date'])
-    lastFrame.set_index("Date",inplace=True)
+            city = Placemark.find("kml:description", namespace).text
+            if city in cities:  # stadt in DE
+                df = pd.DataFrame()
+                forecast = Placemark.find("./kml:ExtendedData/dwd:Forecast[@dwd:elementName='{}']".format(prop),
+                                          namespace)
+                df[city] = list(map(float, forecast[0].text.replace("-", "-999").split()))
+                lastFrame[prop] = df.mean(axis=1)
+    lastFrame["Date"] = indexList
+    lastFrame["Date"] = pd.to_datetime(lastFrame['Date'])
+    lastFrame.set_index("Date", inplace=True)
     print("writing to forecast.csv")
     lastFrame.to_csv("Data/forecast.csv")
 

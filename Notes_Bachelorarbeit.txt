@@ -1,4 +1,4 @@
-- Fehlerwerte für verschiedene Input- und Prognoselänen
+- Fehlerwerte für verschiedene Input- und Prognoselängen
 
 - Verbesserung aus Präsentation Implementieren
 		Mehr Daten für Prognose
