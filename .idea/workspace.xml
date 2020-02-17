@@ -7,9 +7,7 @@
   <component name="ChangeListManager">
     <list default="true" id="68c788c7-5bf5-44ad-a565-79828c80a8e0" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataAnalysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataAnalysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataCsvReader.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataCsvReader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataDownloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataDownloader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/testing.data-00000-of-00001" beforeDir="false" afterPath="$PROJECT_DIR$/checkpoints/testing.data-00000-of-00001" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/prognose.py" beforeDir="false" afterPath="$PROJECT_DIR$/prognose.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -39,7 +37,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="run.code.analysis.last.selected.profile" value="aDefault" />
-    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Python" />
   </component>
   <component name="RunManager" selected="Python.prognose">
     <configuration name="3D Walk test" type="PythonConfigurationType" factoryName="Python" temporary="true">
@@ -121,7 +119,14 @@
       <option name="project" value="LOCAL" />
       <updated>1581672558333</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Codecleanup variable and method names lowecase">
+      <created>1581675977905</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1581675977905</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -139,7 +144,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Series decomposion using statsmodels STL" />
-    <option name="LAST_COMMIT_MESSAGE" value="Series decomposion using statsmodels STL" />
+    <MESSAGE value="Codecleanup variable and method names lowecase" />
+    <option name="LAST_COMMIT_MESSAGE" value="Codecleanup variable and method names lowecase" />
   </component>
   <component name="WindowStateProjectService">
     <state x="552" y="177" key="#Inspections" timestamp="1581671628942">
@@ -150,29 +156,69 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="756" y="371" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.1920.1040@0.0.1920.1040" timestamp="1581674267117" />
-    <state x="589" y="113" key="CommitChangelistDialog2" timestamp="1581672557672">
+    <state x="589" y="113" key="CommitChangelistDialog2" timestamp="1581675977412">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="589" y="113" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1581672557672" />
-    <state width="534" height="912" key="GridCell.Tab.0.bottom" timestamp="1581674887521">
+    <state x="589" y="113" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1581675977412" />
+    <state width="1420" height="466" key="DebuggerActiveHint" timestamp="1581935191111">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="534" height="912" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1581674887521" />
-    <state width="534" height="912" key="GridCell.Tab.0.center" timestamp="1581674887521">
+    <state width="1420" height="466" key="DebuggerActiveHint/0.0.1920.1040@0.0.1920.1040" timestamp="1581935191111" />
+    <state x="1001" y="222" key="FileChooserDialogImpl" timestamp="1581930832318">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="534" height="912" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1581674887521" />
-    <state width="534" height="912" key="GridCell.Tab.0.left" timestamp="1581674887521">
+    <state x="1001" y="222" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1581930832318" />
+    <state width="1899" height="307" key="GridCell.Tab.0.bottom" timestamp="1581936851625">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="534" height="912" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1581674887521" />
-    <state width="534" height="912" key="GridCell.Tab.0.right" timestamp="1581674887521">
+    <state width="1899" height="307" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1581936851625" />
+    <state width="1899" height="307" key="GridCell.Tab.0.center" timestamp="1581936851625">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="534" height="912" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1581674887521" />
-    <state x="461" y="161" key="SettingsEditor" timestamp="1581672719769">
+    <state width="1899" height="307" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1581936851625" />
+    <state width="1899" height="307" key="GridCell.Tab.0.left" timestamp="1581936851625">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="461" y="161" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1581672719769" />
+    <state width="1899" height="307" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1581936851625" />
+    <state width="1899" height="307" key="GridCell.Tab.0.right" timestamp="1581936851625">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1899" height="307" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1581936851625" />
+    <state width="1899" height="348" key="GridCell.Tab.1.bottom" timestamp="1581935314300">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1899" height="348" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1581935314300" />
+    <state width="1899" height="348" key="GridCell.Tab.1.center" timestamp="1581935314300">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1899" height="348" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1581935314300" />
+    <state width="1899" height="348" key="GridCell.Tab.1.left" timestamp="1581935314300">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1899" height="348" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1581935314300" />
+    <state width="1899" height="348" key="GridCell.Tab.1.right" timestamp="1581935314300">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1899" height="348" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1581935314300" />
+    <state x="806" y="146" key="SettingsEditor" timestamp="1581930835499">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="806" y="146" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1581930835499" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/site-packages/statsmodels/tsa/holtwinters.py</url>
+          <line>805</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="PythonConfigurationType">
+        <watch expression="pred" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

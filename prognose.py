@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 from datetime import date
 from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.seasonal import STL
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -98,7 +99,7 @@ def plot_train_history(history, title):
 def decompose_data(data):
     series = data["Price"]
     res = STL(series).fit()
-    # estimated trend, seasonal and residal components
+    # estimated trend, seasonal and residual components
     data["Power_Residual"] = res.resid  # the estimated residuals
     data["Power_Seasonal"] = res.seasonal  # The estimated seasonal component
     data["Power_Trend"] = res.trend  # The estimated trend component
@@ -114,8 +115,6 @@ def initialize_network():
     multi_step_model.add(tf.keras.layers.GRU(int(PAST_HISTORY / 2)))
     # multi_step_model.add(tf.keras.layers.GRU(past_history))
     multi_step_model.add(tf.keras.layers.Dense(FUTURE_TARGET))
-    multi_step_model.compile(optimizer=tf.keras.optimizers.RMSprop(), loss='mae',
-                             lr=0.0007)
     return multi_step_model
 
 
@@ -134,7 +133,7 @@ IS_TRAINING = True
 # IS_TRAINING=False
 UPDATE_DATA = False
 
-if (UPDATE_DATA):
+if UPDATE_DATA:
     dl.updateWeatherHistory(start=START, end=END, times=["recent"])
     dl.updateForecast()
     dl.update_power_price()
@@ -144,38 +143,65 @@ TRAIN_SPLIT = int(len(data) / TEST_LENGTH)
 
 decompose_data(data)
 
+data.drop('Price', axis=1, inplace=True)
 dataset = data.values
-
+cols=data.columns.tolist()
+cols = cols[-1:] + cols[:-1] # move last spot to first column
+data = data[cols]
+target=data["Power_Residual"]
 # normalize the dataset using the mean and standard deviation of the training data
 # data_mean = dataset[:TRAIN_SPLIT].mean(axis=0)
 # data_std = dataset[:TRAIN_SPLIT].std(axis=0)
 # dataset = (dataset - data_mean) / data_std
 
 
-x_train, y_train = multivariate_data_single_step(dataset, dataset[:, 0],
+x_train, y_train = multivariate_data_single_step(dataset, target,
                                                  0, TRAIN_SPLIT, PAST_HISTORY, 1)
 train_data = tf.data.Dataset.from_tensor_slices((x_train, y_train))
 train_data = train_data.cache().shuffle(BUFFER_SIZE).batch(BATCH_SIZE).repeat()
 
-x_val, y_val = multivariate_data_single_step(dataset, dataset[:, 0],
+x_val, y_val = multivariate_data_single_step(dataset, target,
                                              TRAIN_SPLIT, len(dataset) - 50,
                                              PAST_HISTORY, 1)
 val_data = tf.data.Dataset.from_tensor_slices((x_val, y_val))
 val_data = val_data.batch(BATCH_SIZE).repeat()
 
 multi_step_model = initialize_network()
-if IS_TRAINING:
-    multi_step_history = multi_step_model.fit(train_data, epochs=EPOCHS,
-                                              steps_per_epoch=100,
-                                              validation_data=val_data,
-                                              validation_steps=1000)
-    plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
-    multi_step_model.save_weights('./checkpoints/testing')
-else:
-    multi_step_model.load_weights('./checkpoints/testing')
+multi_step_model.compile(optimizer=tf.keras.optimizers.RMSprop(), loss='mae',
+                         lr=0.0003)
 
-# prediction
-single_step_predict_plot(dataset[TRAIN_SPLIT - PAST_HISTORY - FUTURE_TARGET:TRAIN_SPLIT],
-                         title="ON TRAINING DATA")
-single_step_predict_plot(dataset[TRAIN_SPLIT:TRAIN_SPLIT + PAST_HISTORY + FUTURE_TARGET],
-                         title="ON TEST DATA")
+#Seasonal
+forecast_length=24
+test = data["Power_Seasonal"].iloc[-forecast_length:]
+
+train = data["Power_Seasonal"].iloc[-forecast_length*3:-forecast_length]
+
+model2 = ExponentialSmoothing(train, trend="add", seasonal="add", seasonal_periods=24, damped=True,freq="H")
+
+fit2 = model2.fit()
+pred2 = fit2.forecast(forecast_length)
+sse2 = np.sqrt(np.mean(np.square(test.values - pred2.values)))
+
+fig, ax = plt.subplots(figsize=(12, 6))
+ax.plot(train.index[-24:], train.values[-24:]);
+ax.plot(test.index, test.values, label='truth');
+ax.plot(test.index, pred2, linestyle='--', color='#3c763d', label="damped (RMSE={:0.2f}, AIC={:0.2f})".format(sse2, fit2.aic));
+ax.legend();
+ax.set_title("Holt-Winter's Seasonal Smoothing");
+plt.show()
+
+# if IS_TRAINING:
+#     multi_step_history = multi_step_model.fit(train_data, epochs=EPOCHS,
+#                                               steps_per_epoch=1000 ,
+#                                               validation_data=val_data,
+#                                               validation_steps=400)
+#     plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
+#     multi_step_model.save_weights('./checkpoints/testing')
+# else:
+#     multi_step_model.load_weights('./checkpoints/testing')
+#
+# # prediction
+# single_step_predict_plot(dataset[TRAIN_SPLIT - PAST_HISTORY - FUTURE_TARGET:TRAIN_SPLIT],
+#                          title="ON TRAINING DATA")
+# single_step_predict_plot(dataset[TRAIN_SPLIT:TRAIN_SPLIT + PAST_HISTORY + FUTURE_TARGET],
+#                          title="ON TEST DATA")
