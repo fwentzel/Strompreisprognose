@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import dataCsvReader as dr
+import csv_reader as dr
 from statsmodels.tsa.seasonal import seasonal_decompose
 import os
 os.system('cls')

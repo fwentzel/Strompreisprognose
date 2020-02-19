@@ -50,7 +50,7 @@ def updateWeatherHistory(parameter=["air_temperature", "cloudiness", "sun", "win
             soup = bs(r.read(), features="html.parser")
             links = soup.findAll('a')
             maximum = len(links)
-            for j, link in enumerate(links[20:40]):
+            for j, link in enumerate(links[:50]):
                 print("\r{} {}:{}/{}".format(param, timeMode, j, maximum), sep=' ', end='', flush=True)
                 if link.get('href').endswith('.zip'):
                     _FULLURL = _URL + link.get('href')
@@ -63,8 +63,10 @@ def updateWeatherHistory(parameter=["air_temperature", "cloudiness", "sun", "win
             df.dropna(inplace=True)
             if timeMode == "recent":
                 recent_first_date = df.index[0]
+                print("\n recent erstes: ",recent_first_date)
             if timeMode == "historical":
                 df = df.loc[df.index < recent_first_date]
+                print("\n historical letztes : ", df.index[-1])
             df = df.loc[df.index >= start]
             df.to_csv("Data/{}_{}.csv".format(param, timeMode))
         i += 1
