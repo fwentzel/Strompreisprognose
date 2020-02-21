@@ -1,6 +1,8 @@
 import holidays
 import numpy as np
 import pandas as pd
+import data_downloader
+from statsmodels.tsa.seasonal import STL
 from sklearn.preprocessing import MinMaxScaler
 
 power_scaler = MinMaxScaler(feature_range=(-1, 1))
@@ -45,7 +47,23 @@ def inverse_transform(forecast, scaler, last_ob):
     return inv_diff
 
 
-def get_data(start='2016-1-1', end='2019-12-16', weatherparameter=["air_temperature", "cloudiness", "sun", "wind"]):
+
+def decompose_data(data):
+    series = data["Price"]
+    components = STL(series).fit()
+    # estimated trend, seasonal and residual components
+    data["Power_Residual"] = components.resid  # the estimated residuals
+    data["Power_Seasonal"] = components.seasonal  # The estimated seasonal component
+    data["Power_Trend"] = components.trend  # The estimated trend component
+    return data
+
+def get_data(update_data,start='2016-1-1', end='2019-12-16', weatherparameter=["air_temperature", "cloudiness", "sun", "wind"]):
+    if(update_data):
+        data_downloader.updateWeatherHistory(start=START, end=END, times=["recent", "historical"])
+        data_downloader.updateForecast()
+        data_downloader.update_power_price()
+
+
     weather_frame = pd.DataFrame(pd.date_range(start=start, end=end, freq="H"), columns=["MESS_DATUM"])
     weather_frame.set_index("MESS_DATUM", inplace=True)
     for param in weatherparameter:
@@ -85,4 +103,6 @@ def get_data(start='2016-1-1', end='2019-12-16', weatherparameter=["air_temperat
 
     data = data.fillna(value={"SD_SO": 0, "V_N": -1, "F": 0, "scaledTemp": 0, "Temp": 0})
     data.dropna(inplace=True)
+
+    data=decompose_data(data)
     return data  # , forecast_frame.index[0]

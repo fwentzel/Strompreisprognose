@@ -15,6 +15,7 @@
 - Vergleich zu anderen Methoden
 
 - Mehr Prognosen machen, um Fehlerwert zu vergleichen
+    möglich
 
 - statsmodels für statistische Prognosen
 
@@ -22,4 +23,4 @@
 		ARIMA für Trend und Saisonalität
 		NN für Residual
 
-- Guthub oder Jupyter für Daten
+- Giwillstthub oder Jupyter für Daten
