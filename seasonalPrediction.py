@@ -1,13 +1,14 @@
-from statsmodels.tsa.holtwinters import ExponentialSmoothing
 import numpy as np
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
 
 class SeasonalPrediction:
 
-    def __init__(self, data, forecast_length, train_length, start):
+    def __init__(self, data, forecast_length, train_length, start_index_from_max_length):
+        self.start=len(data)-start_index_from_max_length
         self.forecast_length = forecast_length
-        self.truth = data["Seasonal"].iloc[start:start + forecast_length]
-        self.train = data["Seasonal"].iloc[start - train_length:start]
+        self.truth = data["Seasonal"].iloc[self.start:self.start + forecast_length]
+        self.train = data["Seasonal"].iloc[self.start - train_length:self.start]
 
         self.model = ExponentialSmoothing(self.train, trend="add", seasonal="add", seasonal_periods=24,
                                           damped=True, freq="H")
