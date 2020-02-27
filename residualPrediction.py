@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 
-
 class ResidualPrediction:
 
     def __init__(self, train_data,test_data, future_target, past_history, start_index_from_max_length):
@@ -20,11 +19,12 @@ class ResidualPrediction:
         self.STEP = 1
         self.BATCH_SIZE = 256
         self.BUFFER_SIZE = 500
-        self.EPOCHS = 50
+        self.EPOCHS = 1
         self.TRAIN_SPLIT = int(len(self.train_dataset) * self.TRAIN_LENGTH)
         self.model = None
         self.x, self.y = self.multivariate_data_single_step()
         self.prediciton_truth_error = []
+
 
         #TODO workarund
         self.predicted_test=False
@@ -40,6 +40,9 @@ class ResidualPrediction:
         model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),loss="mae")
         self.model = model
 
+    def load_model(self,checkpoint):
+        self.model = tf.keras.models.load_model('./checkpoints/{0}'.format(checkpoint))
+
     def multivariate_data_single_step(self):
         multivariate_data = []
         labels = []
@@ -50,15 +53,13 @@ class ResidualPrediction:
         multivariate_data = np.array(multivariate_data)
         return multivariate_data.reshape(multivariate_data.shape[0], multivariate_data.shape[1], -1), np.array(labels)
 
-    def train_network(self, train, checkpoint):
-        if train:
-            multi_step_history = self.model.fit(x=self.x, y=self.y, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE,
-                                                verbose=2,
-                                                validation_split=1 - self.TRAIN_LENGTH, shuffle=True)
-            self.plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
-            self.model.save_weights('./checkpoints/{0}'.format(checkpoint))
-        else:
-            self.model.load_weights('./checkpoints/{0}'.format(checkpoint))
+    def train_network(self, checkpoint):
+        multi_step_history = self.model.fit(x=self.x, y=self.y, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE,
+                                            verbose=2,
+                                            validation_split=1 - self.TRAIN_LENGTH, shuffle=True)
+        self.plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
+        self.model.save('./checkpoints/{0}'.format(checkpoint))
+
 
     def plot_train_history(self, history, title):
         loss = history.history['loss']
