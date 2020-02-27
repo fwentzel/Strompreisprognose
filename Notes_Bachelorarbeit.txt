@@ -1,3 +1,16 @@
+***********
+
+-Arima für Seasonal und Trend
+-Arime Residualprognose als Basiswert für Einschätzung des NN
+-Vgl von naive und arima mit NN Ergebnissen
+-Github repository public machen
+
+-Arima weitere Parameter neben Preis übergeben
+    -> Ergebnisse vergleichen
+-Verschiedene Prognosezeiträume betrachten
+-Verschiedene Inputlängen betrachten
+
+***********
 - Fehlerwerte für verschiedene Input- und Prognoselängen
 
 - Verbesserung aus Präsentation Implementieren
@@ -23,4 +36,4 @@
 		ARIMA für Trend und Saisonalität
 		NN für Residual
 
-- Giwillstthub oder Jupyter für Daten
+- Github oder Jupyter für Daten

@@ -1,5 +1,4 @@
 import random
-
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
@@ -38,8 +37,7 @@ class ResidualPrediction:
         model.add(tf.keras.layers.GRU(int(self.PAST_HISTORY / 2)))
         # multi_step_model.add(tf.keras.layers.GRU(past_history))
         model.add(tf.keras.layers.Dense(self.future_target))
-        model.compile(optimizer=tf.keras.optimizers.RMSprop(), loss='mae',
-                      lr=learning_rate)
+        model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),loss="mae")
         self.model = model
 
     def multivariate_data_single_step(self):
