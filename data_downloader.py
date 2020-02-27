@@ -31,8 +31,8 @@ def update_power_price():
 ##############################################################################################################
 ###############################################Wetterhistory##################################################
 ##############################################################################################################
-def updateWeatherHistory(parameter=["air_temperature", "cloudiness", "sun", "wind"],
-                         shortform=["TT_TU", " V_N", "SD_SO", "   F"], times=["recent", "historical"],
+def updateWeatherHistory(parameter=("air_temperature", "cloudiness", "sun", "wind"),
+                         shortform=("TT_TU", " V_N", "SD_SO", "   F"), times=("recent", "historical"),
                          start='2016-1-1', end='2019-12-16'):
     i = 0
     final_frame = pd.DataFrame(pd.date_range(start=start, end=end, freq="H"), columns=["MESS_DATUM"])

@@ -22,9 +22,9 @@ def decompose_data(data):
 
 
 def get_data(update_data, start='2016-1-1', end='2019-12-16',
-             weatherparameter=["air_temperature", "cloudiness", "sun", "wind"]):
+             weatherparameter=("air_temperature", "cloudiness", "sun", "wind")):
     if (update_data):
-        data_downloader.updateWeatherHistory(start=start, end=end, times=["recent", "historical"])
+        data_downloader.updateWeatherHistory(start=start, end=end, times=["recent"])
         data_downloader.updateForecast()
         data_downloader.update_power_price()
 

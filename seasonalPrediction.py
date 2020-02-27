@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from statsmodels.tsa.arima_model import ARIMA
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
@@ -15,13 +16,15 @@ class SeasonalPrediction:
 
 
 
-    def exponential_smoothing_prediction(self):
+    def exponential_smoothing_prediction(self,smoothing_level):
         train = self.data["Seasonal"].iloc[self.start - 72:self.start]
         model = ExponentialSmoothing(train, trend="add", seasonal="add", seasonal_periods=24,
                                           damped=True, freq="H")
-        fit = model.fit()
+        fit = model.fit(smoothing_level=smoothing_level)
         self.pred = fit.forecast(self.forecast_length)
         self.error = np.sqrt(np.mean(np.square(self.truth.values - self.pred.values)))
+
+
 
 
     def arima_prediction(self):
