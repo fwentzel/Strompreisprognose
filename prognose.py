@@ -5,8 +5,8 @@ from pandas.plotting import register_matplotlib_converters
 from csvReader import get_data
 from residualPrediction import ResidualPrediction
 from seasonalPrediction import SeasonalPrediction
+import ipykernel #fix for training progressbar in Pycharm
 register_matplotlib_converters()
-
 complete_data = get_data(start='2015-1-1', end='2020-02-17', update_data=False)  # end=date.today()
 future_target = 24
 past_history = 96  # input timesteps

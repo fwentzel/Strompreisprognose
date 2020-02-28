@@ -2,12 +2,11 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-
 class ResidualPrediction:
     RELEVANT_COLUMNS = ['V_N', 'SD_SO', 'F', 'Temp', 'Weekend', 'Hour',
                              'Holiday', 'Residual']
     TRAIN_LENGTH = .8  # percent
-    BATCH_SIZE = 256
+    BATCH_SIZE = 32
     EPOCHS = 100
 
     def __init__(self, train_data,test_data, future_target, past_history, start_index_from_max_length):
@@ -53,7 +52,7 @@ class ResidualPrediction:
 
     def train_network(self, savename):
         multi_step_history = self.model.fit(x=self.x, y=self.y, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE,
-                                            verbose=2,
+                                            verbose=1,
                                             validation_split=1 - self.TRAIN_LENGTH, shuffle=True)
         self.plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
         self.model.save('.\checkpoints\{0}'.format(savename))
