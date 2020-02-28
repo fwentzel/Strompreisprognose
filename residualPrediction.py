@@ -8,7 +8,7 @@ class ResidualPrediction:
                              'Holiday', 'Residual']
     TRAIN_LENGTH = .8  # percent
     BATCH_SIZE = 256
-    EPOCHS = 1
+    EPOCHS = 100
 
     def __init__(self, train_data,test_data, future_target, past_history, start_index_from_max_length):
         self.train_target = train_data["Residual"]
@@ -31,14 +31,15 @@ class ResidualPrediction:
         model = tf.keras.models.Sequential()
         model.add(tf.keras.layers.GRU(self.past_history,
                                       return_sequences=True, input_shape=(self.x.shape[-2:])))
+        # model.add(tf.keras.layers.GRU(self.past_history))
         model.add(tf.keras.layers.GRU(int(self.past_history / 2)))
-        # multi_step_model.add(tf.keras.layers.GRU(past_history))
-        model.add(tf.keras.layers.Dense(self.future_target))
+        # model.add(tf.keras.layers.Dense(self.future_target))
+        model.add(tf.keras.layers.Dense(1))
         model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),loss="mae")
         self.model = model
 
-    def load_model(self,checkpoint):
-        self.model = tf.keras.models.load_model('./checkpoints/{0}'.format(checkpoint))
+    def load_model(self,savename):
+        self.model = tf.keras.models.load_model('.\checkpoints\{0}'.format(savename))
 
     def multivariate_data_single_step(self):
         multivariate_data = []
@@ -50,12 +51,12 @@ class ResidualPrediction:
         multivariate_data = np.array(multivariate_data)
         return multivariate_data.reshape(multivariate_data.shape[0], multivariate_data.shape[1], -1), np.array(labels)
 
-    def train_network(self, checkpoint):
+    def train_network(self, savename):
         multi_step_history = self.model.fit(x=self.x, y=self.y, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE,
                                             verbose=2,
                                             validation_split=1 - self.TRAIN_LENGTH, shuffle=True)
         self.plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
-        self.model.save('./checkpoints/{0}'.format(checkpoint))
+        self.model.save('.\checkpoints\{0}'.format(savename))
 
 
     def plot_train_history(self, history, title):

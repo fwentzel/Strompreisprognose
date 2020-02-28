@@ -26,12 +26,12 @@ else:
 # Residual
 res_pred = ResidualPrediction(train_data=train_data,test_data=test_data ,future_target=future_target, past_history=past_history, start_index_from_max_length=start_index_from_max_length)
 
-train=False
+train=True
 if train:
     res_pred.initialize_network(learning_rate=0.001)
-    res_pred.train_network(checkpoint="testingLaptop")
+    res_pred.train_network(savename="dense1")
 else:
-    res_pred.load_model(checkpoint="testingLaptop")
+    res_pred.load_model(savename="dense1")
 
 res_pred.predict(predict_test=use_test_data,num_predicitons=1, random_offset=False)
 
