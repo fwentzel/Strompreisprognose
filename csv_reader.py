@@ -32,17 +32,16 @@ def get_data(update_data, start='2016-1-1', end='2019-12-16',
     power_price_frame = read_power_data()
     data = power_price_frame.join(weather_frame, how='outer')
     # train_data['scaledTemp']= temp_scaler.fit_transform(np.array(train_data['TT_TU']).reshape(-1,1))
-    data['Temp'] = data['TT_TU']
     generate_weekend_hour(data)
     read_holidays(data)
-    data = data.fillna(value={"SD_SO": 0, "V_N": -1, "F": 0, "scaledTemp": 0, "Temp": 0})
+    data = data.fillna(value={"Sun": 0, "Wind": -1, "Clouds": 0, "Temperature": 0})
     data.dropna(inplace=True)
     data = decompose_data(data)
+    print(data.head(50).to_string())
     return data  # , forecast_frame.index[0]
 
 
 def generate_weekend_hour(data):
-    data.drop('TT_TU', axis=1, inplace=True)
     data['Weekend'] = (pd.DatetimeIndex(data.index).dayofweek > 5).astype(int)
     # train_data['Hour']=hour_scaler.fit_transform(np.array(train_data.index.hour).reshape(-1,1))
     data["Hour"] = data.index.hour
@@ -74,7 +73,7 @@ def read_weather_data(end, start, weatherparameter):
         else:
             param_frame = param_frame2
         weather_frame = weather_frame.join(param_frame)
-    weather_frame.columns = ["TT_TU", "V_N", "SD_SO", "F"]
+    weather_frame.columns = ["Temperature", "Wind", "Sun", "Clouds"]
 
     # forecast_frame=pd.read_csv("Data/forecast.csv")
     # forecast_frame["Date"]=pd.to_datetime(forecast_frame['Date'])

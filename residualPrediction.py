@@ -7,7 +7,8 @@ from tensorflow_core.python.keras.callbacks import EarlyStopping
 
 
 class ResidualPrediction:
-    RELEVANT_COLUMNS = ['V_N', 'SD_SO', 'F', 'Temp', 'Weekend', 'Hour',
+
+    RELEVANT_COLUMNS = ['Wind', 'Sun', 'Clouds', 'Temperature', 'Weekend', 'Hour',
                              'Holiday', 'Residual']
     TRAIN_LENGTH = .6  # percent
     BATCH_SIZE = 64
