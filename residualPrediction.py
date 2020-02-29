@@ -7,7 +7,8 @@ from tensorflow_core.python.keras.callbacks import EarlyStopping
 
 
 class ResidualPrediction:
-    RELEVANT_COLUMNS = ['V_N', 'SD_SO', 'F', 'Temp', 'Weekend', 'Hour',
+
+    RELEVANT_COLUMNS = ['Wind', 'Sun', 'Clouds', 'Temperature', 'Weekend', 'Hour',
                              'Holiday', 'Residual']
     TRAIN_LENGTH = .6  # percent
     BATCH_SIZE = 64
@@ -38,7 +39,11 @@ class ResidualPrediction:
         self.model = model
 
     def load_model(self,savename):
-        self.model = tf.keras.models.load_model('.\checkpoints\{0}'.format(savename))
+        try:
+            self.model = tf.keras.models.load_model('.\checkpoints\{0}'.format(savename))
+        except:
+            self.model = tf.keras.models.load_model('.\checkpoints\default')
+
 
     def multivariate_data_single_step(self):
         multivariate_data = []

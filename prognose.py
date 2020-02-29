@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import matplotlib.pyplot as plt
 import numpy as np
 from pandas.plotting import register_matplotlib_converters
-from csvReader import get_data
+from csv_reader import get_data
 from residualPrediction import ResidualPrediction
 from seasonalPrediction import SeasonalPrediction
 import ipykernel #fix for training progressbar in Pycharm
@@ -10,7 +10,7 @@ register_matplotlib_converters()
 complete_data = get_data(start='2015-1-1', end='2020-02-17', update_data=False)  # end=date.today()
 future_target = 24
 past_history = 96  # input timesteps
-start_index_from_max_length=future_target+10
+start_index_from_max_length=future_target+6
 use_test_data=True
 
 
@@ -26,12 +26,12 @@ else:
 # Residual
 res_pred = ResidualPrediction(train_data=train_data,test_data=test_data ,future_target=future_target, past_history=past_history, start_index_from_max_length=start_index_from_max_length)
 
-train=True
+train=False
 if train:
-    res_pred.initialize_network(learning_rate=0.00001)
-    res_pred.train_network(savename="dense1")
+    res_pred.initialize_network(learning_rate=0.0001)
+    res_pred.train_network(savename="trained")
 else:
-    res_pred.load_model(savename="dense1")
+    res_pred.load_model(savename="trained")
 
 res_pred.predict(predict_test=use_test_data, random_offset=False)
 
