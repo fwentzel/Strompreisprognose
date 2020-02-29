@@ -37,6 +37,7 @@ def get_data(update_data, start='2016-1-1', end='2019-12-16',
     data = data.fillna(value={"Sun": 0, "Wind": -1, "Clouds": 0, "Temperature": 0})
     data.dropna(inplace=True)
     data = decompose_data(data)
+    print(data.head(50).to_string())
     return data  # , forecast_frame.index[0]
 
 
