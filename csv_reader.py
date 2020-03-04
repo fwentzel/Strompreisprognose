@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from statsmodels.tsa.seasonal import STL
-
+import matplotlib.pyplot as plt
 import data_downloader
 
 power_scaler = MinMaxScaler(feature_range=(-1, 1))
@@ -12,12 +12,23 @@ hour_scaler = MinMaxScaler(feature_range=(0, 1))
 
 
 def decompose_data(data):
+    #TODO naive decomposition - andere mothode finden
     series = data["Price"]
     components = STL(series).fit()
     # estimated trend, seasonal and residual components
     data["Residual"] = components.resid  # the estimated residuals
     data["Seasonal"] = components.seasonal  # The estimated seasonal component
     data["Trend"] = components.trend  # The estimated trend component
+    # fig, ax = plt.subplots(4, 1, sharex=True)
+    # ax[0].title.set_text("ORIGINAL")
+    # ax[0].plot(series)
+    # ax[1].title.set_text("RESIDUAL")
+    # ax[1].plot(data["Residual"])
+    # ax[2].title.set_text("SEASONAL")
+    # ax[2].plot(data["Seasonal"])
+    # ax[3].title.set_text("TREND")
+    # ax[3].plot(data["Trend"])
+
     return data
 
 
@@ -32,19 +43,13 @@ def get_data(update_data, start='2016-1-1', end='2019-12-16',
     power_price_frame = read_power_data()
     data = power_price_frame.join(weather_frame, how='outer')
     # train_data['scaledTemp']= temp_scaler.fit_transform(np.array(train_data['TT_TU']).reshape(-1,1))
-    generate_weekend_hour(data)
+    data['Weekend'] = (pd.DatetimeIndex(data.index).dayofweek > 5).astype(int)
+    data["Hour"] = data.index.hour
     read_holidays(data)
     data = data.fillna(value={"Sun": 0, "Wind": -1, "Clouds": 0, "Temperature": 0})
     data.dropna(inplace=True)
     data = decompose_data(data)
-    print(data.head(50).to_string())
     return data  # , forecast_frame.index[0]
-
-
-def generate_weekend_hour(data):
-    data['Weekend'] = (pd.DatetimeIndex(data.index).dayofweek > 5).astype(int)
-    # train_data['Hour']=hour_scaler.fit_transform(np.array(train_data.index.hour).reshape(-1,1))
-    data["Hour"] = data.index.hour
 
 
 def read_holidays(data):

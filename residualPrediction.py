@@ -3,21 +3,23 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 import pandas as pd
-from tensorflow_core.python.keras.callbacks import EarlyStopping
+from tensorflow_core.python.keras.callbacks import EarlyStopping, ModelCheckpoint
 
 
 class ResidualPrediction:
 
-    RELEVANT_COLUMNS = ['Wind', 'Sun', 'Clouds', 'Temperature', 'Weekend', 'Hour',
-                             'Holiday', 'Residual']
+
     TRAIN_LENGTH = .6  # percent
     BATCH_SIZE = 64
     EPOCHS =1000
 
-    def __init__(self, train_data,test_data, future_target, past_history, start_index_from_max_length):
-        self.train_target = train_data["Residual"]
+    def __init__(self, train_data,test_data, future_target, past_history, start_index_from_max_length,datacolumn):
+        self.RELEVANT_COLUMNS = ['Wind', 'Sun', 'Clouds', 'Temperature', 'Weekend', 'Hour',
+                            'Holiday', datacolumn]
+
+        self.train_target = train_data[datacolumn]
         self.train_dataset = train_data[self.RELEVANT_COLUMNS].values
-        self.test_target = test_data["Residual"]
+        self.test_target = test_data[datacolumn]
         self.test_dataset = test_data[self.RELEVANT_COLUMNS].values
         self.future_target = future_target  # timesteps into future
         self.start_index_from_max_length=start_index_from_max_length
@@ -31,9 +33,9 @@ class ResidualPrediction:
     def initialize_network(self, learning_rate):
         # define model
         model = tf.keras.models.Sequential()
-        model.add(tf.keras.layers.GRU(self.past_history,return_sequences=True, input_shape=(self.x.shape[-2:])))
-        #model.add(tf.keras.layers.GRU(self.past_history,return_sequences=True))
-        model.add(tf.keras.layers.GRU(int(self.past_history / 2)))
+        model.add(tf.keras.layers.LSTM(self.past_history,return_sequences=True, input_shape=(self.x.shape[-2:])))
+        model.add(tf.keras.layers.LSTM(self.past_history,return_sequences=True))
+        model.add(tf.keras.layers.LSTM(int(self.past_history / 2)))
         model.add(tf.keras.layers.Dense(self.future_target))
         model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),loss="mae")
         self.model = model
@@ -56,9 +58,10 @@ class ResidualPrediction:
         return multivariate_data.reshape(multivariate_data.shape[0], multivariate_data.shape[1], -1), np.array(labels)
 
     def train_network(self, savename):
-        es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=10)
+        es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=15)
+        mc = ModelCheckpoint('%s.h5p'%savename, monitor='val_loss', mode='min', save_best_only=True,verbose=1)
         multi_step_history = self.model.fit(x=self.x, y=self.y, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE,
-                                            verbose=1,validation_split=1 - self.TRAIN_LENGTH, shuffle=True,callbacks=[es])
+                                            verbose=1,validation_split=1 - self.TRAIN_LENGTH, shuffle=True,callbacks=[es])#TODO include ModelCheckpoint callback
         self.plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
         self.model.save('.\checkpoints\{0}'.format(savename))
 
