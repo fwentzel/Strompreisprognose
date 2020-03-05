@@ -49,7 +49,7 @@ class SeasonalPrediction:
         ax[2].set_ylabel("SEASONAL")
 
     def test_orders(self):
-        p_values = range(0, 90)
+        p_values = range(15, 90)
         q_values = range(0, 5)
         d_values = range(0, 3)
 

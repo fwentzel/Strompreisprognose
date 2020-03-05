@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 import pandas as pd
-from tensorflow_core.python.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow_core.python.keras.callbacks import EarlyStopping, ModelCheckpoint, LearningRateScheduler
 
 
 class ResidualPrediction:
@@ -11,7 +11,7 @@ class ResidualPrediction:
 
     TRAIN_LENGTH = .6  # percent
     BATCH_SIZE = 64
-    EPOCHS =1000
+    EPOCHS =100
 
     def __init__(self, train_data,test_data, future_target, past_history, start_index_from_max_length,datacolumn):
         self.RELEVANT_COLUMNS = ['Wind', 'Sun', 'Clouds', 'Temperature', 'Weekend', 'Hour',
@@ -30,14 +30,14 @@ class ResidualPrediction:
         #TODO workarund
         self.predicted_test=False
 
-    def initialize_network(self, learning_rate):
+    def initialize_network(self):
         # define model
         model = tf.keras.models.Sequential()
         model.add(tf.keras.layers.LSTM(self.past_history,return_sequences=True, input_shape=(self.x.shape[-2:])))
         model.add(tf.keras.layers.LSTM(self.past_history,return_sequences=True))
-        model.add(tf.keras.layers.LSTM(int(self.past_history / 2)))
+        model.add(tf.keras.layers.LSTM(self.past_history))
         model.add(tf.keras.layers.Dense(self.future_target))
-        model.compile(optimizer=tf.keras.optimizers.Adam(lr=learning_rate),loss="mae")
+        model.compile(optimizer=tf.keras.optimizers.Adam(),loss="mae")
         self.model = model
 
     def load_model(self,savename):
@@ -58,11 +58,17 @@ class ResidualPrediction:
         return multivariate_data.reshape(multivariate_data.shape[0], multivariate_data.shape[1], -1), np.array(labels)
 
     def train_network(self, savename):
-        es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=15)
+        schedule = PolynomialDecay(maxEpochs=self.EPOCHS, initAlpha=0.001, power=1)
+        #schedule = StepDecay(initAlpha=0.01, factor=0.5, dropEvery=15)
+        #3.1738 0.001
+
+        es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=20)
         mc = ModelCheckpoint('%s.h5p'%savename, monitor='val_loss', mode='min', save_best_only=True,verbose=1)
         multi_step_history = self.model.fit(x=self.x, y=self.y, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE,
-                                            verbose=1,validation_split=1 - self.TRAIN_LENGTH, shuffle=True,callbacks=[es])#TODO include ModelCheckpoint callback
+                                            verbose=1,validation_split=1 - self.TRAIN_LENGTH, shuffle=True,callbacks=[es,LearningRateScheduler(schedule)])#TODO include ModelCheckpoint callback
+        schedule.plot(self.EPOCHS)
         self.plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
+
         self.model.save('.\checkpoints\{0}'.format(savename))
 
 
@@ -73,6 +79,7 @@ class ResidualPrediction:
         plt.figure()
         plt.plot(epochs, loss, 'b', label='Training loss')
         plt.plot(epochs, val_loss, 'r', label='Validation loss')
+
         plt.title(title)
         plt.legend()
         plt.show()
@@ -127,3 +134,51 @@ class ResidualPrediction:
         ax[1].plot(xticks, self.truth, label='Truth')
         ax[1].legend()
         ax[1].set_ylabel("RESIDUAL")
+
+
+
+class LearningRateDecay:
+	def plot(self, epochs, title="Learning Rate Schedule"):
+		# compute the set of learning rates for each corresponding
+		# epoch
+
+		lrs = [self(i) for i in range(0, epochs)]
+		# the learning rate schedule
+		plt.style.use("ggplot")
+		plt.figure()
+		plt.plot(range(0, epochs), lrs)
+		plt.title(title)
+		plt.xlabel("Epoch #")
+		plt.ylabel("Learning Rate")
+
+
+class PolynomialDecay(LearningRateDecay):
+	def __init__(self, maxEpochs=100, initAlpha=0.01, power=1.0):
+		# store the maximum number of epochs, base learning rate,
+		# and power of the polynomial
+		self.maxEpochs = maxEpochs
+		self.initAlpha = initAlpha
+		self.power = power
+	def __call__(self, epoch):
+		# compute the new learning rate based on polynomial decay
+		decay = (1 - (epoch / float(self.maxEpochs))) ** self.power
+		alpha = self.initAlpha * decay
+		# return the new learning rate
+		return float(alpha)
+
+
+class StepDecay(LearningRateDecay):
+    def __init__(self, initAlpha=0.01, factor=0.75, dropEvery=10):
+        # store the base initial learning rate, drop factor, and
+        # epochs to drop every
+        self.initAlpha = initAlpha
+        self.factor = factor
+        self.dropEvery = dropEvery
+
+    def __call__(self, epoch):
+        # compute the learning rate for the current epoch
+        exp = np.floor((1 + epoch) / self.dropEvery)
+        alpha = self.initAlpha * (self.factor ** exp)
+        # return the learning rate
+        return float(alpha)
+

@@ -10,8 +10,8 @@ register_matplotlib_converters()
 complete_data = get_data(start='2015-1-1', end='2020-02-17', update_data=False)  # end=date.today()
 future_target = 24
 past_history = 96  # input timesteps
-start_index_from_max_length=future_target+12
-predict_on_test_data=True
+start_index_from_max_length=future_target
+predict_on_test_data=False
 
 
 test_length=future_target+past_history+48
@@ -24,12 +24,12 @@ else:
     data =train_data
 #Complete
 pred = ResidualPrediction(datacolumn="Price", train_data=train_data, test_data=test_data, future_target=future_target, past_history=past_history, start_index_from_max_length=start_index_from_max_length)
-train=True
+train=False
 if train:
-    pred.initialize_network(learning_rate=0.0003)
-    pred.train_network(savename="trainedLSTM_complete")
+    pred.initialize_network()
+    pred.train_network(savename="trainedLSTM_complete2")
 else:
-    pred.load_model(savename="trainedLSTM_complete")
+    pred.load_model(savename="trainedLSTM_complete2")
 
 pred.predict(predict_test=predict_on_test_data, random_offset=False)
 
@@ -37,10 +37,10 @@ pred.predict(predict_test=predict_on_test_data, random_offset=False)
 res_pred = ResidualPrediction(datacolumn="Residual", train_data=train_data, test_data=test_data, future_target=future_target, past_history=past_history, start_index_from_max_length=start_index_from_max_length)
 train=False
 if train:
-    res_pred.initialize_network(learning_rate=0.0001)
-    res_pred.train_network(savename="trainedLSTM_resid")
+    res_pred.initialize_network()
+    res_pred.train_network(savename="trainedLSTM_resid2")
 else:
-    res_pred.load_model(savename="trainedLSTM_resid")
+    res_pred.load_model(savename="trainedLSTM_resid2")
 
 res_pred.predict(predict_test=predict_on_test_data, random_offset=False)
 
@@ -49,10 +49,10 @@ seasonal_pred = SeasonalPrediction(data=data, forecast_length=future_target,
                                    start_index_from_max_length=start_index_from_max_length)
 
 #seasonal_pred.AR_prediction()
-# seasonal_pred.exponential_smoothing_prediction(smoothing_level=.2)
+seasonal_pred.exponential_smoothing_prediction(smoothing_level=.2)
 
 #seasonal_pred.test_orders()
-seasonal_pred.arima_prediction()
+#seasonal_pred.arima_prediction()
 
 # Trend
 predict_from=len(data)-start_index_from_max_length
