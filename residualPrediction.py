@@ -30,14 +30,23 @@ class ResidualPrediction:
         #TODO workarund
         self.predicted_test=False
 
-    def initialize_network(self):
-        # define model
+    def initialize_network(self,residualModel):
+
         model = tf.keras.models.Sequential()
-        model.add(tf.keras.layers.LSTM(self.past_history,return_sequences=True, input_shape=(self.x.shape[-2:])))
-        model.add(tf.keras.layers.LSTM(self.past_history,return_sequences=True))
-        model.add(tf.keras.layers.LSTM(self.past_history))
-        model.add(tf.keras.layers.Dense(self.future_target))
-        model.compile(optimizer=tf.keras.optimizers.Adam(),loss="mae")
+        if residualModel==True:
+            model.add(tf.keras.layers.LSTM(self.past_history,dropout=.5,return_sequences=True, input_shape=(self.x.shape[-2:])))
+            model.add(tf.keras.layers.LSTM(self.past_history,dropout=.5,return_sequences=True))
+            model.add(tf.keras.layers.LSTM(int(self.past_history/2),dropout=.5))
+            model.add(tf.keras.layers.Dense(self.future_target))
+
+        else:
+
+            model.add(tf.keras.layers.LSTM(self.past_history,  return_sequences=True, input_shape=(self.x.shape[-2:])))
+            model.add(tf.keras.layers.LSTM(self.past_history, dropout=.1, return_sequences=True))
+            model.add(tf.keras.layers.LSTM(int(self.past_history ), dropout=.1))
+            model.add(tf.keras.layers.Dense(self.future_target))
+
+        model.compile(optimizer=tf.keras.optimizers.Adam(), loss="mae")
         self.model = model
 
     def load_model(self,savename):
@@ -57,16 +66,19 @@ class ResidualPrediction:
         multivariate_data = np.array(multivariate_data)
         return multivariate_data.reshape(multivariate_data.shape[0], multivariate_data.shape[1], -1), np.array(labels)
 
-    def train_network(self, savename):
-        schedule = PolynomialDecay(maxEpochs=self.EPOCHS, initAlpha=0.001, power=1)
-        #schedule = StepDecay(initAlpha=0.01, factor=0.5, dropEvery=15)
-        #3.1738 0.001
+    def train_network(self, power,savename,lr_schedule="polynomal"):
+        if lr_schedule=="polynomal":
+            if power is None:
+                power=1
+            schedule = PolynomialDecay(maxEpochs=self.EPOCHS, initAlpha=0.01, power=power)
+        elif lr_schedule=="step":
+            schedule = StepDecay(initAlpha=0.01, factor=0.8, dropEvery=10)
 
-        es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=20)
+        es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=15)
         mc = ModelCheckpoint('%s.h5p'%savename, monitor='val_loss', mode='min', save_best_only=True,verbose=1)
         multi_step_history = self.model.fit(x=self.x, y=self.y, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE,
                                             verbose=1,validation_split=1 - self.TRAIN_LENGTH, shuffle=True,callbacks=[es,LearningRateScheduler(schedule)])#TODO include ModelCheckpoint callback
-        schedule.plot(self.EPOCHS)
+        #schedule.plot(self.EPOCHS)
         self.plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
 
         self.model.save('.\checkpoints\{0}'.format(savename))
@@ -101,7 +113,7 @@ class ResidualPrediction:
         self.error = np.around(np.sqrt(np.mean(np.square(self.truth - predictions))), 2)
 
 
-    def predict(self,predict_test=False, random_offset=True):
+    def predict(self,predict_test=False, offset=0):
         if(predict_test ==False):
             dataset=self.train_dataset
             target=self.train_target
@@ -110,15 +122,11 @@ class ResidualPrediction:
             target = self.test_target
             self.predicted_test=True
         start= len(dataset) - self.start_index_from_max_length
-        max_offset = len(dataset) - self.past_history - self.future_target - start
-        if random_offset:
-            offset = random.randrange(max_offset)  # random offset for the new train_data
-        else:
-            offset = 0
         prediction_timeframe = slice(start - self.past_history - self.future_target + offset,
                                      start + offset)
         input=dataset[prediction_timeframe]
-        self.single_step_predict(inputs=input,target=target.iloc[start:start + self.future_target])
+        self.single_step_predict(inputs=input,target=target.iloc[start+offset:start+offset + self.future_target])
+
 
 
     def plot_predictions(self, ax):

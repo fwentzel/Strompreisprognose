@@ -26,8 +26,10 @@ class SeasonalPrediction:
         model = ExponentialSmoothing(train, trend="add", seasonal="add", seasonal_periods=24,
                                           damped=True, freq="H")
         fit = model.fit(smoothing_level=smoothing_level)
+        #print(fit.mle_retvals)
         start=len(train)
         end=len(train)+self.forecast_length-1
+
         self.pred = fit.predict(start,end)
         self.error = np.sqrt(np.mean(np.square(self.truth.values - self.pred.values)))
 
