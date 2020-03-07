@@ -42,9 +42,9 @@ class ResidualPrediction:
         else:
 
             model.add(tf.keras.layers.LSTM(self.past_history,  return_sequences=True, input_shape=(self.x.shape[-2:])))
-            model.add(tf.keras.layers.LSTM(self.past_history, dropout=.1, return_sequences=True))
-            model.add(tf.keras.layers.LSTM(int(self.past_history ), dropout=.1))
-            model.add(tf.keras.layers.Dense(self.future_target))
+            model.add(tf.keras.layers.LSTM(self.past_history, return_sequences=True))
+            model.add(tf.keras.layers.LSTM(int(self.past_history )))
+            model.add(tf.keras.layers.Dense(1))
 
         model.compile(optimizer=tf.keras.optimizers.Adam(), loss="mae")
         self.model = model
@@ -79,7 +79,7 @@ class ResidualPrediction:
         multi_step_history = self.model.fit(x=self.x, y=self.y, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE,
                                             verbose=1,validation_split=1 - self.TRAIN_LENGTH, shuffle=True,callbacks=[es,LearningRateScheduler(schedule)])#TODO include ModelCheckpoint callback
         #schedule.plot(self.EPOCHS)
-        self.plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
+        #self.plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
 
         self.model.save('.\checkpoints\{0}'.format(savename))
 

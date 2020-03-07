@@ -6,9 +6,9 @@ from statsmodels.tsa.ar_model import AR
 
 class SeasonalPrediction:
 
-    def __init__(self, data, forecast_length, start_index_from_max_length):
+    def __init__(self, data, forecast_length, start_index_from_max_length,offset=0):
         self.data = data
-        self.start=len(data)-start_index_from_max_length
+        self.start=len(data)-start_index_from_max_length+offset
         self.forecast_length = forecast_length
         self.truth = data["Seasonal"].iloc[self.start:self.start + forecast_length]
 
