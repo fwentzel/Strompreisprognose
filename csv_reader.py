@@ -19,18 +19,7 @@ def decompose_data(data):
     data["Residual"] = components.resid  # the estimated residuals
     data["Seasonal"] = components.seasonal  # The estimated seasonal component
     data["Trend"] = components.trend  # The estimated trend component
-    # fig, ax = plt.subplots(4, 1, sharex=True)
-    # ax[0].title.set_text("ORIGINAL")
-    # ax[0].plot(series)
-    # ax[1].title.set_text("RESIDUAL")
-    # ax[1].plot(data["Residual"])
-    # ax[2].title.set_text("SEASONAL")
-    # ax[2].plot(data["Seasonal"])
-    # ax[3].title.set_text("TREND")
-    # ax[3].plot(data["Trend"])
-
     return data
-
 
 def get_data(update_data, start='2016-1-1', end='2019-12-16',
              weatherparameter=("air_temperature", "cloudiness", "sun", "wind")):
@@ -86,9 +75,19 @@ def read_weather_data(end, start, weatherparameter):
     # forecast_frame.set_index("MESS_DATUM",inplace=True)
     # forecast_frame=forecast_frame.tz_localize(None)
     # weather_frame=weather_frame.append(forecast_frame)
-
     return weather_frame
 
+
+def plot_decomposed_data(data):
+    fig, ax = plt.subplots(4, 1, sharex=True)
+    ax[0].title.set_text("ORIGINAL")
+    ax[0].plot(data["Price"])
+    ax[1].title.set_text("RESIDUAL")
+    ax[1].plot(data["Residual"])
+    ax[2].title.set_text("SEASONAL")
+    ax[2].plot(data["Seasonal"])
+    ax[3].title.set_text("TREND")
+    ax[3].plot(data["Trend"])
 
 # VORERST NICHT BENÖTIGT
 

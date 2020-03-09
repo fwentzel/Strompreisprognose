@@ -11,7 +11,7 @@ class ResidualPrediction:
 
     TRAIN_LENGTH = .6  # percent
     BATCH_SIZE = 64
-    EPOCHS =100
+    EPOCHS =500
 
     def __init__(self, train_data,test_data, future_target, past_history, start_index_from_max_length,datacolumn):
         self.RELEVANT_COLUMNS = ['Wind', 'Sun', 'Clouds', 'Temperature', 'Weekend', 'Hour',
@@ -30,23 +30,16 @@ class ResidualPrediction:
         #TODO workarund
         self.predicted_test=False
 
-    def initialize_network(self,residualModel):
+    def initialize_network(self,dropout,layers):
 
         model = tf.keras.models.Sequential()
-        if residualModel==True:
-            model.add(tf.keras.layers.LSTM(self.past_history,dropout=.5,return_sequences=True, input_shape=(self.x.shape[-2:])))
-            model.add(tf.keras.layers.LSTM(self.past_history,dropout=.5,return_sequences=True))
-            model.add(tf.keras.layers.LSTM(int(self.past_history/2),dropout=.5))
-            model.add(tf.keras.layers.Dense(self.future_target))
+        model.add(tf.keras.layers.LSTM(self.past_history, return_sequences=True, input_shape=(self.x.shape[-2:])))
+        for i in range(layers):
+            model.add(tf.keras.layers.LSTM(self.past_history, return_sequences=True, dropout=dropout))#0,3 3,7
 
-        else:
-
-            model.add(tf.keras.layers.LSTM(self.past_history,  return_sequences=True, input_shape=(self.x.shape[-2:])))
-            model.add(tf.keras.layers.LSTM(self.past_history, return_sequences=True))
-            model.add(tf.keras.layers.LSTM(int(self.past_history )))
-            model.add(tf.keras.layers.Dense(1))
-
-        model.compile(optimizer=tf.keras.optimizers.Adam(), loss="mae")
+        model.add(tf.keras.layers.LSTM(int(self.past_history)))
+        model.add(tf.keras.layers.Dense(1))
+        model.compile(optimizer=tf.keras.optimizers.Adadelta(learning_rate=0.1), loss="mae")
         self.model = model
 
     def load_model(self,savename):
@@ -66,18 +59,18 @@ class ResidualPrediction:
         multivariate_data = np.array(multivariate_data)
         return multivariate_data.reshape(multivariate_data.shape[0], multivariate_data.shape[1], -1), np.array(labels)
 
-    def train_network(self, power,savename,lr_schedule="polynomal"):
+    def train_network(self,savename,power=1,initAlpha=0.1,lr_schedule="polynomal"):
         if lr_schedule=="polynomal":
             if power is None:
                 power=1
-            schedule = PolynomialDecay(maxEpochs=self.EPOCHS, initAlpha=0.01, power=power)
+            schedule = PolynomialDecay(maxEpochs=self.EPOCHS, initAlpha=initAlpha, power=power)
         elif lr_schedule=="step":
-            schedule = StepDecay(initAlpha=0.01, factor=0.8, dropEvery=10)
+            schedule = StepDecay(initAlpha=initAlpha, factor=0.8, dropEvery=10)
 
-        es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=15)
+        es = EarlyStopping(monitor='val_loss', mode='min', verbose=0, patience=30)
         mc = ModelCheckpoint('%s.h5p'%savename, monitor='val_loss', mode='min', save_best_only=True,verbose=1)
         multi_step_history = self.model.fit(x=self.x, y=self.y, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE,
-                                            verbose=1,validation_split=1 - self.TRAIN_LENGTH, shuffle=True,callbacks=[es,LearningRateScheduler(schedule)])#TODO include ModelCheckpoint callback
+                                            verbose=0,validation_split=1 - self.TRAIN_LENGTH, shuffle=True,callbacks=[es])#TODO include ModelCheckpoint callback
         #schedule.plot(self.EPOCHS)
         #self.plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
 
@@ -126,6 +119,15 @@ class ResidualPrediction:
                                      start + offset)
         input=dataset[prediction_timeframe]
         self.single_step_predict(inputs=input,target=target.iloc[start+offset:start+offset + self.future_target])
+
+    def mass_predict(self,iterations,predict_on_test_data,step=1,):
+        error=0
+        j=0
+        for i in range(0, iterations, step):
+            j+=1
+            self.predict(predict_test=predict_on_test_data, offset=i)
+            error+=self.error
+        return error/j
 
 
 

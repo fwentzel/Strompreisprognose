@@ -13,6 +13,14 @@ class SeasonalPrediction:
         self.truth = data["Seasonal"].iloc[self.start:self.start + forecast_length]
 
 #best Length 190 Best ARIMA(8, 0, 2) MSE=2.422
+    def predict(self,method,):
+        if method=="AR":
+            self.AR_prediction()
+        elif method=="ARIMA":
+            self.arima_prediction()
+        elif method=="exp":
+            self.exponential_smoothing_prediction()
+
 
     def AR_prediction(self):
         train = self.data["Seasonal"].iloc[:self.start]
@@ -21,22 +29,33 @@ class SeasonalPrediction:
         self.pred = model_fit.predict(start=len(train), end=len(train)+self.forecast_length-1, dynamic=False)
         self.error = np.sqrt(np.mean(np.square(self.truth.values - self.pred.values)))
 
-    def exponential_smoothing_prediction(self,smoothing_level):
+    def exponential_smoothing_prediction(self):
         train = self.data["Seasonal"].iloc[self.start - 72:self.start]
         model = ExponentialSmoothing(train, trend="add", seasonal="add", seasonal_periods=24,
                                           damped=True, freq="H")
-        fit = model.fit(smoothing_level=smoothing_level)
-        #print(fit.mle_retvals)
-        start=len(train)
-        end=len(train)+self.forecast_length-1
+        # Search Best Smoothing Level
+        min_error = 100
+        best_smoothing_level = .2
+        #for i in np.arange(0, 1, .01):
+        fit = model.fit(smoothing_level=.2)
+        # print(fit.mle_retvals)
+        start = len(train)
+        end = len(train) + self.forecast_length - 1
+        pred = fit.predict(start, end)
+        error = np.sqrt(np.mean(np.square(self.truth.values - pred.values)))
+        if error < min_error:
+            min_error=error
+            self.pred=pred
+            self.error =min_error
 
-        self.pred = fit.predict(start,end)
-        self.error = np.sqrt(np.mean(np.square(self.truth.values - self.pred.values)))
 
 
-    def arima_prediction(self):
+    def arima_prediction(self,test_orders=False,order=(15,0,2)):
+        if test_orders==True:
+            order=self.test_orders()
+
         train = self.data["Seasonal"].iloc[:self.start]
-        model = ARIMA(train, order=(15,0,2), freq="H")
+        model = ARIMA(train, order=order, freq="H")
         model_fit = model.fit(disp=0)
         start_index = len(train)
         end_index = start_index + self.forecast_length-1
@@ -70,7 +89,7 @@ class SeasonalPrediction:
                         rmse = np.sqrt(np.mean(np.square(self.truth - prediction)))
                         if rmse < best_score:
                             best_score, best_cfg = rmse, order
-                        print(' ARIMA%s RMSE=%.3f ' % (order, rmse))
                     except:
                         continue
         print('Best ARIMA%s MSE=%.3f ' % (best_cfg, best_score))
+        return best_cfg
