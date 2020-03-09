@@ -6,14 +6,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68c788c7-5bf5-44ad-a565-79828c80a8e0" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/results.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_complete/saved_model.pb" beforeDir="false" afterPath="$PROJECT_DIR$/checkpoints/trainedLSTM_complete/saved_model.pb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_resid2/saved_model.pb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/csv_reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/csv_reader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prognose.py" beforeDir="false" afterPath="$PROJECT_DIR$/prognose.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/residualPrediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/remainderPrediction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/seasonalPrediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/seasonalPrediction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +24,7 @@
     <option name="PUSH_AUTO_UPDATE" value="true" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="development" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -101,6 +94,9 @@
       <list>
         <item itemvalue="Python.prognose" />
         <item itemvalue="Python.3D Walk test" />
+        <item itemvalue="Python.prognose" />
+        <item itemvalue="Python.3D Walk test" />
+        <item itemvalue="Python.prognose" />
       </list>
     </recent_temporary>
   </component>
@@ -274,7 +270,14 @@
       <option name="project" value="LOCAL" />
       <updated>1583755738483</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Zwischenstand 1">
+      <created>1583762368290</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1583762368290</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="Vcs.Log.History.Properties">
@@ -323,7 +326,8 @@
     <MESSAGE value="Fixed Bug for Mass predictions so Truth uses Offset aswell" />
     <MESSAGE value="Durchschnittsfehlerwerte für mass predictions" />
     <MESSAGE value="Adadelta Optimizer verwendet" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adadelta Optimizer verwendet" />
+    <MESSAGE value="Zwischenstand 1" />
+    <option name="LAST_COMMIT_MESSAGE" value="Zwischenstand 1" />
   </component>
   <component name="WindowStateProjectService">
     <state x="552" y="177" key="#Inspections" timestamp="1581671628942">
@@ -346,10 +350,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="756" y="371" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.1920.1040@0.0.1920.1040" timestamp="1581674267117" />
-    <state x="577" y="102" key="CommitChangelistDialog2" timestamp="1583755737645">
+    <state x="577" y="102" key="CommitChangelistDialog2" timestamp="1583762367734">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="577" y="102" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1583755737645" />
+    <state x="577" y="102" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1583762367734" />
     <state x="896" y="141" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1581936883381" />
     <state width="1688" height="466" key="DebuggerActiveHint" timestamp="1583571530630">
       <screen x="0" y="0" width="1920" height="1040" />
@@ -438,10 +442,10 @@
     </state>
     <state x="548" y="121" key="SettingsEditor/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1583323151588" />
     <state x="806" y="146" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1581930835499" />
-    <state x="476" y="257" width="985" height="536" key="Vcs.Push.Dialog.v2" timestamp="1583755741003">
+    <state x="476" y="257" width="985" height="536" key="Vcs.Push.Dialog.v2" timestamp="1583762391406">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="476" y="257" width="985" height="536" key="Vcs.Push.Dialog.v2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1583755741003" />
+    <state x="476" y="257" width="985" height="536" key="Vcs.Push.Dialog.v2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1583762391406" />
     <state x="552" y="240" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1581936892272" />
     <state width="968" height="528" key="XDebugger.FullValuePopup" timestamp="1583156607637">
       <screen x="0" y="0" width="1920" height="1040" />
