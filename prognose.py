@@ -31,7 +31,7 @@ Remainder=0
 
 train=False
 if train:
-    pred.initialize_network(dropout=.5, additional_layers=0)
+    pred.initialize_network(dropout=.5, additional_layers=1)
     pred.train_network(savename="trainedLSTM_complete")
 
 else:

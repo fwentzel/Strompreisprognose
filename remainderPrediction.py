@@ -43,10 +43,7 @@ class RemainderPrediction:
         self.model = model
 
     def load_model(self,savename):
-        try:
-            self.model = tf.keras.models.load_model('.\checkpoints\{0}'.format(savename))
-        except:
-            self.model = tf.keras.models.load_model('.\checkpoints\default')
+        self.model = tf.keras.models.load_model('.\checkpoints\{0}'.format(savename))
 
 
     def multivariate_data_single_step(self):

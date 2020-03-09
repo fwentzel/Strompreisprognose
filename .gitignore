@@ -3,3 +3,42 @@
 *.data-00000-of-00002
 *.data-00001-of-00002
 Notes_Bachelorarbeit.txt 
+workspace.xml
+results.txt
+
+
+
+On branch development
+Your branch is up to date with 'origin/development'.
+
+Changes not staged for commit:
+	modified:   .gitignore
+	modified:   .idea/workspace.xml
+
+Untracked files:
+	__pycache__/csv_reader.cpython-37.pyc
+	__pycache__/data_downloader.cpython-36.pyc
+	__pycache__/data_downloader.cpython-37.pyc
+	__pycache__/prognose.cpython-36.pyc
+	__pycache__/remainderPrediction.cpython-37.pyc
+	__pycache__/seasonalPrediction.cpython-36.pyc
+	__pycache__/seasonalPrediction.cpython-37.pyc
+
+no changes added to commit
+On branch development
+Your branch is up to date with 'origin/development'.
+
+Changes not staged for commit:
+	modified:   .gitignore
+	modified:   .idea/workspace.xml
+
+Untracked files:
+	__pycache__/csv_reader.cpython-37.pyc
+	__pycache__/data_downloader.cpython-36.pyc
+	__pycache__/data_downloader.cpython-37.pyc
+	__pycache__/prognose.cpython-36.pyc
+	__pycache__/remainderPrediction.cpython-37.pyc
+	__pycache__/seasonalPrediction.cpython-36.pyc
+	__pycache__/seasonalPrediction.cpython-37.pyc
+
+no changes added to commit
