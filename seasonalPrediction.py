@@ -33,6 +33,7 @@ class SeasonalPrediction:
         train = self.data["Seasonal"].iloc[self.start - 72:self.start]
         model = ExponentialSmoothing(train, trend="add", seasonal="add", seasonal_periods=24,
                                           damped=True, freq="H")
+
         # Search Best Smoothing Level
         min_error = 100
         best_smoothing_level = .2

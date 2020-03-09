@@ -1,0 +1,6 @@
+layers: 0 ; dropout: 0.0 ; Residual Error: 3.7260714285714287 ; complete Error: 7.973214285714291
+layers: 0 ; dropout: 0.1 ; Residual Error: 3.6236904761904767 ; complete Error: 8.106785714285715
+layers: 0 ; dropout: 0.2 ; Residual Error: 3.8188690476190446 ; complete Error: 9.338571428571427
+layers: 0 ; dropout: 0.30000000000000004 ; Residual Error: 3.804226190476192 ; complete Error: 7.9179166666666685
+layers: 0 ; dropout: 0.4 ; Residual Error: 3.9519047619047605 ; complete Error: 6.993988095238098
+layers: 0 ; dropout: 0.5 ; Residual Error: 3.7470833333333307 ; complete Error: 6.66130952380952

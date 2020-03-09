@@ -15,8 +15,8 @@ def decompose_data(data):
     #TODO naive decomposition - andere mothode finden
     series = data["Price"]
     components = STL(series).fit()
-    # estimated trend, seasonal and residual components
-    data["Residual"] = components.resid  # the estimated residuals
+    # estimated trend, seasonal and remainder components
+    data["Remainder"] = components.resid  # the estimated remainder
     data["Seasonal"] = components.seasonal  # The estimated seasonal component
     data["Trend"] = components.trend  # The estimated trend component
     return data
@@ -31,7 +31,7 @@ def get_data(update_data, start='2016-1-1', end='2019-12-16',
     weather_frame = read_weather_data(end, start, weatherparameter)
     power_price_frame = read_power_data()
     data = power_price_frame.join(weather_frame, how='outer')
-    # train_data['scaledTemp']= temp_scaler.fit_transform(np.array(train_data['TT_TU']).reshape(-1,1))
+    # data['scaledTemp']= temp_scaler.fit_transform(np.array(train_data['TT_TU']).reshape(-1,1))
     data['Weekend'] = (pd.DatetimeIndex(data.index).dayofweek > 5).astype(int)
     data["Hour"] = data.index.hour
     read_holidays(data)
@@ -83,7 +83,7 @@ def plot_decomposed_data(data):
     ax[0].title.set_text("ORIGINAL")
     ax[0].plot(data["Price"])
     ax[1].title.set_text("RESIDUAL")
-    ax[1].plot(data["Residual"])
+    ax[1].plot(data["Remainder"])
     ax[2].title.set_text("SEASONAL")
     ax[2].plot(data["Seasonal"])
     ax[3].title.set_text("TREND")

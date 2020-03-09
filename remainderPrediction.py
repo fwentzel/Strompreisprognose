@@ -6,7 +6,7 @@ import pandas as pd
 from tensorflow_core.python.keras.callbacks import EarlyStopping, ModelCheckpoint, LearningRateScheduler
 
 
-class ResidualPrediction:
+class RemainderPrediction:
 
 
     TRAIN_LENGTH = .6  # percent
@@ -30,11 +30,11 @@ class ResidualPrediction:
         #TODO workarund
         self.predicted_test=False
 
-    def initialize_network(self,dropout,layers):
+    def initialize_network(self, dropout, additional_layers):
 
         model = tf.keras.models.Sequential()
         model.add(tf.keras.layers.LSTM(self.past_history, return_sequences=True, input_shape=(self.x.shape[-2:])))
-        for i in range(layers):
+        for i in range(additional_layers):
             model.add(tf.keras.layers.LSTM(self.past_history, return_sequences=True, dropout=dropout))#0,3 3,7
 
         model.add(tf.keras.layers.LSTM(int(self.past_history)))
