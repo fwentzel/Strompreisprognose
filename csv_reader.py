@@ -21,7 +21,7 @@ def decompose_data(data):
     data["Trend"] = components.trend  # The estimated trend component
     return data
 
-def get_data(update_data, start='2016-1-1', end='2019-12-16',
+def get_data(update_data,test_length, start='2016-1-1', end='2019-12-16',
              weatherparameter=("air_temperature", "cloudiness", "sun", "wind")):
     if (update_data):
         data_downloader.updateWeatherHistory(start=start, end=end, times=["recent"])
@@ -38,7 +38,9 @@ def get_data(update_data, start='2016-1-1', end='2019-12-16',
     data = data.fillna(value={"Sun": 0, "Wind": -1, "Clouds": 0, "Temperature": 0})
     data.dropna(inplace=True)
     data = decompose_data(data)
-    return data  # , forecast_frame.index[0]
+    test_data = data.iloc[-test_length:]  # Part of train_data the network wont see during Training and validation
+    train_data = data.iloc[:-test_length]
+    return train_data,test_data  # , forecast_frame.index[0]
 
 
 def read_holidays(data):
