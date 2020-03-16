@@ -4,7 +4,10 @@
 *.data-00001-of-00002
 Notes_Bachelorarbeit.txt 
 workspace.xml
-temp_results.csv
+complete_results.csv
+temp_results - Kopie.csv
+best_config.csv
+results.csv
 
 
 
