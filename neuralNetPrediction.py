@@ -111,12 +111,14 @@ class NeuralNetPrediction:
         self.single_step_predict(inputs=input, target=target.iloc[ self.past_history+offset:self.past_history+ offset + self.future_target])
 
     def mass_predict(self, iterations, predict_on_test_data, step=1, ):
+        print("mass predict for ",iterations,"iterations")
         error = 0
         j = 0
         errorlist = []
         mean_errorlist = []
         offsets = range(0, iterations, step)
         for i in offsets:
+
             j += 1
             self.predict(predict_test=predict_on_test_data, offset=i)
             error += self.error
