@@ -2,30 +2,95 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from io import BytesIO
 from urllib.request import urlopen
-from zipfile import ZipFile
-
-import pandas as pd
 from bs4 import BeautifulSoup as bs
+from zipfile import ZipFile
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import sys
+import os.path
+import time
+import pandas as pd
+import datetime
 
 
 ##############################################################################################################
 ###############################################Strompreis#####################################################
 ##############################################################################################################
 def update_power_price():
-    print("downloading power prices")
-    value_frame = pd.DataFrame()
-    for year in range(16, 20):
-        for month in range(1, 13):
-            if (month < 10):
-                month = "0" + str(month)
-            url = "https://energy-charts.de/price/month_20{}_{}.json".format(year, month)
-            json = urllib.request.urlopen(url)
-            data = pd.read_json(json)
-            value_series = pd.Series(data["values"].iloc[5])
-            value_frame = value_frame.append(pd.DataFrame(value_series.values.tolist()))
-    print("Writing to powerpriceData.csv")
-    value_frame.columns = ["Date", "Price"]
-    value_frame.to_csv('Data/powerpriceData.csv', index=False)
+    path = sys.path[0]
+    data_path = "{}\\Data".format(path)
+    getNewData = True
+
+    epoch = datetime.datetime.utcfromtimestamp(0)
+    today = (datetime.datetime.today() - epoch).total_seconds() * 1000.0
+
+    for filename in os.listdir(data_path):
+        if filename == "Tabellen_Daten__201601010000_201912312359.zip":
+            getNewData = False
+
+    if getNewData:
+        print("opening URL")
+        URL = "https://www.smard.de/home/downloadcenter/download_marktdaten/726#!?" \
+              "downloadAttributes=%7B%22" \
+              "selectedCategory%22:3,%22" \
+              "selectedSubCategory%22:8,%22" \
+              "selectedRegion%22:%22AT%22,%22" \
+              "from%22:1538352000000,%22" \
+              "to%22:{},%22" \
+              "selectedFileType%22:%22CSV%22%7D".format(today)
+        options = Options()
+        # options.add_argument('headless')
+        options.add_experimental_option('prefs', {
+            "download": {
+                "default_directory": data_path
+            }
+        })
+        driver = webdriver.Chrome("./selenium_web_driver/chromedriver.exe", options=options)  #
+        driver.get(URL)
+        button = driver.find_element_by_xpath(
+            "//button[@name='button'][@type='button'][contains(text(), 'Datei herunterladen')]")
+        print("downloading")
+        button.click()
+
+        while not [filename for filename in os.listdir(data_path) if filename.startswith("Tabellen_Daten")]:
+            print("not there yet")
+            time.sleep(1)
+        print("finished")
+
+        driver.quit()
+
+    print("reading ZIP")
+    for filename in os.listdir(data_path):
+        if filename.startswith("Tabellen_Daten"):
+            zip_filename = "{}\\{}".format(data_path, filename)
+            with ZipFile(zip_filename) as zipFile:
+                tempdf = pd.read_csv(zipFile.open(zipFile.namelist()[-1]), sep=';', parse_dates=[["Datum", "Uhrzeit"]],
+                                     index_col="Datum_Uhrzeit")
+
+                tempdf.rename(columns={"Deutschland/Luxemburg[Euro/MWh]": "Price"}, inplace=True)
+                tempdf = tempdf["Price"]
+                print(tempdf)
+    remove_path = zip_filename
+    # os.remove(remove_path)
+
+
+
+
+
+    # print("downloading power prices")
+    # value_frame = pd.DataFrame()
+    # for year in range(16, 20):
+    #     for month in range(1, 13):
+    #         if (month < 10):
+    #             month = "0" + str(month)
+    #         url = "https://energy-charts.de/price/month_20{}_{}.json".format(year, month)
+    #         json = urllib.request.urlopen(url)
+    #         data = pd.read_json(json)
+    #         value_series = pd.Series(data["values"].iloc[5])
+    #         value_frame = value_frame.append(pd.DataFrame(value_series.values.tolist()))
+    # print("Writing to powerpriceData.csv")
+    # value_frame.columns = ["Date", "Price"]
+    # value_frame.to_csv('Data/powerpriceData.csv', index=False)
 
 
 ##############################################################################################################
@@ -63,10 +128,8 @@ def updateWeatherHistory(parameter=("air_temperature", "cloudiness", "sun", "win
             df.dropna(inplace=True)
             if timeMode == "recent":
                 recent_first_date = df.index[0]
-                print("\n recent erstes: ",recent_first_date)
             if timeMode == "historical":
                 df = df.loc[df.index < recent_first_date]
-                print("\n historical letztes : ", df.index[-1])
             df = df.loc[df.index >= start]
             df.to_csv("Data/{}_{}.csv".format(param, timeMode))
         i += 1
@@ -75,7 +138,7 @@ def updateWeatherHistory(parameter=("air_temperature", "cloudiness", "sun", "win
 ##############################################################################################################
 ###############################################Vorhersage#####################################################
 ##############################################################################################################
-def updateForecast(properties=["FF", "N", "SunD1", "TTT"], WriteXML=False, updateGermanCities=False, ):
+def updateForecast(properties=["FF", "N", "SunD1", "TTT"], updateGermanCities=False, ):
     print("downloading Forecast")
     resp = urllib.request.urlopen(
         "https://opendata.dwd.de/weather/local_forecasts/mos/MOSMIX_S/all_stations/kml/MOSMIX_S_LATEST_240.kmz")
@@ -110,18 +173,18 @@ def updateForecast(properties=["FF", "N", "SunD1", "TTT"], WriteXML=False, updat
     print("writing to forecast.csv")
     last_frame.to_csv("Data/forecast.csv")
 
-    # if(updateGermanCities):
-    #     print("updating germanCities.csv")
-    #     elemts=root[0].findall("./kml:Placemark/kml:description",namespace)
-    #     cityList=[]
-    #     for element in elemts:
-    #         cityList.append(element.text)
-    #     citiesDWD=pd.DataFrame(cityList,columns=["Ort"])
-    #     citiesDWD['Ort']=citiesDWD["Ort"].apply(lambda x: x.upper())
+    if(updateGermanCities):
+        print("updating germanCities.csv")
+        elemts=root[0].findall("./kml:Placemark/kml:description",namespace)
+        cityList=[]
+        for element in elemts:
+            cityList.append(element.text)
+        citiesDWD=pd.DataFrame(cityList,columns=["Ort"])
+        citiesDWD['Ort']=citiesDWD["Ort"].apply(lambda x: x.upper())
 
-    #     cities=pd.DataFrame(pd.read_csv("deCitiescompare.csv",delimiter=";")["Ort"],columns=["Ort"])
-    #     cities['Ort']=cities["Ort"].apply(lambda x: x.upper())
+        cities=pd.DataFrame(pd.read_csv("deCitiescompare.csv",delimiter=";")["Ort"],columns=["Ort"])
+        cities['Ort']=cities["Ort"].apply(lambda x: x.upper())
 
-    #     mergedStuff = pd.merge(cities, citiesDWD, on=['Ort'], how='inner')
-    #     mergedStuff=mergedStuff.drop_duplicates()
-    #     mergedStuff.to_csv("Data/germanCities.csv",index=False)
+        mergedStuff = pd.merge(cities, citiesDWD, on=['Ort'], how='inner')
+        mergedStuff=mergedStuff.drop_duplicates()
+        mergedStuff.to_csv("Data/germanCities.csv",index=False)

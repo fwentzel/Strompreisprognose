@@ -6,9 +6,10 @@ Notes_Bachelorarbeit.txt
 workspace.xml
 complete_results.csv
 temp_results - Kopie.csv
-best_config.csv
+best_config_complete.csv
 results.csv
-
+gs.bat
+./Data
 
 
 On branch development

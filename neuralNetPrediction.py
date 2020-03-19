@@ -1,19 +1,20 @@
 import random
 import matplotlib.pyplot as plt
 import numpy as np
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 import tensorflow as tf
 import pandas as pd
 from tensorflow_core.python.keras.callbacks import EarlyStopping, ModelCheckpoint, LearningRateScheduler
 
 
 class NeuralNetPrediction:
-    TRAIN_LENGTH = .6  # percent
-    BATCH_SIZE = 256
+    TRAIN_LENGTH = .7  # percent
+    BATCH_SIZE = 32
 
     def __init__(self, train_data, test_data, future_target, past_history, datacolumn, epochs):
         self.RELEVANT_COLUMNS = ['Wind', 'Sun', 'Clouds', 'Temperature', 'Weekend', 'Hour',
                                  'Holiday', datacolumn]
-
         self.train_target = train_data[datacolumn]
         self.train_dataset = train_data[self.RELEVANT_COLUMNS].values
         self.test_target = test_data[datacolumn]
@@ -51,7 +52,7 @@ class NeuralNetPrediction:
         multivariate_data = np.array(multivariate_data)
         return multivariate_data.reshape(multivariate_data.shape[0], multivariate_data.shape[1], -1), np.array(labels)
 
-    def train_network(self, savename, power=1, initAlpha=0.1, lr_schedule="polynomal",save=True):
+    def train_network(self, savename, power=1, initAlpha=0.1, lr_schedule="polynomal", save=True):
         if lr_schedule == "polynomal":
             if power is None:
                 power = 1
@@ -59,10 +60,10 @@ class NeuralNetPrediction:
         elif lr_schedule == "step":
             schedule = StepDecay(initAlpha=initAlpha, factor=0.8, dropEvery=10)
 
-        es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=15,restore_best_weights=True)
+        es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=10, restore_best_weights=True)
         multi_step_history = self.model.fit(x=self.x, y=self.y, epochs=self.epochs, batch_size=self.BATCH_SIZE,
                                             verbose=1, validation_split=1 - self.TRAIN_LENGTH, shuffle=True,
-                                            callbacks=[es])  # TODO include ModelCheckpoint callback
+                                            callbacks=[es])
         # schedule.plot(self.epochs)
         # self.plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
         if save:
@@ -106,19 +107,19 @@ class NeuralNetPrediction:
             target = self.test_target
             self.predicted_test = True
         prediction_timeframe = slice(offset,
-                                     self.past_history+self.future_target+ offset)
+                                     self.past_history + self.future_target + offset)
         input = dataset[prediction_timeframe]
-        self.single_step_predict(inputs=input, target=target.iloc[ self.past_history+offset:self.past_history+ offset + self.future_target])
+        self.single_step_predict(inputs=input, target=target.iloc[
+                                                      self.past_history + offset:self.past_history + offset + self.future_target])
 
     def mass_predict(self, iterations, predict_on_test_data, step=1, ):
-        print("mass predict for ",iterations,"iterations")
+        print("mass predict for ", iterations, "iterations")
         error = 0
         j = 0
         errorlist = []
         mean_errorlist = []
         offsets = range(0, iterations, step)
         for i in offsets:
-
             j += 1
             self.predict(predict_test=predict_on_test_data, offset=i)
             error += self.error
@@ -130,8 +131,9 @@ class NeuralNetPrediction:
         # plt.show()
         return error / j
 
+
     def plot_predictions(self, ax):
-        time_slice=slice(self.past_history,self.past_history + self.future_target)
+        time_slice = slice(self.past_history, self.past_history + self.future_target)
         if (self.predicted_test):
             xticks = self.test_target.index[time_slice]
         else:
