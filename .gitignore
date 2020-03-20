@@ -1,5 +1,6 @@
 
 *.index
+*.zip
 *.data-00000-of-00002
 *.data-00001-of-00002
 Notes_Bachelorarbeit.txt 
@@ -10,6 +11,7 @@ best_config_complete.csv
 results.csv
 gs.bat
 ./Data
+test.py
 
 
 On branch development

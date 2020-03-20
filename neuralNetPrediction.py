@@ -49,8 +49,8 @@ class NeuralNetPrediction:
             indices = range(i - self.past_history + 1, i + 1)
             multivariate_data.append(self.train_dataset[indices])
             labels.append(self.train_target[i + 1])
-        multivariate_data = np.array(multivariate_data)
-        return multivariate_data.reshape(multivariate_data.shape[0], multivariate_data.shape[1], -1), np.array(labels)
+        multivariate_data = np.array(multivariate_data).astype(float)
+        return multivariate_data.reshape(multivariate_data.shape[0], multivariate_data.shape[1], -1), np.array(labels).astype(float)
 
     def train_network(self, savename, power=1, initAlpha=0.1, lr_schedule="polynomal", save=True):
         if lr_schedule == "polynomal":
@@ -85,12 +85,12 @@ class NeuralNetPrediction:
         predictions = []
         inputCopy = np.copy(inputs)  # copy Array to not overwrite original train_data
 
-        x_in = inputCopy[:self.past_history].reshape(-1, self.past_history, inputCopy.shape[1])
+        x_in =inputCopy[:self.past_history].reshape(1, self.past_history, inputCopy.shape[1])
         prediction = self.model.predict(x_in)
         predictions.append(prediction[0][-1])
 
         for j in range(1, self.future_target):
-            x_in = inputCopy[j:j + self.past_history].reshape(-1, self.past_history, inputCopy.shape[1])
+            x_in = inputCopy[j:j + self.past_history].reshape(1, self.past_history, inputCopy.shape[1])
             x_in[-1, -1, 0] = predictions[j - 1]  # use last prediction as power Price Input for next Prediction
             predictions.append(self.model.predict(x_in)[0][-1])
         target_rows = target.iloc[-self.future_target:]

@@ -6,11 +6,13 @@ from statsmodels.tsa.ar_model import AR
 
 class StatisticalPrediction:
 
-    def __init__(self, data, forecast_length, start_index_from_max_length, offset=0):
+    def __init__(self, data, forecast_length,
+                 offset=0):
         self.data = data
-        self.start = len(data) - start_index_from_max_length + offset
+        self.start = len(data)  + offset
         self.forecast_length = forecast_length
-        self.truth = data["Seasonal"].iloc[self.start:self.start + forecast_length]
+        self.truth = data["Seasonal"].iloc[
+                     self.start:self.start + forecast_length]
 
     # best Length 190 Best ARIMA(8, 0, 2) MSE=2.422
     def predict(self, method, ):
@@ -25,12 +27,16 @@ class StatisticalPrediction:
         train = self.data["Seasonal"].iloc[:self.start]
         model = AR(train, freq="H")
         model_fit = model.fit()
-        self.pred = model_fit.predict(start=len(train), end=len(train) + self.forecast_length - 1, dynamic=False)
-        self.error = np.sqrt(np.mean(np.square(self.truth.values - self.pred.values)))
+        self.pred = model_fit.predict(start=len(train),
+                                      end=len(train) + self.forecast_length - 1,
+                                      dynamic=False)
+        self.error = np.sqrt(
+            np.mean(np.square(self.truth.values - self.pred.values)))
 
     def exponential_smoothing_prediction(self):
         train = self.data["Seasonal"].iloc[self.start - 72:self.start]
-        model = ExponentialSmoothing(train, trend="add", seasonal="add", seasonal_periods=24,
+        model = ExponentialSmoothing(train, trend="add", seasonal="add",
+                                     seasonal_periods=24,
                                      damped=True, freq="H")
 
         # Search Best Smoothing Level
@@ -59,11 +65,13 @@ class StatisticalPrediction:
         end_index = start_index + self.forecast_length - 1
         prediction = model_fit.predict(start=start_index, end=end_index)
         self.pred = prediction
-        self.error = np.around(np.sqrt(np.mean(np.square(self.truth - prediction))), 2)
+        self.error = np.around(
+            np.sqrt(np.mean(np.square(self.truth - prediction))), 2)
 
     def plot_predictions(self, ax):
         ax[2].plot(self.truth.index, self.truth.values, label='truth')
-        ax[2].plot(self.truth.index, self.pred, label="prediction; Error: {0}".format(self.error))
+        ax[2].plot(self.truth.index, self.pred,
+                   label="prediction; Error: {0}".format(self.error))
         ax[2].legend()
         ax[2].set_ylabel("SEASONAL")
 
@@ -83,8 +91,10 @@ class StatisticalPrediction:
                     try:
                         model = ARIMA(data, order=order, freq="H")
                         model_fit = model.fit(disp=0)
-                        prediction = model_fit.predict(start=start_index, end=end_index)
-                        rmse = np.sqrt(np.mean(np.square(self.truth - prediction)))
+                        prediction = model_fit.predict(start=start_index,
+                                                       end=end_index)
+                        rmse = np.sqrt(
+                            np.mean(np.square(self.truth - prediction)))
                         if rmse < best_score:
                             best_score, best_cfg = rmse, order
                     except:
