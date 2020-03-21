@@ -11,11 +11,8 @@ import os.path
 import time
 import pandas as pd
 import datetime
+import matplotlib.pyplot as plt
 
-
-##############################################################################################################
-###############################################Strompreis#####################################################
-##############################################################################################################
 def get_empty(x):
     newVal = x.replace(',', ".")
     if x == "-":
@@ -23,10 +20,40 @@ def get_empty(x):
     return newVal
 
 
+def fill_power_na(series):
+    mask = series.isna()
+    newMask = mask.copy()
+    for i in range(10, len(mask) - 10):
+        if mask[i + 3] or mask[i - 3]:
+            newMask[i] = True
+    for i in range(168, len(newMask) - 168):
+        if newMask[i + 168]:
+            newMask[i] = True
+    nanFrame = series[newMask]
+    split = int(len(nanFrame) / 4)
+    for i in range(2):
+        if i ==0:
+            laggedSeries = nanFrame.iloc[:split]
+            nanSeries = nanFrame.iloc[split:split * 2]
+        else :
+            laggedSeries = nanFrame.iloc[split * 2:split * 3]
+            nanSeries = nanFrame.iloc[split * 3:]
+
+        diff = laggedSeries[2] - nanSeries[2]
+        laggedSeries = laggedSeries.apply(lambda x: x - diff)
+        laggedSeries.index=laggedSeries.index.shift(7, freq='D')
+        series.loc[laggedSeries.index] = laggedSeries
+
+        # plt.plot(range(len(nanSeries)), laggedSeries, label="24.7.2019")
+        # plt.plot(range(len(nanSeries)), nanSeries, label="31.7.2019")
+        # plt.legend()
+        # plt.show()
+
+
 def update_power_price():
     path = sys.path[0]
     data_path = "{}\\Data".format(path)
-    getNewData = True
+    getNewData = False
 
     milliseconds_since_epoch = datetime.datetime.now().timestamp() * 1000
 
@@ -70,13 +97,14 @@ def update_power_price():
                 power_frame['MESS_DATUM'] = power_frame['Datum'].str.cat(power_frame['Uhrzeit'], sep=" ")
                 power_frame.rename(columns={"Deutschland/Luxemburg[Euro/MWh]": "Price"},
                                    inplace=True)
-                power_frame = pd.DataFrame(power_frame[["Price","MESS_DATUM"]])
-                power_frame["MESS_DATUM"] = pd.to_datetime(power_frame["MESS_DATUM"],format="%d.%m.%Y %H:%M")
+                power_frame = pd.DataFrame(power_frame[["Price", "MESS_DATUM"]])
+                power_frame["MESS_DATUM"] = pd.to_datetime(power_frame["MESS_DATUM"], format="%d.%m.%Y %H:%M")
                 power_frame.set_index("MESS_DATUM", inplace=True)
 
                 power_frame["Price"] = power_frame["Price"].apply(lambda x: get_empty(x))
                 power_frame["Price"] = pd.to_numeric(power_frame["Price"])
-                power_frame["Price"].interpolate(method='linear',inplace=True)
+                fill_power_na(power_frame["Price"])
+
     print("finished")
     remove_path = zip_filename
     # os.remove(remove_path)
@@ -98,11 +126,7 @@ def update_power_price():
     # value_frame.columns = ["Date", "Price"]
     # value_frame.to_csv('Data/powerpriceData.csv', index=False)
 
-
-##############################################################################################################
-###############################################Wetterhistory##################################################
-##############################################################################################################
-def updateWeatherHistory( shortform=("TT_TU", " V_N", "SD_SO", "   F")):
+def updateWeatherHistory(shortform=("TT_TU", " V_N", "SD_SO", "   F")):
     i = 0
     weather_frame = pd.DataFrame(
         pd.date_range(start=datetime.datetime(2019, 1, 1), end=datetime.datetime(2019, 1, 2), freq="H"),
@@ -123,7 +147,7 @@ def updateWeatherHistory( shortform=("TT_TU", " V_N", "SD_SO", "   F")):
             resp = urlopen(_FULLURL)
             zipfile = ZipFile(BytesIO(resp.read()))
             file = zipfile.namelist()[-1]
-            tempdf = pd.read_csv(zipfile.open(file), sep=';', index_col="MESS_DATUM",na_values="-999")
+            tempdf = pd.read_csv(zipfile.open(file), sep=';', index_col="MESS_DATUM", na_values="-999")
             tempdf.index = pd.to_datetime(tempdf.index, format='%Y%m%d%H')
 
             temp_frame[shortform[i].strip()] = pd.concat([temp_frame, tempdf[shortform[i]]], axis=1).mean(axis=1)

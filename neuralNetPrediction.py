@@ -36,7 +36,8 @@ class NeuralNetPrediction:
 
         model.add(tf.keras.layers.LSTM(int(self.past_history)))
         model.add(tf.keras.layers.Dense(1))
-        model.compile(optimizer=tf.keras.optimizers.Adadelta(learning_rate=0.1), loss="mae")
+        #model.compile(optimizer=tf.keras.optimizers.Adadelta(learning_rate=0.1), loss="mae")
+        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001), loss="mae")
         self.model = model
 
     def load_model(self, savename):
@@ -52,7 +53,7 @@ class NeuralNetPrediction:
         multivariate_data = np.array(multivariate_data).astype(float)
         return multivariate_data.reshape(multivariate_data.shape[0], multivariate_data.shape[1], -1), np.array(labels).astype(float)
 
-    def train_network(self, savename, power=1, initAlpha=0.1, lr_schedule="polynomal", save=True):
+    def train_network(self, savename, power=1, initAlpha=0.001, lr_schedule="polynomal", save=True):
         if lr_schedule == "polynomal":
             if power is None:
                 power = 1
@@ -63,7 +64,7 @@ class NeuralNetPrediction:
         es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=10, restore_best_weights=True)
         multi_step_history = self.model.fit(x=self.x, y=self.y, epochs=self.epochs, batch_size=self.BATCH_SIZE,
                                             verbose=1, validation_split=1 - self.TRAIN_LENGTH, shuffle=True,
-                                            callbacks=[es])
+                                            callbacks=[es, tf.keras.callbacks.LearningRateScheduler(schedule)])
         # schedule.plot(self.epochs)
         # self.plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
         if save:
@@ -98,7 +99,16 @@ class NeuralNetPrediction:
         self.pred = pd.Series(np.array(predictions).reshape(self.future_target), index=target_rows.index)
         self.error = np.around(np.sqrt(np.mean(np.square(self.truth - predictions))), 2)
 
-    def predict(self, predict_test=False, offset=0):
+    def multi_step_predict(self, inputs, target=None):
+        inputCopy = np.copy(inputs)  # copy Array to not overwrite original train_data
+        x_in = inputCopy[:self.past_history].reshape(1, self.past_history, inputCopy.shape[1])
+        prediction = self.model.predict(x_in)
+        target_rows = target.iloc[-self.future_target:]
+        self.truth = target_rows.values
+        self.pred = pd.Series(np.array(prediction).reshape(self.future_target), index=target_rows.index)
+        self.error = np.around(np.sqrt(np.mean(np.square(self.truth - prediction))), 2)
+
+    def predict(self, predict_test=False, offset=0,singlestep=True):
         if (predict_test == False):
             dataset = self.train_dataset
             target = self.train_target
@@ -109,11 +119,14 @@ class NeuralNetPrediction:
         prediction_timeframe = slice(offset,
                                      self.past_history + self.future_target + offset)
         input = dataset[prediction_timeframe]
-        self.single_step_predict(inputs=input, target=target.iloc[
+        if singlestep:
+            self.single_step_predict(inputs=input, target=target.iloc[
+                                                      self.past_history + offset:self.past_history + offset + self.future_target])
+        else:
+            self.multi_step_predict(inputs=input, target=target.iloc[
                                                       self.past_history + offset:self.past_history + offset + self.future_target])
 
     def mass_predict(self, iterations, predict_on_test_data, step=1, ):
-        print("mass predict for ", iterations, "iterations")
         error = 0
         j = 0
         errorlist = []
@@ -121,6 +134,7 @@ class NeuralNetPrediction:
         offsets = range(0, iterations, step)
         for i in offsets:
             j += 1
+            print("\rmass predict: {}/{}".format(j, iterations), sep=' ', end='', flush=True)
             self.predict(predict_test=predict_on_test_data, offset=i)
             error += self.error
         #     errorlist.append(self.error)
@@ -162,7 +176,7 @@ class LearningRateDecay:
 
 
 class PolynomialDecay(LearningRateDecay):
-    def __init__(self, maxEpochs=100, initAlpha=0.01, power=1.0):
+    def __init__(self, maxEpochs=100, initAlpha=0.001, power=1.0):
         # store the maximum number of epochs, base learning rate,
         # and power of the polynomial
         self.maxEpochs = maxEpochs
@@ -170,6 +184,8 @@ class PolynomialDecay(LearningRateDecay):
         self.power = power
 
     def __call__(self, epoch):
+        if epoch < 10:
+            return  self.initAlpha
         # compute the new learning rate based on polynomial decay
         decay = (1 - (epoch / float(self.maxEpochs))) ** self.power
         alpha = self.initAlpha * decay

@@ -35,8 +35,8 @@ def get_data(update_weather_data,update_price_data,test_length):
     data.interpolate(method='bfill',inplace=True)
     sum= data.isna().sum()
     #data = decompose_data(data)
-    test_data = data.iloc[-test_length:]  # Part of data the network wont see during Training and validation
-    train_data = data.iloc[:-test_length]
+    test_data = data.iloc[-test_length:].astype(float)  # Part of data the network wont see during Training and validation
+    train_data = data.iloc[:-test_length].astype(float)
     return train_data,test_data  # , forecast_frame.index[0]
 
 

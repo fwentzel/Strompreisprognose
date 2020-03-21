@@ -51,11 +51,11 @@ parser.add_argument("-p", default=past_history)
 parser.add_argument("-d", default=1)
 parser.add_argument("-l", default=1)
 parser.add_argument("-cp", default=True)
-parser.add_argument("-dp", default=True)
+parser.add_argument("-dp", default=False)
 parser.add_argument("-mp", default=True)
 parser.add_argument("-plt", default=False)
 args = parser.parse_args()
-print("args ", args.p, args.l, args.d)
+print("args ", args.p, args.l, args.d,args.cp,args.dp,args.mp)
 past_history = int(args.p)
 layers = int(args.l)
 dropout = int(args.d)
@@ -81,7 +81,7 @@ if predict_complete:
                                               past_history=past_history,
                                               epochs=epochs)
 
-    train = False
+    train = True
     if train:
         complete_prediciton.initialize_network(dropout=dropout_decimal,
                                                additional_layers=layers)
@@ -100,6 +100,8 @@ if predict_complete:
         ax[0].plot(complete_prediciton.truth.index, complete_prediciton.pred,
                    label='complete; mean RMSE of 168 predicitions: {}'.format(
                        complete_error))
+
+predict_decomposed=False
 if predict_decomposed:
     # Residual
     residual_prediction = NeuralNetPrediction(datacolumn="Remainder",
