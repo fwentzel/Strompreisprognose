@@ -13,11 +13,8 @@ for /l %%p in (%a%, 12, 168) do (
                     set "interrupted=1"
                     for /l %%i in (0,1,20) do (
                         if defined interrupted (
-                            python prognose.py -p=%%p -l=%%l -d=%%d -cp=True -dp=False -mp=True
+                            python prognose.py -p=%%p -l=%%l -d=%%d -cp=True -dp=False -mp=True -plt=False
                             for /f "tokens=1,2,3,4 delims=," %%e in (complete_results.csv) do SET /A e= %%e & set /A f=%%f & set /A g=%%g
-                            @echo on
-                            echo . &echo !g! & echo %%d
-                            @echo off
                             if !g! EQU %%d set "interrupted="
                             ::wiederhole das Trianing und überprüfe danach erneut
                             if !g! NEQ %%d set "interrupted=1" & echo interrupted

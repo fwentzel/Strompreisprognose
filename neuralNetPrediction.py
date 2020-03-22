@@ -10,11 +10,11 @@ from tensorflow_core.python.keras.callbacks import EarlyStopping, ModelCheckpoin
 
 class NeuralNetPrediction:
     TRAIN_LENGTH = .7  # percent
-    BATCH_SIZE = 32
+    BATCH_SIZE = 64
 
     def __init__(self, train_data, test_data, future_target, past_history, datacolumn, epochs):
-        self.RELEVANT_COLUMNS = ["wind","cloudiness","air_temperature","sun", 'Weekend', 'Hour',
-                                 'Holiday', datacolumn]
+        self.RELEVANT_COLUMNS = [ datacolumn,"wind","cloudiness","air_temperature","sun", 'Weekend', 'Hour',
+                                 'Holiday']
         self.train_target = train_data[datacolumn]
         self.train_dataset = train_data[self.RELEVANT_COLUMNS].values
         self.test_target = test_data[datacolumn]
@@ -95,19 +95,20 @@ class NeuralNetPrediction:
             x_in[-1, -1, 0] = predictions[j - 1]  # use last prediction as power Price Input for next Prediction
             predictions.append(self.model.predict(x_in)[0][-1])
         target_rows = target.iloc[-self.future_target:]
-        self.truth = target_rows.values
+        self.truth = target_rows
         self.pred = pd.Series(np.array(predictions).reshape(self.future_target), index=target_rows.index)
-        self.error = np.around(np.sqrt(np.mean(np.square(self.truth - predictions))), 2)
-        self.single_errors=np.sqrt(np.square(self.truth - predictions))
+        self.error = np.around(np.sqrt(np.mean(np.square(self.truth.values - predictions))), 2)
+        self.single_errors=np.sqrt(np.square(self.truth.values - predictions))
 
     def multi_step_predict(self, inputs, target=None):
         inputCopy = np.copy(inputs)  # copy Array to not overwrite original train_data
         x_in = inputCopy[:self.past_history].reshape(1, self.past_history, inputCopy.shape[1])
         prediction = self.model.predict(x_in)
         target_rows = target.iloc[-self.future_target:]
-        self.truth = target_rows.values
+        self.truth = target_rows
         self.pred = pd.Series(np.array(prediction).reshape(self.future_target), index=target_rows.index)
-        self.error = np.around(np.sqrt(np.mean(np.square(self.truth - prediction))), 2)
+        self.error = np.around(np.sqrt(np.mean(np.square(self.truth.values - prediction))), 2)
+        self.single_errors = np.sqrt(np.square(self.truth.values - prediction))
 
     def predict(self, predict_test=False, offset=0,singlestep=True):
         if (predict_test == False):
@@ -136,7 +137,7 @@ class NeuralNetPrediction:
         for i in offsets:
             j += 1
             print("\rmass predict: {}/{}".format(j, iterations), sep=' ', end='', flush=True)
-            self.predict(predict_test=predict_on_test_data, offset=i)
+            self.predict(predict_test=predict_on_test_data, offset=i,singlestep=True)
             error += self.error
             mean_errorlist.append(self.single_errors)
         # plt.plot(offsets,errorlist,label="Error ")

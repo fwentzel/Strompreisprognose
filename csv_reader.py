@@ -2,7 +2,7 @@ import holidays
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-from statsmodels.tsa.seasonal import STL
+from statsmodels.tsa.seasonal import STL, seasonal_decompose
 import matplotlib.pyplot as plt
 import data_downloader
 
@@ -12,13 +12,17 @@ hour_scaler = MinMaxScaler(feature_range=(0, 1))
 
 
 def decompose_data(data):
-    #TODO naive decomposition - andere mothode finden
+
     series = data["Price"]
-    components = STL(series,seasonal=13).fit()
+    components = STL(series,seasonal=7).fit()
+    components=seasonal_decompose(series)
     # estimated trend, seasonal and remainder components
     data["Remainder"] = components.resid  # the estimated remainder
     data["Seasonal"] = components.seasonal  # The estimated seasonal component
     data["Trend"] = components.trend  # The estimated trend component
+    components.plot()
+    # plt.show()
+    # plot_decomposed_data(data)
     return data
 
 def get_data(update_weather_data,update_price_data,test_length):
@@ -28,6 +32,7 @@ def get_data(update_weather_data,update_price_data,test_length):
 
     power_price_frame.index = pd.to_datetime(power_price_frame.index)
     data = power_price_frame.join(weather_frame, how='inner')
+    data=data[~data.index.duplicated()] # remove duplicate indeces
     # data['scaledTemp']= temp_scaler.fit_transform(np.array(train_data['TT_TU']).reshape(-1,1))
     data['Weekend'] = (pd.DatetimeIndex(data.index).dayofweek > 5).astype(int)
     data["Hour"] = data.index.hour
@@ -47,6 +52,7 @@ def read_holidays(data):
 
 def read_power_data():
     power_price = pd.read_csv("Data/price.csv", index_col="MESS_DATUM",decimal=",")
+    power_price["Price"]=pd.to_numeric(power_price["Price"])
     # power_price['diffScaledPrice']=differenceData(power_price['Price'],power_scaler)
     return power_price
 
@@ -57,6 +63,7 @@ def read_weather_data():
 
 def plot_decomposed_data(data):
     fig, ax = plt.subplots(4, 1, sharex=True)
+    data=data.iloc[-3000:]
     ax[0].title.set_text("ORIGINAL")
     ax[0].plot(data["Price"])
     ax[1].title.set_text("RESIDUAL")
@@ -65,4 +72,5 @@ def plot_decomposed_data(data):
     ax[2].plot(data["Seasonal"])
     ax[3].title.set_text("TREND")
     ax[3].plot(data["Trend"])
+    plt.show()
 

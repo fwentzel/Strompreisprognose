@@ -101,9 +101,10 @@ def update_power_price():
                 power_frame = pd.DataFrame(power_frame[["Price", "MESS_DATUM"]])
                 power_frame["MESS_DATUM"] = pd.to_datetime(power_frame["MESS_DATUM"], format="%d.%m.%Y %H:%M")
                 power_frame.set_index("MESS_DATUM", inplace=True)
-
+                power_frame = power_frame[~power_frame.index.duplicated()].asfreq(freq='H') # remove duplicate entries (2 faulty values from database) and set frequency to Hourly
                 power_frame["Price"] = power_frame["Price"].apply(lambda x: get_empty(x))
                 power_frame["Price"] = pd.to_numeric(power_frame["Price"])
+
                 fill_power_na(power_frame["Price"])
 
     print("finished")

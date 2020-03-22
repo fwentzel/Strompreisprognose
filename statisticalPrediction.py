@@ -15,15 +15,15 @@ class StatisticalPrediction:
                      self.start:self.start + forecast_length]
 
     # best Length 190 Best ARIMA(8, 0, 2) MSE=2.422
-    def predict(self, method, ):
+    def predict(self, method,component ):
         if method == "AR":
-            self.AR_prediction()
+            self.AR_prediction(component)
         elif method == "ARIMA":
-            self.arima_prediction()
+            self.arima_prediction(component)
         elif method == "exp":
-            self.exponential_smoothing_prediction()
+            self.exponential_smoothing_prediction(component)
 
-    def AR_prediction(self):
+    def AR_prediction(self,component):
         train = self.data["Seasonal"].iloc[:self.start]
         model = AR(train, freq="H")
         model_fit = model.fit()
@@ -33,12 +33,11 @@ class StatisticalPrediction:
         self.error = np.sqrt(
             np.mean(np.square(self.truth.values - self.pred.values)))
 
-    def exponential_smoothing_prediction(self):
-        train = self.data["Seasonal"].iloc[self.start - 72:self.start]
+    def exponential_smoothing_prediction(self,component):
+        train = self.data[component].iloc[self.start - 72:self.start]
         model = ExponentialSmoothing(train, trend="add", seasonal="add",
                                      seasonal_periods=24,
                                      damped=True, freq="H")
-
         # Search Best Smoothing Level
         min_error = 100
         best_smoothing_level = .2
@@ -53,6 +52,7 @@ class StatisticalPrediction:
             min_error = error
             self.pred = pred
             self.error = min_error
+        return self.pred
 
     def arima_prediction(self, test_orders=False, order=(15, 0, 2)):
         if test_orders == True:
