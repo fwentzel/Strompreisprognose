@@ -13,6 +13,7 @@ import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
 
+
 def get_empty(x):
     newVal = x.replace(',', ".")
     if x == "-":
@@ -23,7 +24,7 @@ def get_empty(x):
 def fill_power_na(series):
     mask = series.isna()
     newMask = mask.copy()
-    for i in range(10, len(mask) - 10):
+    for i in range(3, len(mask) - 3):
         if mask[i + 3] or mask[i - 3]:
             newMask[i] = True
     for i in range(168, len(newMask) - 168):
@@ -32,16 +33,16 @@ def fill_power_na(series):
     nanFrame = series[newMask]
     split = int(len(nanFrame) / 4)
     for i in range(2):
-        if i ==0:
+        if i == 0:
             laggedSeries = nanFrame.iloc[:split]
             nanSeries = nanFrame.iloc[split:split * 2]
-        else :
+        else:
             laggedSeries = nanFrame.iloc[split * 2:split * 3]
             nanSeries = nanFrame.iloc[split * 3:]
 
         diff = laggedSeries[2] - nanSeries[2]
         laggedSeries = laggedSeries.apply(lambda x: x - diff)
-        laggedSeries.index=laggedSeries.index.shift(7, freq='D')
+        laggedSeries.index = laggedSeries.index.shift(7, freq='D')
         series.loc[laggedSeries.index] = laggedSeries
 
         # plt.plot(range(len(nanSeries)), laggedSeries, label="24.7.2019")
@@ -126,42 +127,78 @@ def update_power_price():
     # value_frame.columns = ["Date", "Price"]
     # value_frame.to_csv('Data/powerpriceData.csv', index=False)
 
-def updateWeatherHistory(shortform=("TT_TU", " V_N", "SD_SO", "   F")):
+
+def fill_weather_na(frame):
+    # # sun,wind,cloudiness,air_temperature
+    # hours = [0 for x in range(24)]
+    # days = [0 for x in range(7)]
+    # series = frame["sun"]
+    # mask = series.isna()
+    # p = 0
+    # for i in range(len(series) - 1):
+    #     if mask[i]:
+    #         if mask[i + 1] == False:
+    #             p += 1
+    #         hours[series.index[i].hour] += 1
+    #         days[series.index[i].dayofweek] += 1
+    #
+    # plt.bar([x for x in range(24)], hours)
+    # plt.xlabel("Tageszeit")
+    # plt.ylabel("Anzahl fehlende Datenpunkte")
+    # plt.title("Tageszeit der fehlenden Datenpunkten zu den Sonnenstunden")
+    # plt.xticks([x for x in range(0, 24, 2)])
+    # plt.show()
+
+    # print(hours)
+    frame["sun"].fillna(0, inplace=True)
+    frame
+    # frame["wind"].fillna(0, inplace=True)
+    sum = frame.isna().sum()
+
+    print("x")
+
+
+def updateWeatherHistory():
     i = 0
     weather_frame = pd.DataFrame(
-        pd.date_range(start=datetime.datetime(2019, 1, 1), end=datetime.datetime(2019, 1, 2), freq="H"),
+        pd.date_range(start=datetime.date.today(), end=datetime.date.today(), freq="H"),
         columns=["MESS_DATUM"])
     weather_frame.set_index("MESS_DATUM", inplace=True)
-    for param in ("air_temperature", "cloudiness", "sun", "wind"):
-        temp_frame = pd.DataFrame(columns=["MESS_DATUM", shortform[i]])
-        temp_frame.set_index("MESS_DATUM", inplace=True)
+
+    parameters = {"wind": "   F", "sun": "SD_SO", "cloudiness": " V_N", "air_temperature": "TT_TU"}
+
+    for longform in parameters:
+        temp_frame = pd.DataFrame(pd.date_range(start='2018-10-1', end=datetime.datetime.today(), freq="H"),
+                                  columns=["MESS_DATUM"]).set_index("MESS_DATUM")
         _URL = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/{}/recent/".format(
-            param)
+            longform)
         r = urlopen(_URL)
         soup = bs(r.read(), features="html.parser")
         links = soup.findAll('a')[4:]
         maximum = len(links)
         for j, link in enumerate(links):
-            print("\r{} :{}/{}".format(param, j + 1, maximum), sep=' ', end='', flush=True)
+            print("\r{} :{}/{}".format(longform, j + 1, maximum), sep=' ', end='', flush=True)
             _FULLURL = _URL + link.get('href')
             resp = urlopen(_FULLURL)
             zipfile = ZipFile(BytesIO(resp.read()))
             file = zipfile.namelist()[-1]
             tempdf = pd.read_csv(zipfile.open(file), sep=';', index_col="MESS_DATUM", na_values="-999")
             tempdf.index = pd.to_datetime(tempdf.index, format='%Y%m%d%H')
-
-            temp_frame[shortform[i].strip()] = pd.concat([temp_frame, tempdf[shortform[i]]], axis=1).mean(axis=1)
+            test = pd.concat([temp_frame, tempdf[parameters[longform]]], axis=1)
+            test = test.mean(axis=1)
+            temp_frame[parameters[longform]] = test
+            sum = temp_frame.isna().sum()
         weather_frame = pd.concat([weather_frame, temp_frame], axis=1)
+        sum = weather_frame.isna().sum()
         i += 1
-    weather_frame.drop([" V_N", "   F"], inplace=True, axis=1)
-    weather_frame.columns = ['Temperature', 'Clouds', 'Sun', 'Wind']
+
+    weather_frame.columns = [x for x in parameters]
+    weather_frame["sun"].fillna(0, inplace=True)
+    weather_frame.dropna(inplace=True)
     weather_frame.to_csv("Data/weather.csv")
     return weather_frame
 
 
-##############################################################################################################
-###############################################Vorhersage#####################################################
-##############################################################################################################
 def updateForecast(properties=["FF", "N", "SunD1", "TTT"], updateGermanCities=False, ):
     print("downloading Forecast")
     resp = urllib.request.urlopen(

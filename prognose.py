@@ -20,12 +20,12 @@ def neuronal_mass_predict(filename, neural_net_prediciton):
         reader = csv.reader(config, delimiter=',')
         for row in reader:
             min_config = row
-            min_error = float(min_config[-1])
-    error = neural_net_prediciton.mass_predict(iterations=iterations,
+        min_error = float(min_config[-1])
+    error,single_errors = neural_net_prediciton.mass_predict(iterations=iterations,
                                                predict_on_test_data=predict_on_test_data)
     with open('{}_results.csv'.format(filename), 'a', newline='') as fd:
         writer = csv.writer(fd)
-        writer.writerow([past_history, layers, dropout, error])
+        writer.writerow([past_history, layers, dropout, error,single_errors.tolist()])
     if error < min_error:
         min_error = error
         min_config = [past_history, layers, dropout, min_error]
@@ -39,7 +39,7 @@ def neuronal_mass_predict(filename, neural_net_prediciton):
 
 
 future_target = 24
-past_history = 60  # input timesteps
+past_history = 12  # input timesteps
 predict_on_test_data = True
 iterations = 168  # amount of predicitons for mass predict
 step = 1
@@ -48,14 +48,14 @@ epochs = 1000
 # argument parsing for grid search
 parser = ArgumentParser()
 parser.add_argument("-p", default=past_history)
-parser.add_argument("-d", default=1)
-parser.add_argument("-l", default=1)
+parser.add_argument("-d", default=0)
+parser.add_argument("-l", default=0)
 parser.add_argument("-cp", default=True)
 parser.add_argument("-dp", default=False)
 parser.add_argument("-mp", default=True)
 parser.add_argument("-plt", default=False)
 args = parser.parse_args()
-print("args ", args.p, args.l, args.d,args.cp,args.dp,args.mp)
+print("args ", args.p, args.l, args.d)
 past_history = int(args.p)
 layers = int(args.l)
 dropout = int(args.d)
@@ -86,20 +86,20 @@ if predict_complete:
         complete_prediciton.initialize_network(dropout=dropout_decimal,
                                                additional_layers=layers)
         complete_prediciton.train_network(savename="trainedLSTM_complete",
-                                          save=False)
+                                          save=False,power=2)
 
     else:
         complete_prediciton.load_model(savename="trainedLSTM_complete")
 
     if mass_predict_neural:
-        complete_error = neuronal_mass_predict("complete", complete_prediciton)
+        neuronal_mass_predict("complete", complete_prediciton)
     else:
-        complete_error = complete_prediciton.predict(
+        complete_prediciton.predict(
             predict_test=predict_on_test_data, offset=0)
     if plot_all:
         ax[0].plot(complete_prediciton.truth.index, complete_prediciton.pred,
                    label='complete; mean RMSE of 168 predicitions: {}'.format(
-                       complete_error))
+                       complete_prediciton.error))
 
 predict_decomposed=False
 if predict_decomposed:

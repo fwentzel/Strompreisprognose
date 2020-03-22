@@ -13,7 +13,7 @@ class NeuralNetPrediction:
     BATCH_SIZE = 32
 
     def __init__(self, train_data, test_data, future_target, past_history, datacolumn, epochs):
-        self.RELEVANT_COLUMNS = ['Wind', 'Sun', 'Clouds', 'Temperature', 'Weekend', 'Hour',
+        self.RELEVANT_COLUMNS = ["wind","cloudiness","air_temperature","sun", 'Weekend', 'Hour',
                                  'Holiday', datacolumn]
         self.train_target = train_data[datacolumn]
         self.train_dataset = train_data[self.RELEVANT_COLUMNS].values
@@ -98,6 +98,7 @@ class NeuralNetPrediction:
         self.truth = target_rows.values
         self.pred = pd.Series(np.array(predictions).reshape(self.future_target), index=target_rows.index)
         self.error = np.around(np.sqrt(np.mean(np.square(self.truth - predictions))), 2)
+        self.single_errors=np.sqrt(np.square(self.truth - predictions))
 
     def multi_step_predict(self, inputs, target=None):
         inputCopy = np.copy(inputs)  # copy Array to not overwrite original train_data
@@ -137,13 +138,13 @@ class NeuralNetPrediction:
             print("\rmass predict: {}/{}".format(j, iterations), sep=' ', end='', flush=True)
             self.predict(predict_test=predict_on_test_data, offset=i)
             error += self.error
-        #     errorlist.append(self.error)
-        #     mean_errorlist.append(error/j)
+            mean_errorlist.append(self.single_errors)
         # plt.plot(offsets,errorlist,label="Error ")
         # plt.plot(offsets,mean_errorlist,label="mean Error over time")
         # plt.legend()
         # plt.show()
-        return error / j
+        mean_errorlist=np.around(np.mean(mean_errorlist, axis=0),decimals=2)
+        return error / j,mean_errorlist
 
 
     def plot_predictions(self, ax):
