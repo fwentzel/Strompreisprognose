@@ -7,12 +7,11 @@ from statsmodels.tsa.ar_model import AR
 class StatisticalPrediction:
 
     def __init__(self, data, forecast_length,
-                 offset=0):
+                 neural_past_history,offset=0):
         self.data = data
-        self.start = len(data)  + offset
+        self.start  = neural_past_history + offset
         self.forecast_length = forecast_length
-        self.truth = data["Seasonal"].iloc[
-                     self.start:self.start + forecast_length]
+        self.truth = data["Seasonal"].iloc[self.start:self.start + forecast_length]
 
     # best Length 190 Best ARIMA(8, 0, 2) MSE=2.422
     def predict(self, method,component ):
@@ -68,12 +67,7 @@ class StatisticalPrediction:
         self.error = np.around(
             np.sqrt(np.mean(np.square(self.truth - prediction))), 2)
 
-    def plot_predictions(self, ax):
-        ax[2].plot(self.truth.index, self.truth.values, label='truth')
-        ax[2].plot(self.truth.index, self.pred,
-                   label="prediction; Error: {0}".format(self.error))
-        ax[2].legend()
-        ax[2].set_ylabel("SEASONAL")
+
 
     def test_orders(self):
         p_values = range(15, 90)

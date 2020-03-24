@@ -6,19 +6,13 @@ from bs4 import BeautifulSoup as bs
 from zipfile import ZipFile
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from statsmodels.tsa.seasonal import STL
 import sys
 import os.path
 import time
 import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
-
-
-def get_empty(x):
-    newVal = x.replace(',', ".")
-    if x == "-":
-        newVal = x.replace("-", "")
-    return newVal
 
 
 def fill_power_na(series):
@@ -51,6 +45,39 @@ def fill_power_na(series):
         # plt.show()
 
 
+def plot_decomposed_data(data):
+    fig, ax = plt.subplots(4, 1, sharex=True)
+    data=data.iloc[1000:]
+    ax[0].title.set_text("ORIGINAL")
+    ax[0].plot(data["Price"])
+    ax[1].title.set_text("RESIDUAL")
+    ax[1].plot(data["Remainder"])
+    ax[2].title.set_text("SEASONAL")
+    ax[2].plot(data["Seasonal"])
+    ax[3].title.set_text("TREND")
+    ax[3].plot(data["Trend"])
+    #plt.savefig("{}.png".format(i))
+    plt.show()
+
+
+def decompose_data(data_frame):
+    i=0
+    while data_frame.index[i].hour !=0:
+        i+=1
+
+    if i > 0:
+        new_frame=data_frame.iloc[i:]
+    else:
+        new_frame=data_frame
+
+    components = STL(new_frame["Price"], seasonal=13).fit()
+    new_frame["Remainder"] = components.resid
+    new_frame["Seasonal"] = components.seasonal
+    new_frame["Trend"] = components.trend
+    #plot_decomposed_data(new_frame)
+    return new_frame
+
+
 def update_power_price():
     path = sys.path[0]
     data_path = "{}\\Data".format(path)
@@ -65,11 +92,11 @@ def update_power_price():
               "selectedCategory%22:3,%22" \
               "selectedSubCategory%22:8,%22" \
               "selectedRegion%22:%22DE%22,%22" \
-              "from%22:1538352000000,%22" \
+              "from%22:1420502400000,%22" \
               "to%22:{},%22" \
-              "selectedFileType%22:%22CSV%22%7D".format(milliseconds_since_epoch)
+              "selectedFileType%22:%22CSV%22%7D".format(milliseconds_since_epoch)#1420502400000 für 6.1.2015; 1538352000000 für 1.10.2018
         options = Options()
-        options.add_argument('headless')
+        # options.add_argument('headless')
         options.add_experimental_option('prefs', {
             "download": {
                 "default_directory": data_path
@@ -96,17 +123,24 @@ def update_power_price():
             with ZipFile(zip_filename) as zipFile:
                 power_frame = pd.read_csv(zipFile.open(zipFile.namelist()[-1]), sep=';')
                 power_frame['MESS_DATUM'] = power_frame['Datum'].str.cat(power_frame['Uhrzeit'], sep=" ")
-                power_frame.rename(columns={"Deutschland/Luxemburg[Euro/MWh]": "Price"},
+                power_frame.rename(columns={"Deutschland/Luxemburg[Euro/MWh]": "Price","Deutschland/Österreich/Luxemburg[Euro/MWh]":"Price2"},
                                    inplace=True)
-                power_frame = pd.DataFrame(power_frame[["Price", "MESS_DATUM"]])
+                power_frame = pd.DataFrame(power_frame[["Price","Price2", "MESS_DATUM"]])
                 power_frame["MESS_DATUM"] = pd.to_datetime(power_frame["MESS_DATUM"], format="%d.%m.%Y %H:%M")
                 power_frame.set_index("MESS_DATUM", inplace=True)
-                power_frame = power_frame[~power_frame.index.duplicated()].asfreq(freq='H') # remove duplicate entries (2 faulty values from database) and set frequency to Hourly
-                power_frame["Price"] = power_frame["Price"].apply(lambda x: get_empty(x))
-                power_frame["Price"] = pd.to_numeric(power_frame["Price"])
-
+                power_frame["Price"] = power_frame["Price"].apply(lambda x: x.replace(",", "."))
+                power_frame["Price2"] = power_frame["Price2"].apply(lambda x: x.replace(",", "."))
+                power_frame = power_frame[~power_frame.index.duplicated()].asfreq(
+                    freq='H')  # remove duplicate entries (2 faulty values from database) and set frequency to Hourly
+                power_frame["Price"] = pd.to_numeric(power_frame["Price"], errors="coerce")
+                power_frame["Price2"] = pd.to_numeric(power_frame["Price2"], errors="coerce")
+                power_frame["Price"]=power_frame.mean(axis=1)
+                sum = power_frame["Price"].isna().sum()
+                power_frame = power_frame.interpolate(limit=1)  # interpolate to fill missing value 21.3.2019 2:00
+                sum = power_frame["Price"].isna().sum()
                 fill_power_na(power_frame["Price"])
 
+    power_frame = decompose_data(power_frame)
     print("finished")
     remove_path = zip_filename
     # os.remove(remove_path)

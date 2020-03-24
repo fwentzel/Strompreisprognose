@@ -23,12 +23,13 @@ def neuronal_mass_predict(filename, neural_net_prediciton):
         min_error = float(min_config[-1])
     error, single_errors = neural_net_prediciton.mass_predict(iterations=iterations,
                                                               predict_on_test_data=predict_on_test_data)
+    print("ERRORS: ", error, single_errors)
     with open('{}_results.csv'.format(filename), 'a', newline='') as fd:
         writer = csv.writer(fd)
-        writer.writerow([past_history, layers, dropout, error, single_errors.tolist()])
+        writer.writerow([learning_rate, past_history, layers, dropout, error, single_errors.tolist()])
     if error < min_error:
         min_error = error
-        min_config = [past_history, layers, dropout, min_error]
+        min_config = [learning_rate, past_history, layers, dropout, min_error]
         neural_net_prediciton.model.save(
             '.\checkpoints\{}_best'.format(filename))
         print(min_config)
@@ -39,39 +40,44 @@ def neuronal_mass_predict(filename, neural_net_prediciton):
 
 
 future_target = 24
-past_history = 12  # input timesteps
 predict_on_test_data = True
 iterations = 168  # amount of predicitons for mass predict
 step = 1
 epochs = 500
-
+learning_rate_list =np.arange(0.0002,0.001,0.0001)
 # argument parsing for grid search
 parser = ArgumentParser()
-parser.add_argument("-p", default=past_history)
-parser.add_argument("-d", default=0)
-parser.add_argument("-l", default=0)
-parser.add_argument("-cp", default=True)
-parser.add_argument("-dp", default=False)
-parser.add_argument("-mp", default=False)
-parser.add_argument("-plt", default=False)
+parser.add_argument("-lr", default=1)  # learning rate index for learning_rate_list
+parser.add_argument("-p", default=48)  # input timesteps
+parser.add_argument("-d", default=0)  # dropout percentage
+parser.add_argument("-l", default=0)  # additional layers
+parser.add_argument("-cp", default=True)  # predict complete part of time series
+parser.add_argument("-dp", default=True)  # predict decomposed part of time series
+parser.add_argument("-mp", default=True)  # use mass prediction for error calculation
+parser.add_argument("-plt", default=False)  # plot all
+
 args = parser.parse_args()
-print("args ", args.p, args.l, args.d)
+
 past_history = int(args.p)
 layers = int(args.l)
 dropout = int(args.d)
 predict_complete = bool(args.cp)
 predict_decomposed = bool(args.dp)
 mass_predict_neural = bool(args.mp)
-plot_all = False
-test_length = future_target + past_history + 500  # 300 Timesteps for testing.
-train_data, test_data = get_data(test_length=test_length, update_price_data=False, update_weather_data=False)  #
+learning_rate = learning_rate_list[int(args.lr)]
+learning_rate = .00004
+plot_all = mass_predict_neural==False
+test_length = future_target + past_history + 400  # 400 Timesteps for testing.
+
+train_data, test_data = get_data(test_length=test_length, update_price_data=True, update_weather_data=False)  #
 data = test_data if predict_on_test_data else train_data
 
 dropout_decimal = dropout / 10
 
 fig, ax = plt.subplots(4, 1, sharex=True)
-
+print("config: ", past_history, layers, dropout, learning_rate)
 # complete timeseries
+complete_prediciton = None
 if predict_complete:
     complete_prediciton = NeuralNetPrediction(datacolumn="Price",
                                               train_data=train_data,
@@ -83,10 +89,10 @@ if predict_complete:
     train = True
     if train:
         complete_prediciton.initialize_network(dropout=dropout_decimal,
-                                               additional_layers=layers)
+                                               additional_layers=layers, learning_rate=learning_rate)
         complete_prediciton.train_network(savename="trainedLSTM_complete",
                                           save=mass_predict_neural == False, lr_schedule="polynomal",
-                                          power=2)  # lr_schedule="polynomal" oder "step
+                                          power=1)  # lr_schedule="polynomal" oder "step
 
     else:
         complete_prediciton.load_model(savename="trainedLSTM_complete")
@@ -94,13 +100,13 @@ if predict_complete:
     if mass_predict_neural:
         neuronal_mass_predict("complete", complete_prediciton)
     else:
-        complete_prediciton.predict(predict_test=predict_on_test_data, offset=0,singlestep=False)
-    if plot_all:
-        ax[0].plot(complete_prediciton.truth.index, complete_prediciton.pred,
-                   label='complete; mean RMSE of 168 predicitions: {}'.format(
-                       complete_prediciton.error))
+        complete_prediciton.predict(predict_test=predict_on_test_data, offset=0)
 
-predict_decomposed = False
+residual_prediction = None
+statistical_pred = None
+i = 0
+decomp_error = 0
+sum_pred = None
 if predict_decomposed:
     # Residual
     residual_prediction = NeuralNetPrediction(datacolumn="Remainder",
@@ -113,7 +119,7 @@ if predict_decomposed:
     train = True
     if train:
         residual_prediction.initialize_network(dropout=dropout_decimal,
-                                               additional_layers=layers)
+                                               additional_layers=layers, learning_rate=learning_rate)
         residual_prediction.train_network(savename="trainedLSTM_resid",
                                           save=mass_predict_neural == False, lr_schedule="polynomal",
                                           power=2)  # lr_schedule="polynomal" oder "step
@@ -123,47 +129,59 @@ if predict_decomposed:
     if mass_predict_neural:
         neuronal_mass_predict("residual", residual_prediction)
     else:
-        decomp_error = 0
-        for i in range(0, 1, step):
-            # Remainder
-            residual_prediction.predict(predict_test=predict_on_test_data,
-                                        offset=i)
-            statistical_pred = StatisticalPrediction(data=data,
-                                                     forecast_length=future_target,
-                                                     offset=i)
-            # Seasonal
-            seasonal_pred = statistical_pred.predict("exp", "Seasonal")
-            if plot_all:
-                statistical_pred.plot_predictions(ax)
-            # Trend
-            trend_pred = statistical_pred.predict("exp", "Trend")
-            if plot_all:
-                statistical_pred.plot_predictions(ax)
-            # Combine predictions
-            sum_pred = residual_prediction.pred + seasonal_pred + \
-                       trend_pred
 
-            # add error
-            predict_from = len(data) + i
-            truth = data["Price"].iloc[
-                    predict_from:predict_from + future_target]
-            decomp_error += np.around(np.sqrt(np.mean(np.square(truth - sum_pred))), 2)
-            if plot_all:
-                ax[0].plot(truth.index, sum_pred,
-                           label='decomposed; mean RMSE of 168 predictions: '
-                                 '{}'.format(
-                               decomp_error))
-            if plot_all:
-                ax[0].plot(truth.index, truth, label="Price truth")
-        decomp_error /= (iterations / step)
-        if plot_all:
-            residual_prediction.plot_predictions(ax)
+        truth = data["Price"].iloc[
+                past_history + i: past_history + i + future_target]
+        # Remainder
+        residual_prediction.predict(predict_test=predict_on_test_data,
+                                    offset=i)
 
-if plot_all:
+        sum_pred = residual_prediction.pred
+
+        # Seasonal
+        statistical_pred = StatisticalPrediction(data=data,
+                                                 forecast_length=future_target,
+                                                 offset=i, neural_past_history=past_history)
+        statistical_pred.predict("exp", "Seasonal")
+        sum_pred += statistical_pred.pred
+
+        # Trend
+        trend_pred = data["Trend"].iloc[past_history + i: past_history + i + future_target]
+        sum_pred += trend_pred
+
+        # add error
+
+        decomp_error += np.around(np.sqrt(np.mean(np.square(truth - sum_pred))), 2)
+        i += 1
+
+decomp_error /= (i+1)
+if mass_predict_neural==False:
+    ax[0].plot(complete_prediciton.truth.index, sum_pred,
+               label='decomposed; mean RMSE of 168 predictions: '
+                     '{}'.format(
+                   decomp_error))
+    ax[0].plot(complete_prediciton.truth.index, complete_prediciton.pred,
+               label='complete; mean RMSE of 168 predicitions: {}'.format(
+                   complete_prediciton.error))
+    ax[0].plot(complete_prediciton.truth.index, complete_prediciton.truth,
+               label="Truth")
+    ax[0].legend()
+
+    ax[1].plot(residual_prediction.truth.index, residual_prediction.pred,
+               label='residual prediciton '
+                     '{}'.format(
+                   residual_prediction.error))
+    ax[1].plot(residual_prediction.truth.index, residual_prediction.truth, label="Truth")
+    ax[1].legend()
+
+    ax[2].plot(statistical_pred.truth.index, statistical_pred.truth.values, label='truth')
+    ax[2].plot(statistical_pred.truth.index, statistical_pred.pred,
+               label="prediction ; Error: {}".format(statistical_pred.error))
+    ax[2].legend()
+    ax[2].set_ylabel("Seasonal")
+
+    ax[3].plot(data.index[past_history + i: past_history + i + future_target], data["Trend"].iloc[past_history + i: past_history + i + future_target])
+
     # Plot the predictions of components and their combination with the
     # corresponding truth
-    ax[3].legend()
-    ax[3].set_ylabel("TREND")
-    ax[0].legend()
-    ax[0].set_ylabel("COMBINED")
     plt.show()
