@@ -33,7 +33,7 @@ class StatisticalPrediction:
             np.mean(np.square(self.truth.values - self.pred.values)))
 
     def exponential_smoothing_prediction(self,component):
-        train = self.data[component].iloc[self.start - 72:self.start]
+        train = self.data[component].iloc[self.start - 48:self.start]
         model = ExponentialSmoothing(train, trend="add", seasonal="add",
                                      seasonal_periods=24,
                                      damped=True, freq="H")

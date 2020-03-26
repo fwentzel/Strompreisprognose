@@ -135,6 +135,7 @@ def update_power_price():
                 power_frame["Price"] = pd.to_numeric(power_frame["Price"], errors="coerce")
                 power_frame["Price2"] = pd.to_numeric(power_frame["Price2"], errors="coerce")
                 power_frame["Price"]=power_frame.mean(axis=1)
+                power_frame.drop("Price2",axis=1,inplace=True)
                 sum = power_frame["Price"].isna().sum()
                 power_frame = power_frame.interpolate(limit=1)  # interpolate to fill missing value 21.3.2019 2:00
                 sum = power_frame["Price"].isna().sum()
@@ -164,29 +165,30 @@ def update_power_price():
 
 
 def fill_weather_na(frame):
-    # # sun,wind,cloudiness,air_temperature
-    # hours = [0 for x in range(24)]
-    # days = [0 for x in range(7)]
-    # series = frame["sun"]
-    # mask = series.isna()
-    # p = 0
-    # for i in range(len(series) - 1):
-    #     if mask[i]:
-    #         if mask[i + 1] == False:
-    #             p += 1
-    #         hours[series.index[i].hour] += 1
-    #         days[series.index[i].dayofweek] += 1
-    #
+    # #
+    for param in ["sun","wind","cloudiness","air_temperature"]:
+        hours = [0 for x in range(24)]
+        days = [0 for x in range(7)]
+        series = frame[param]
+        mask = series.isna()
+        p = 0
+        for i in range(len(series) - 1):
+            if mask[i]:
+                if mask[i + 1] == False:
+                    p += 1
+                hours[series.index[i].hour] += 1
+                days[series.index[i].dayofweek] += 1
+
     # plt.bar([x for x in range(24)], hours)
     # plt.xlabel("Tageszeit")
     # plt.ylabel("Anzahl fehlende Datenpunkte")
     # plt.title("Tageszeit der fehlenden Datenpunkten zu den Sonnenstunden")
     # plt.xticks([x for x in range(0, 24, 2)])
     # plt.show()
-
+    sum = frame.isna().sum()
     # print(hours)
     frame["sun"].fillna(0, inplace=True)
-    frame
+
     # frame["wind"].fillna(0, inplace=True)
     sum = frame.isna().sum()
 
@@ -194,42 +196,46 @@ def fill_weather_na(frame):
 
 
 def updateWeatherHistory():
+    start=datetime.datetime(2015,1,6,0)
+    end = datetime.date.today() - datetime.timedelta(days=1,hours=0)
     i = 0
     weather_frame = pd.DataFrame(
-        pd.date_range(start=datetime.date.today(), end=datetime.date.today(), freq="H"),
+        pd.date_range(start=start, end=end, freq="H"),
         columns=["MESS_DATUM"])
     weather_frame.set_index("MESS_DATUM", inplace=True)
 
     parameters = {"wind": "   F", "sun": "SD_SO", "cloudiness": " V_N", "air_temperature": "TT_TU"}
 
     for longform in parameters:
-        temp_frame = pd.DataFrame(pd.date_range(start='2018-10-1', end=datetime.datetime.today(), freq="H"),
+        temp_frame = pd.DataFrame(pd.date_range(start=start, end=end, freq="H"),
                                   columns=["MESS_DATUM"]).set_index("MESS_DATUM")
-        _URL = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/{}/recent/".format(
-            longform)
-        r = urlopen(_URL)
-        soup = bs(r.read(), features="html.parser")
-        links = soup.findAll('a')[4:]
-        maximum = len(links)
-        for j, link in enumerate(links):
-            print("\r{} :{}/{}".format(longform, j + 1, maximum), sep=' ', end='', flush=True)
-            _FULLURL = _URL + link.get('href')
-            resp = urlopen(_FULLURL)
-            zipfile = ZipFile(BytesIO(resp.read()))
-            file = zipfile.namelist()[-1]
-            tempdf = pd.read_csv(zipfile.open(file), sep=';', index_col="MESS_DATUM", na_values="-999")
-            tempdf.index = pd.to_datetime(tempdf.index, format='%Y%m%d%H')
-            test = pd.concat([temp_frame, tempdf[parameters[longform]]], axis=1)
-            test = test.mean(axis=1)
-            temp_frame[parameters[longform]] = test
-            sum = temp_frame.isna().sum()
-        weather_frame = pd.concat([weather_frame, temp_frame], axis=1)
+        for timeMode in ["recent"]:#"historical",
+            _URL = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/{}/{}/".format(
+                longform,timeMode)
+            r = urlopen(_URL)
+            soup = bs(r.read(), features="html.parser")
+            links = soup.findAll('a')[4:]
+            maximum = len(links)
+            for j, link in enumerate(links):
+                print("\r{} :{}/{}".format(longform, j + 1, maximum), sep=' ', end='', flush=True)
+                _FULLURL = _URL + link.get('href')
+                resp = urlopen(_FULLURL)
+                zipfile = ZipFile(BytesIO(resp.read()))
+                file = zipfile.namelist()[-1]
+                tempdf = pd.read_csv(zipfile.open(file), sep=';', index_col="MESS_DATUM", na_values="-999")
+                tempdf.index = pd.to_datetime(tempdf.index, format='%Y%m%d%H')
+                tempdf=tempdf.loc[tempdf.index >= start]
+                test = pd.concat([temp_frame, tempdf[parameters[longform]]], axis=1)
+                test = test.mean(axis=1)
+                temp_frame["{}_{}".format(parameters[longform],timeMode)] = test
+                sum = temp_frame.isna().sum()
+        temp_frame[parameters[longform]] = temp_frame.mean(axis=1)
+        weather_frame = pd.concat([weather_frame, temp_frame[parameters[longform]]], axis=1)
         sum = weather_frame.isna().sum()
         i += 1
 
     weather_frame.columns = [x for x in parameters]
-    weather_frame["sun"].fillna(0, inplace=True)
-    weather_frame.dropna(inplace=True)
+    # weather_frame["sun"].fillna(0, inplace=True)
     weather_frame.to_csv("Data/weather.csv")
     return weather_frame
 

@@ -10,8 +10,8 @@ from tensorflow_core.python.keras.callbacks import EarlyStopping, ModelCheckpoin
 
 
 class NeuralNetPrediction:
-    TRAIN_LENGTH = .8  # percent
-    BATCH_SIZE = 32
+    TRAIN_LENGTH = .7  # percent
+    BATCH_SIZE = 64
 
     def __init__(self, train_data, test_data, future_target, past_history, datacolumn, epochs):
         self.RELEVANT_COLUMNS = [datacolumn, "wind", "cloudiness", "air_temperature", "sun", 'Weekend', 'Hour',
@@ -38,8 +38,8 @@ class NeuralNetPrediction:
         model.add(tf.keras.layers.LSTM(int(self.past_history)))
         # model.add(tf.keras.layers.Dense(self.future_target))
         model.add(tf.keras.layers.Dense(1))
-        # model.compile(optimizer=tf.keras.optimizers.Adadelta(learning_rate=0.1), loss="mae")
-        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate), loss="mae")
+        model.compile(optimizer=tf.keras.optimizers.Adadelta(learning_rate=0.1), loss="mae")
+        # model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate), loss="mae")
         self.model = model
 
     def load_model(self, savename):
@@ -130,7 +130,7 @@ class NeuralNetPrediction:
             self.single_step_predict(inputs=input, target=target)
         else:
             self.multi_step_predict(inputs=input, target=target)
-
+        print(self.single_errors)
     def mass_predict(self, iterations, predict_on_test_data, step=1, ):
         error = 0
         j = 0

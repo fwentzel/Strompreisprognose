@@ -7,7 +7,6 @@
   <component name="ChangeListManager">
     <list default="true" id="68c788c7-5bf5-44ad-a565-79828c80a8e0" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/best_config_resid.csv" beforeDir="false" afterPath="$PROJECT_DIR$/best_config_residual.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_complete/saved_model.pb" beforeDir="false" afterPath="$PROJECT_DIR$/checkpoints/trainedLSTM_complete/saved_model.pb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_resid/saved_model.pb" beforeDir="false" afterPath="$PROJECT_DIR$/checkpoints/trainedLSTM_resid/saved_model.pb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/csv_reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/csv_reader.py" afterDir="false" />
@@ -385,7 +384,14 @@
       <option name="project" value="LOCAL" />
       <updated>1584917500595</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="strompreis ab 2015 wieder dabei. Wetterdaten vorest nur recent ab 2018">
+      <created>1585085624627</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1585085624628</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -417,7 +423,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="Aufteilung der prognosen in klassen" />
     <MESSAGE value="Predicitons in subplots dargestellt und Predictions addiert zu gesamtpreis" />
     <MESSAGE value="Able to use Test or training data for Predictions synchronzied with other prediciton methods." />
     <MESSAGE value="commit für Laptop" />
@@ -442,7 +447,8 @@
     <MESSAGE value="Fehlende stromdaten durch algged+differenz ersetzt" />
     <MESSAGE value="Wetteradten richtig eingelesen und fehlende sonnendaten durch 0 ersetzt, da nur nachts fehlend" />
     <MESSAGE value="doppelte datenpunkte Price gelöst" />
-    <option name="LAST_COMMIT_MESSAGE" value="doppelte datenpunkte Price gelöst" />
+    <MESSAGE value="strompreis ab 2015 wieder dabei. Wetterdaten vorest nur recent ab 2018" />
+    <option name="LAST_COMMIT_MESSAGE" value="strompreis ab 2015 wieder dabei. Wetterdaten vorest nur recent ab 2018" />
   </component>
   <component name="WindowStateProjectService">
     <state x="552" y="177" key="#Inspections" timestamp="1581671628942">
@@ -477,17 +483,17 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="756" y="371" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.1920.1040@0.0.1920.1040" timestamp="1581674267117" />
-    <state x="-1343" y="102" key="CommitChangelistDialog2" timestamp="1584917499962">
-      <screen x="-1920" y="0" width="1920" height="1040" />
-    </state>
-    <state x="-1343" y="102" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1584917499962" />
-    <state x="577" y="102" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1584883560113" />
-    <state x="896" y="141" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1581936883381" />
-    <state width="1688" height="466" key="DebuggerActiveHint" timestamp="1585085148430">
+    <state x="577" y="102" key="CommitChangelistDialog2" timestamp="1585085623687">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1688" height="466" key="DebuggerActiveHint/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585083642184" />
-    <state width="1688" height="466" key="DebuggerActiveHint/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585085148430" />
+    <state x="-1343" y="102" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1584917499962" />
+    <state x="577" y="102" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585085623687" />
+    <state x="896" y="141" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1581936883381" />
+    <state width="1688" height="466" key="DebuggerActiveHint" timestamp="1585236185842">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1688" height="466" key="DebuggerActiveHint/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585131887746" />
+    <state width="1688" height="466" key="DebuggerActiveHint/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585236185842" />
     <state width="1420" height="466" key="DebuggerActiveHint/0.0.1920.1040@0.0.1920.1040" timestamp="1581935191111" />
     <state x="92" y="92" width="1736" height="856" key="DiffContextDialog" timestamp="1583921925869">
       <screen x="0" y="0" width="1920" height="1040" />
@@ -514,53 +520,53 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="341" key="GridCell.Tab.-1.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1582725161544" />
-    <state width="958" height="981" key="GridCell.Tab.0.bottom" timestamp="1585085139904">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="978" height="1005" key="GridCell.Tab.0.bottom" timestamp="1585243377064">
+      <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="958" height="981" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585083566516" />
-    <state width="958" height="981" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585085139904" />
+    <state width="978" height="1005" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585243377064" />
+    <state width="1921" height="982" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585236626510" />
     <state width="1899" height="389" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705188" />
-    <state width="958" height="981" key="GridCell.Tab.0.center" timestamp="1585085139904">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="978" height="1005" key="GridCell.Tab.0.center" timestamp="1585243377064">
+      <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="958" height="981" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585083566515" />
-    <state width="958" height="981" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585085139904" />
+    <state width="978" height="1005" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585243377064" />
+    <state width="1921" height="982" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585236626510" />
     <state width="1899" height="389" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705187" />
-    <state width="958" height="981" key="GridCell.Tab.0.left" timestamp="1585085139903">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="978" height="1005" key="GridCell.Tab.0.left" timestamp="1585243377064">
+      <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="958" height="981" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585083566515" />
-    <state width="958" height="981" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585085139903" />
+    <state width="978" height="1005" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585243377064" />
+    <state width="1921" height="982" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585236626510" />
     <state width="1899" height="389" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705187" />
-    <state width="958" height="981" key="GridCell.Tab.0.right" timestamp="1585085139904">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="978" height="1005" key="GridCell.Tab.0.right" timestamp="1585243377064">
+      <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="958" height="981" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585083566515" />
-    <state width="958" height="981" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585085139904" />
+    <state width="978" height="1005" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585243377064" />
+    <state width="1921" height="982" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585236626510" />
     <state width="1899" height="389" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705188" />
-    <state width="958" height="981" key="GridCell.Tab.1.bottom" timestamp="1585085136297">
+    <state width="958" height="981" key="GridCell.Tab.1.bottom" timestamp="1585236131934">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="958" height="981" key="GridCell.Tab.1.bottom/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585083560720" />
-    <state width="958" height="981" key="GridCell.Tab.1.bottom/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585085136297" />
+    <state width="958" height="981" key="GridCell.Tab.1.bottom/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585131792215" />
+    <state width="958" height="981" key="GridCell.Tab.1.bottom/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585236131934" />
     <state width="1899" height="348" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1581940877071" />
-    <state width="958" height="981" key="GridCell.Tab.1.center" timestamp="1585085136297">
+    <state width="958" height="981" key="GridCell.Tab.1.center" timestamp="1585236131934">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="958" height="981" key="GridCell.Tab.1.center/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585083560719" />
-    <state width="958" height="981" key="GridCell.Tab.1.center/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585085136297" />
+    <state width="958" height="981" key="GridCell.Tab.1.center/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585131792215" />
+    <state width="958" height="981" key="GridCell.Tab.1.center/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585236131934" />
     <state width="1899" height="348" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1581940877071" />
-    <state width="958" height="981" key="GridCell.Tab.1.left" timestamp="1585085136297">
+    <state width="958" height="981" key="GridCell.Tab.1.left" timestamp="1585236131934">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="958" height="981" key="GridCell.Tab.1.left/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585083560719" />
-    <state width="958" height="981" key="GridCell.Tab.1.left/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585085136297" />
+    <state width="958" height="981" key="GridCell.Tab.1.left/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585131792215" />
+    <state width="958" height="981" key="GridCell.Tab.1.left/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585236131934" />
     <state width="1899" height="348" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1581940877070" />
-    <state width="958" height="981" key="GridCell.Tab.1.right" timestamp="1585085136297">
+    <state width="958" height="981" key="GridCell.Tab.1.right" timestamp="1585236131934">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="958" height="981" key="GridCell.Tab.1.right/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585083560719" />
-    <state width="958" height="981" key="GridCell.Tab.1.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585085136297" />
+    <state width="958" height="981" key="GridCell.Tab.1.right/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585131792215" />
+    <state width="958" height="981" key="GridCell.Tab.1.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585236131934" />
     <state width="1899" height="348" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1581940877071" />
     <state x="143" y="0" width="1762" height="912" key="MergeDialog" timestamp="1583014732562">
       <screen x="0" y="0" width="1920" height="1040" />
@@ -584,15 +590,15 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="968" height="528" key="XDebugger.FullValuePopup/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1584961845624" />
-    <state x="-1855" y="111" width="1736" height="856" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1584877168109">
+    <state x="-1855" y="111" width="1736" height="856" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1585085805821">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state x="-1855" y="111" width="1736" height="856" key="com.intellij.history.integration.ui.views.FileHistoryDialog/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1584877168109" />
-    <state x="769" y="436" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1585040423350">
+    <state x="-1855" y="111" width="1736" height="856" key="com.intellij.history.integration.ui.views.FileHistoryDialog/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585085805821" />
+    <state x="769" y="436" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1585132636249">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="-1151" y="436" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1584443183085" />
-    <state x="769" y="436" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585040423350" />
+    <state x="769" y="436" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585132636249" />
     <state x="685" y="232" key="git4idea.branch.GitSmartOperationDialog" timestamp="1583765412965">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -608,23 +614,18 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/data_downloader.py</url>
-          <line>237</line>
-          <option name="timeStamp" value="141" />
+          <line>256</line>
+          <option name="timeStamp" value="176" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/prognose.py</url>
-          <line>74</line>
-          <option name="timeStamp" value="154" />
+          <url>file://$PROJECT_DIR$/neuralNetPrediction.py</url>
+          <line>111</line>
+          <option name="timeStamp" value="194" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/csv_reader.py</url>
-          <line>20</line>
-          <option name="timeStamp" value="155" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/data_downloader.py</url>
-          <line>135</line>
-          <option name="timeStamp" value="158" />
+          <url>file://$PROJECT_DIR$/neuralNetPrediction.py</url>
+          <line>101</line>
+          <option name="timeStamp" value="195" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

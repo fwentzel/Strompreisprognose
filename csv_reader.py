@@ -17,10 +17,10 @@ def get_data(update_weather_data, update_price_data, test_length):
     data['Weekend'] = (pd.DatetimeIndex(data.index).dayofweek > 5).astype(int)
     data["Hour"] = data.index.hour
     read_holidays(data)
-    data["Price"].plot()
-    plt.ylabel("Strompreis [€/MWh]")
-    plt.xlabel("")
-    plt.show()
+    # data["Price"].plot()
+    # plt.ylabel("Strompreis [€/MWh]")
+    # plt.xlabel("")
+    # plt.show()
     test_data = data.iloc[-test_length:]  # Part of data the network wont see during Training and validation
     train_data = data.iloc[:-test_length]
     return train_data, test_data  # , forecast_frame.index[0]
@@ -42,6 +42,7 @@ def read_power_data():
 def read_weather_data():
     weather_frame = pd.read_csv("Data/weather.csv", index_col="MESS_DATUM")
     weather_frame.index = pd.to_datetime(weather_frame.index)
+    weather_frame["sun"].fillna(0, inplace=True)
     return weather_frame
 
 

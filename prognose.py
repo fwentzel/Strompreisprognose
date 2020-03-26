@@ -44,17 +44,16 @@ predict_on_test_data = True
 iterations = 168  # amount of predicitons for mass predict
 step = 1
 epochs = 500
-learning_rate_list =np.arange(0.0002,0.001,0.0001)
+learning_rate_list = np.arange(0.0001, 0.001, 0.0001)
 # argument parsing for grid search
 parser = ArgumentParser()
 parser.add_argument("-lr", default=1)  # learning rate index for learning_rate_list
-parser.add_argument("-p", default=48)  # input timesteps
+parser.add_argument("-p", default=24)  # input timesteps
 parser.add_argument("-d", default=0)  # dropout percentage
 parser.add_argument("-l", default=0)  # additional layers
 parser.add_argument("-cp", default=True)  # predict complete part of time series
 parser.add_argument("-dp", default=True)  # predict decomposed part of time series
-parser.add_argument("-mp", default=True)  # use mass prediction for error calculation
-parser.add_argument("-plt", default=False)  # plot all
+parser.add_argument("-mp", default=False)  # use mass prediction for error calculation
 
 args = parser.parse_args()
 
@@ -65,11 +64,12 @@ predict_complete = bool(args.cp)
 predict_decomposed = bool(args.dp)
 mass_predict_neural = bool(args.mp)
 learning_rate = learning_rate_list[int(args.lr)]
-learning_rate = .00004
-plot_all = mass_predict_neural==False
+# learning_rate = .0004
+plot_all = mass_predict_neural == False
+plot_all = False
 test_length = future_target + past_history + 400  # 400 Timesteps for testing.
 
-train_data, test_data = get_data(test_length=test_length, update_price_data=True, update_weather_data=False)  #
+train_data, test_data = get_data(test_length=test_length, update_price_data=False, update_weather_data=False)  #
 data = test_data if predict_on_test_data else train_data
 
 dropout_decimal = dropout / 10
@@ -101,7 +101,11 @@ if predict_complete:
         neuronal_mass_predict("complete", complete_prediciton)
     else:
         complete_prediciton.predict(predict_test=predict_on_test_data, offset=0)
-
+    with open('complete_results.csv', 'a', newline='') as fd:
+        writer = csv.writer(fd)
+        writer.writerow(
+            [past_history, learning_rate, complete_prediciton.error, complete_prediciton.single_errors.tolist()])
+        sum_pred = complete_prediciton.pred.copy()
 residual_prediction = None
 statistical_pred = None
 i = 0
@@ -129,14 +133,10 @@ if predict_decomposed:
     if mass_predict_neural:
         neuronal_mass_predict("residual", residual_prediction)
     else:
-
-        truth = data["Price"].iloc[
-                past_history + i: past_history + i + future_target]
         # Remainder
         residual_prediction.predict(predict_test=predict_on_test_data,
                                     offset=i)
-
-        sum_pred = residual_prediction.pred
+        sum_pred = residual_prediction.pred.copy()
 
         # Seasonal
         statistical_pred = StatisticalPrediction(data=data,
@@ -151,37 +151,44 @@ if predict_decomposed:
 
         # add error
 
-        decomp_error += np.around(np.sqrt(np.mean(np.square(truth - sum_pred))), 2)
+        decomp_error += np.around(np.sqrt(
+            np.mean(np.square(data["Price"].iloc[past_history + i: past_history + i + future_target] - sum_pred))), 2)
         i += 1
+    with open('residual_results.csv', 'a', newline='') as fd:
+        writer = csv.writer(fd)
+        writer.writerow([learning_rate, residual_prediction.error, residual_prediction.single_errors.tolist()])
 
-decomp_error /= (i+1)
-if mass_predict_neural==False:
-    ax[0].plot(complete_prediciton.truth.index, sum_pred,
+decomp_error /= (i + 1)
+if mass_predict_neural == False and complete_prediciton is not None and residual_prediction is not None and statistical_pred is not None and plot_all == True:
+    timeframe = slice(i + past_history, past_history + future_target + i)
+    index = data.iloc[timeframe].index
+    ax[0].plot(index, data["Price"].iloc[timeframe],
+               label="Truth")
+    ax[1].plot(index, data["Remainder"].iloc[timeframe], label="Truth")
+    ax[2].plot(index, data["Seasonal"].iloc[timeframe], label='truth')
+
+    ax[0].plot(index, sum_pred,
                label='decomposed; mean RMSE of 168 predictions: '
                      '{}'.format(
                    decomp_error))
-    ax[0].plot(complete_prediciton.truth.index, complete_prediciton.pred,
+    ax[0].plot(index, complete_prediciton.pred,
                label='complete; mean RMSE of 168 predicitions: {}'.format(
                    complete_prediciton.error))
-    ax[0].plot(complete_prediciton.truth.index, complete_prediciton.truth,
-               label="Truth")
-    ax[0].legend()
 
-    ax[1].plot(residual_prediction.truth.index, residual_prediction.pred,
-               label='residual prediciton '
+    ax[1].plot(index, residual_prediction.pred,
+               label='Remainder prediciton '
                      '{}'.format(
                    residual_prediction.error))
-    ax[1].plot(residual_prediction.truth.index, residual_prediction.truth, label="Truth")
-    ax[1].legend()
-
-    ax[2].plot(statistical_pred.truth.index, statistical_pred.truth.values, label='truth')
-    ax[2].plot(statistical_pred.truth.index, statistical_pred.pred,
+    ax[2].plot(index, statistical_pred.pred,
                label="prediction ; Error: {}".format(statistical_pred.error))
-    ax[2].legend()
+    ax[3].plot(index,
+               data["Trend"].iloc[timeframe])
+
     ax[2].set_ylabel("Seasonal")
 
-    ax[3].plot(data.index[past_history + i: past_history + i + future_target], data["Trend"].iloc[past_history + i: past_history + i + future_target])
-
+    ax[0].legend()
+    ax[1].legend()
+    ax[2].legend()
     # Plot the predictions of components and their combination with the
     # corresponding truth
     plt.show()
