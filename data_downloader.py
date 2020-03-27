@@ -47,7 +47,7 @@ def fill_power_na(series):
 
 def plot_decomposed_data(data):
     fig, ax = plt.subplots(4, 1, sharex=True)
-    data=data.iloc[1000:]
+    data = data.iloc[1000:]
     ax[0].title.set_text("ORIGINAL")
     ax[0].plot(data["Price"])
     ax[1].title.set_text("RESIDUAL")
@@ -56,19 +56,20 @@ def plot_decomposed_data(data):
     ax[2].plot(data["Seasonal"])
     ax[3].title.set_text("TREND")
     ax[3].plot(data["Trend"])
-    #plt.savefig("{}.png".format(i))
+    # plt.savefig("{}.png".format(i))
     plt.show()
 
 
+# LatexDecomposeMarkerStart
 def decompose_data(data_frame):
-    i=0
-    while data_frame.index[i].hour !=0:
-        i+=1
+    i = 0
+    while data_frame.index[i].hour != 0:
+        i += 1
 
     if i > 0:
-        new_frame=data_frame.iloc[i:]
+        new_frame = data_frame.iloc[i:]
     else:
-        new_frame=data_frame
+        new_frame = data_frame
 
     components = STL(new_frame["Price"], seasonal=13).fit()
     new_frame["Remainder"] = components.resid
@@ -76,6 +77,9 @@ def decompose_data(data_frame):
     new_frame["Trend"] = components.trend
     #plot_decomposed_data(new_frame)
     return new_frame
+
+
+# LatexDecomposeMarkerEnd
 
 
 def update_power_price():
@@ -94,7 +98,8 @@ def update_power_price():
               "selectedRegion%22:%22DE%22,%22" \
               "from%22:1420502400000,%22" \
               "to%22:{},%22" \
-              "selectedFileType%22:%22CSV%22%7D".format(milliseconds_since_epoch)#1420502400000 für 6.1.2015; 1538352000000 für 1.10.2018
+              "selectedFileType%22:%22CSV%22%7D".format(
+            milliseconds_since_epoch)  # 1420502400000 für 6.1.2015; 1538352000000 für 1.10.2018
         options = Options()
         # options.add_argument('headless')
         options.add_experimental_option('prefs', {
@@ -102,7 +107,9 @@ def update_power_price():
                 "default_directory": data_path
             }
         })
-        driver = webdriver.Chrome("./selenium_web_driver/chromedriver.exe", options=options)  #
+        driver = webdriver.Chrome(
+            "./selenium_web_driver/chromedriver.exe",
+            options=options)  #
         driver.get(URL)
         button = driver.find_element_by_xpath(
             "//button[@name='button'][@type='button'][contains(text(), 'Datei herunterladen')]")
@@ -110,7 +117,8 @@ def update_power_price():
 
         button.click()
 
-        while not [filename for filename in os.listdir(data_path) if filename.startswith("Tabellen_Daten")]:
+        while not [filename for filename in os.listdir(data_path) if
+                   filename.startswith("Tabellen_Daten")]:
             print("not there yet")
             time.sleep(2)
         print("finished")
@@ -121,23 +129,35 @@ def update_power_price():
         if filename.startswith("Tabellen_Daten"):
             zip_filename = "{}\\{}".format(data_path, filename)
             with ZipFile(zip_filename) as zipFile:
-                power_frame = pd.read_csv(zipFile.open(zipFile.namelist()[-1]), sep=';')
-                power_frame['MESS_DATUM'] = power_frame['Datum'].str.cat(power_frame['Uhrzeit'], sep=" ")
-                power_frame.rename(columns={"Deutschland/Luxemburg[Euro/MWh]": "Price","Deutschland/Österreich/Luxemburg[Euro/MWh]":"Price2"},
-                                   inplace=True)
-                power_frame = pd.DataFrame(power_frame[["Price","Price2", "MESS_DATUM"]])
-                power_frame["MESS_DATUM"] = pd.to_datetime(power_frame["MESS_DATUM"], format="%d.%m.%Y %H:%M")
+                power_frame = pd.read_csv(
+                    zipFile.open(zipFile.namelist()[-1]), sep=';')
+                power_frame['MESS_DATUM'] = power_frame[
+                    'Datum'].str.cat(power_frame['Uhrzeit'], sep=" ")
+                power_frame.rename(
+                    columns={"Deutschland/Luxemburg[Euro/MWh]": "Price",
+                             "Deutschland/Österreich/Luxemburg[Euro/MWh]": "Price2"},
+                    inplace=True)
+                power_frame = pd.DataFrame(
+                    power_frame[["Price", "Price2", "MESS_DATUM"]])
+                power_frame["MESS_DATUM"] = pd.to_datetime(
+                    power_frame["MESS_DATUM"], format="%d.%m.%Y %H:%M")
                 power_frame.set_index("MESS_DATUM", inplace=True)
-                power_frame["Price"] = power_frame["Price"].apply(lambda x: x.replace(",", "."))
-                power_frame["Price2"] = power_frame["Price2"].apply(lambda x: x.replace(",", "."))
-                power_frame = power_frame[~power_frame.index.duplicated()].asfreq(
+                power_frame["Price"] = power_frame["Price"].apply(
+                    lambda x: x.replace(",", "."))
+                power_frame["Price2"] = power_frame["Price2"].apply(
+                    lambda x: x.replace(",", "."))
+                power_frame = power_frame[
+                    ~power_frame.index.duplicated()].asfreq(
                     freq='H')  # remove duplicate entries (2 faulty values from database) and set frequency to Hourly
-                power_frame["Price"] = pd.to_numeric(power_frame["Price"], errors="coerce")
-                power_frame["Price2"] = pd.to_numeric(power_frame["Price2"], errors="coerce")
-                power_frame["Price"]=power_frame.mean(axis=1)
-                power_frame.drop("Price2",axis=1,inplace=True)
+                power_frame["Price"] = pd.to_numeric(
+                    power_frame["Price"], errors="coerce")
+                power_frame["Price2"] = pd.to_numeric(
+                    power_frame["Price2"], errors="coerce")
+                power_frame["Price"] = power_frame.mean(axis=1)
+                power_frame.drop("Price2", axis=1, inplace=True)
                 sum = power_frame["Price"].isna().sum()
-                power_frame = power_frame.interpolate(limit=1)  # interpolate to fill missing value 21.3.2019 2:00
+                power_frame = power_frame.interpolate(
+                    limit=1)  # interpolate to fill missing value 21.3.2019 2:00
                 sum = power_frame["Price"].isna().sum()
                 fill_power_na(power_frame["Price"])
 
@@ -166,7 +186,7 @@ def update_power_price():
 
 def fill_weather_na(frame):
     # #
-    for param in ["sun","wind","cloudiness","air_temperature"]:
+    for param in ["sun", "wind", "cloudiness", "air_temperature"]:
         hours = [0 for x in range(24)]
         days = [0 for x in range(7)]
         series = frame[param]
@@ -196,41 +216,50 @@ def fill_weather_na(frame):
 
 
 def updateWeatherHistory():
-    start=datetime.datetime(2015,1,6,0)
-    end = datetime.date.today() - datetime.timedelta(days=1,hours=0)
+    start = datetime.datetime(2015, 1, 6, 0)
+    end = datetime.date.today() - datetime.timedelta(days=1, hours=0)
     i = 0
     weather_frame = pd.DataFrame(
         pd.date_range(start=start, end=end, freq="H"),
         columns=["MESS_DATUM"])
     weather_frame.set_index("MESS_DATUM", inplace=True)
 
-    parameters = {"wind": "   F", "sun": "SD_SO", "cloudiness": " V_N", "air_temperature": "TT_TU"}
+    parameters = {"wind": "   F", "sun": "SD_SO", "cloudiness": " V_N",
+                  "air_temperature": "TT_TU"}
 
     for longform in parameters:
-        temp_frame = pd.DataFrame(pd.date_range(start=start, end=end, freq="H"),
-                                  columns=["MESS_DATUM"]).set_index("MESS_DATUM")
-        for timeMode in ["recent"]:#"historical",
+        temp_frame = pd.DataFrame(
+            pd.date_range(start=start, end=end, freq="H"),
+            columns=["MESS_DATUM"]).set_index("MESS_DATUM")
+        for timeMode in ["recent"]:  # "historical",
             _URL = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/{}/{}/".format(
-                longform,timeMode)
+                longform, timeMode)
             r = urlopen(_URL)
             soup = bs(r.read(), features="html.parser")
             links = soup.findAll('a')[4:]
             maximum = len(links)
             for j, link in enumerate(links):
-                print("\r{} :{}/{}".format(longform, j + 1, maximum), sep=' ', end='', flush=True)
+                print("\r{} :{}/{}".format(longform, j + 1, maximum),
+                      sep=' ', end='', flush=True)
                 _FULLURL = _URL + link.get('href')
                 resp = urlopen(_FULLURL)
                 zipfile = ZipFile(BytesIO(resp.read()))
                 file = zipfile.namelist()[-1]
-                tempdf = pd.read_csv(zipfile.open(file), sep=';', index_col="MESS_DATUM", na_values="-999")
-                tempdf.index = pd.to_datetime(tempdf.index, format='%Y%m%d%H')
-                tempdf=tempdf.loc[tempdf.index >= start]
-                test = pd.concat([temp_frame, tempdf[parameters[longform]]], axis=1)
+                tempdf = pd.read_csv(zipfile.open(file), sep=';',
+                                     index_col="MESS_DATUM",
+                                     na_values="-999")
+                tempdf.index = pd.to_datetime(tempdf.index,
+                                              format='%Y%m%d%H')
+                tempdf = tempdf.loc[tempdf.index >= start]
+                test = pd.concat(
+                    [temp_frame, tempdf[parameters[longform]]], axis=1)
                 test = test.mean(axis=1)
-                temp_frame["{}_{}".format(parameters[longform],timeMode)] = test
+                temp_frame["{}_{}".format(parameters[longform],
+                                          timeMode)] = test
                 sum = temp_frame.isna().sum()
         temp_frame[parameters[longform]] = temp_frame.mean(axis=1)
-        weather_frame = pd.concat([weather_frame, temp_frame[parameters[longform]]], axis=1)
+        weather_frame = pd.concat(
+            [weather_frame, temp_frame[parameters[longform]]], axis=1)
         sum = weather_frame.isna().sum()
         i += 1
 
@@ -240,7 +269,8 @@ def updateWeatherHistory():
     return weather_frame
 
 
-def updateForecast(properties=["FF", "N", "SunD1", "TTT"], updateGermanCities=False, ):
+def updateForecast(properties=["FF", "N", "SunD1", "TTT"],
+                   updateGermanCities=False, ):
     print("downloading Forecast")
     resp = urllib.request.urlopen(
         "https://opendata.dwd.de/weather/local_forecasts/mos/MOSMIX_S/all_stations/kml/MOSMIX_S_LATEST_240.kmz")
@@ -258,16 +288,21 @@ def updateForecast(properties=["FF", "N", "SunD1", "TTT"], updateGermanCities=Fa
     last_frame = pd.DataFrame()
 
     index_list = []
-    for time_step in root.iter('{https://opendata.dwd.de/weather/lib/pointforecast_dwd_extension_V1_0.xsd}TimeStep'):
+    for time_step in root.iter(
+            '{https://opendata.dwd.de/weather/lib/pointforecast_dwd_extension_V1_0.xsd}TimeStep'):
         index_list.append(time_step.text)
     for prop in properties:
-        for placemark in root.iter('{http://www.opengis.net/kml/2.2}Placemark'):
+        for placemark in root.iter(
+                '{http://www.opengis.net/kml/2.2}Placemark'):
             city = placemark.find("kml:description", namespace).text
             if city in cities:  # stadt in DE
                 df = pd.DataFrame()
-                forecast = placemark.find("./kml:ExtendedData/dwd:Forecast[@dwd:elementName='{}']".format(prop),
-                                          namespace)
-                df[city] = list(map(float, forecast[0].text.replace("-", "-999").split()))
+                forecast = placemark.find(
+                    "./kml:ExtendedData/dwd:Forecast[@dwd:elementName='{}']".format(
+                        prop),
+                    namespace)
+                df[city] = list(map(float, forecast[0].text.replace("-",
+                                                                    "-999").split()))
                 last_frame[prop] = df.mean(axis=1)
     last_frame["Date"] = index_list
     last_frame["Date"] = pd.to_datetime(last_frame['Date'])
@@ -277,16 +312,20 @@ def updateForecast(properties=["FF", "N", "SunD1", "TTT"], updateGermanCities=Fa
 
     if (updateGermanCities):
         print("updating germanCities.csv")
-        elemts = root[0].findall("./kml:Placemark/kml:description", namespace)
+        elemts = root[0].findall("./kml:Placemark/kml:description",
+                                 namespace)
         cityList = []
         for element in elemts:
             cityList.append(element.text)
         citiesDWD = pd.DataFrame(cityList, columns=["Ort"])
         citiesDWD['Ort'] = citiesDWD["Ort"].apply(lambda x: x.upper())
 
-        cities = pd.DataFrame(pd.read_csv("deCitiescompare.csv", delimiter=";")["Ort"], columns=["Ort"])
+        cities = pd.DataFrame(
+            pd.read_csv("deCitiescompare.csv", delimiter=";")["Ort"],
+            columns=["Ort"])
         cities['Ort'] = cities["Ort"].apply(lambda x: x.upper())
 
-        mergedStuff = pd.merge(cities, citiesDWD, on=['Ort'], how='inner')
+        mergedStuff = pd.merge(cities, citiesDWD, on=['Ort'],
+                               how='inner')
         mergedStuff = mergedStuff.drop_duplicates()
         mergedStuff.to_csv("Data/germanCities.csv", index=False)
