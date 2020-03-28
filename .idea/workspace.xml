@@ -5,17 +5,10 @@
     <option name="CUSTOM_SCOPE_NAME" value="Current File" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="68c788c7-5bf5-44ad-a565-79828c80a8e0" name="Default Changelist" comment="code cleanup prognose.py, Resultordner angelegt">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="68c788c7-5bf5-44ad-a565-79828c80a8e0" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Data/price.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Data/price.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Data/weather.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Data/weather.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/best_config_residual.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_complete/saved_model.pb" beforeDir="false" afterPath="$PROJECT_DIR$/checkpoints/trainedLSTM_complete/saved_model.pb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/csv_reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/csv_reader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_downloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_downloader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/neuralNetPrediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/neuralNetPrediction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prognose.py" beforeDir="false" afterPath="$PROJECT_DIR$/prognose.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -408,7 +401,14 @@
       <option name="project" value="LOCAL" />
       <updated>1585345058382</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="code cleanup rest. &#10;daten download automatisiert nur wenn daten nichtmehr aktuell,&#10;strompreis nur das nötigste runterladen&#10;Wetterdaten nur recent nötig">
+      <created>1585399261724</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1585399261724</updated>
+    </task>
+    <option name="localTasksCounter" value="37" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -440,7 +440,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="commit für Laptop" />
     <MESSAGE value="Arima für statistische Prognose&#10;Testmethode implementiert um beste order für arima zu finden" />
     <MESSAGE value="arima und Exponential Smoothing für seasonal predictions" />
     <MESSAGE value="code Cleanup&#10;Errorberechnung aus vielen prognosen wieder rausgenommen, doof zum testen" />
@@ -465,7 +464,8 @@
     <MESSAGE value="strompreis ab 2015 wieder dabei. Wetterdaten vorest nur recent ab 2018" />
     <MESSAGE value="alle wetterdaten mit dabei" />
     <MESSAGE value="code cleanup prognose.py, Resultordner angelegt" />
-    <option name="LAST_COMMIT_MESSAGE" value="code cleanup prognose.py, Resultordner angelegt" />
+    <MESSAGE value="code cleanup rest. &#10;daten download automatisiert nur wenn daten nichtmehr aktuell,&#10;strompreis nur das nötigste runterladen&#10;Wetterdaten nur recent nötig" />
+    <option name="LAST_COMMIT_MESSAGE" value="code cleanup rest. &#10;daten download automatisiert nur wenn daten nichtmehr aktuell,&#10;strompreis nur das nötigste runterladen&#10;Wetterdaten nur recent nötig" />
   </component>
   <component name="WindowStateProjectService">
     <state x="552" y="177" key="#Inspections" timestamp="1581671628942">
@@ -500,11 +500,11 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="756" y="371" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.1920.1040@0.0.1920.1040" timestamp="1581674267117" />
-    <state x="577" y="102" key="CommitChangelistDialog2" timestamp="1585345232971">
+    <state x="577" y="102" key="CommitChangelistDialog2" timestamp="1585399260486">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="-1343" y="102" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585249437882" />
-    <state x="577" y="102" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585345232971" />
+    <state x="577" y="102" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585399260486" />
     <state x="896" y="141" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1581936883381" />
     <state width="1689" height="466" key="DebuggerActiveHint" timestamp="1585398749943">
       <screen x="0" y="0" width="1920" height="1040" />
@@ -598,10 +598,10 @@
     </state>
     <state x="548" y="121" key="SettingsEditor/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585341931701" />
     <state x="806" y="146" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1581930835499" />
-    <state x="476" y="257" width="985" height="536" key="Vcs.Push.Dialog.v2" timestamp="1584883563042">
+    <state x="476" y="257" width="985" height="536" key="Vcs.Push.Dialog.v2" timestamp="1585399266018">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="476" y="257" width="985" height="536" key="Vcs.Push.Dialog.v2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1584883563042" />
+    <state x="476" y="257" width="985" height="536" key="Vcs.Push.Dialog.v2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585399266018" />
     <state x="552" y="240" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1581936892272" />
     <state width="968" height="528" key="XDebugger.FullValuePopup" timestamp="1584961845624">
       <screen x="0" y="0" width="1920" height="1040" />
