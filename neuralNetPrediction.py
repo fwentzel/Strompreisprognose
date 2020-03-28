@@ -13,7 +13,7 @@ from tensorflow_core.python.keras.callbacks import EarlyStopping, \
 
 class NeuralNetPrediction:
     TRAIN_LENGTH = .7  # percent
-    BATCH_SIZE = 64
+    BATCH_SIZE = 128
 
     def __init__(self, train_data, test_data, future_target,
                  past_history,
@@ -71,7 +71,7 @@ class NeuralNetPrediction:
                                          -1), np.array(
             labels).astype(float)
 
-    def train_network(self, savename, power=1, initAlpha=0.001,
+    def train_network(self, savename, power=1, initAlpha=0.1,
                       lr_schedule="polynomal", save=True):
         if lr_schedule == "polynomal":
             if power is None:
@@ -84,18 +84,19 @@ class NeuralNetPrediction:
 
         es = EarlyStopping(monitor='val_loss', mode='min', verbose=1,
                            patience=10)  # restore_best_weights=True
-        multi_step_history = self.model.fit(x=self.x, y=self.y,
-                                            epochs=self.epochs,
-                                            batch_size=self.BATCH_SIZE,
-                                            verbose=1,
-                                            validation_split=1 -
-                                                             self.TRAIN_LENGTH,
-                                            shuffle=True,
-                                            callbacks=[
-                                                es])  # ,,
+        history = self.model.fit(x=self.x, y=self.y,
+                                 epochs=self.epochs,
+                                 batch_size=self.BATCH_SIZE,
+                                 verbose=2,
+                                 validation_split=1 -
+                                                  self.TRAIN_LENGTH,
+                                 shuffle=True,
+                                 callbacks=[
+                                     es,
+                                     LearningRateScheduler(schedule)])
         # tf.keras.callbacks.LearningRateScheduler(schedule)
         # schedule.plot(self.epochs)
-        # self.plot_train_history(multi_step_history, 'Multi-Step Training
+        # self.plot_train_history(history, 'Multi-Step Training
         # and validation loss')
         if save:
             self.model.save('.\checkpoints\{0}'.format(savename))
@@ -107,7 +108,6 @@ class NeuralNetPrediction:
         plt.figure()
         plt.plot(epochs, loss, 'b', label='Training loss')
         plt.plot(epochs, val_loss, 'r', label='Validation loss')
-
         plt.title(title)
         plt.legend()
         plt.show()
@@ -211,18 +211,17 @@ class NeuralNetPrediction:
             single_errorlist[i] = self.single_errors
 
         error /= j
-
-        plt.plot(offsets, error, label="mean Error over time")
-        plt.legend()
-        plt.show()
-
         mean_errorlist = np.around(np.mean(single_errorlist, axis=0),
                                    decimals=2)
+        plt.plot(offsets, mean_errorlist, label="mean Error over time")
+        plt.legend()
+        plt.show()
         # self.plot_mass_error_over_day(mean_errorlist)
 
         min_error = 100
         min_config = None
-        with open("Results/best_config_{}.csv".format(filename)) as config:
+        with open("Results/best_config_{}.csv".format(
+                filename)) as config:
             reader = csv.reader(config, delimiter=',')
             for row in reader:
                 min_config = row
@@ -233,7 +232,7 @@ class NeuralNetPrediction:
                   newline='') as fd:
             writer = csv.writer(fd)
             writer.writerow(
-                [learning_rate, past_history, layers,error,
+                [learning_rate, past_history, layers, error,
                  mean_errorlist.tolist()])
 
         if error < min_error:
@@ -241,11 +240,11 @@ class NeuralNetPrediction:
             min_config = [learning_rate, past_history, layers,
                           min_error]
             self.model.save('.\checkpoints\{}_best'.format(filename))
-            with open('Results/best_config_{}.csv'.format(filename), 'w',
+            with open('Results/best_config_{}.csv'.format(filename),
+                      'w',
                       newline='') as fd:
                 writer = csv.writer(fd)
                 writer.writerow(min_config)
-
 
     def plot_predictions(self, ax):
         time_slice = slice(self.past_history,
