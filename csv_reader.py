@@ -20,7 +20,9 @@ def get_data(test_length,
                          power_last_index.month < datetime.today().month
     get_new_weather_data = weather_last_index.day < yesterday or \
                            weather_last_index.month < datetime.today().month
-
+    #override for testing
+    get_new_power_data=False
+    get_new_weather_data=False
     weather_frame = data_downloader.updateWeatherHistory() if get_new_weather_data else read_weather_data()
     power_price_frame = data_downloader.update_power_price() if get_new_power_data else read_power_data()
 
@@ -36,7 +38,7 @@ def get_data(test_length,
     test_split_at_hour = data.index[
                              -test_length + past_history].hour - test_pred_start_hour
     test_split_at_hour += test_length
-    test_data = data.iloc[-test_split_at_hour:]
+    test_data = data.iloc[-test_split_at_hour-past_history:]
     train_data = data.iloc[:-test_split_at_hour]
     return train_data, test_data
 

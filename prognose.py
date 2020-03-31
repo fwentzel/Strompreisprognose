@@ -8,14 +8,14 @@ from pandas.plotting import register_matplotlib_converters
 from csv_reader import get_data
 from neuralNetPrediction import NeuralNetPrediction
 from statisticalPrediction import StatisticalPrediction
-
+import ipykernel #fix progress bar
 register_matplotlib_converters()
 
 future_target = 24
 iterations = 24  # amount of predicitons for mass predict
-step = 1
-epochs = 500
-train_complete = True
+step = 3
+epochs = 100
+train_complete = False
 train_residual = False
 
 # argument parsing for grid search
@@ -23,11 +23,11 @@ parser = ArgumentParser()
 parser.add_argument("-lr",
                     default=7, type=int,
                     help=" learning rate index for learning_rate_list")
-parser.add_argument("-p", default=120, type=int,
+parser.add_argument("-p", default=48, type=int,
                     help="amount of input timesteps")
-parser.add_argument("-l", default=0, type=int,
+parser.add_argument("-l", default=1, type=int,
                     help="additional layers for neural net")
-parser.add_argument("-d", default=0, type=int,
+parser.add_argument("-d", default=2, type=int,
                     help="dropout percentage in additional layer")
 parser.add_argument("-cp",
                     default=True, type=bool,
@@ -49,10 +49,10 @@ mass_predict_neural = args.mp
 learning_rate = np.arange(0.0001, 0.001, 0.0001)[args.lr]
 # learning_rate = .0004
 plot_all = mass_predict_neural == False
-test_length = future_target + past_history + 400  # Timesteps for testing.
+test_length = future_target + iterations+168  # Timesteps for testing.
 
 train_data, test_data = get_data(test_length=test_length,
-                                 test_pred_start_hour=12,
+                                 test_pred_start_hour=0,
                                  past_history=past_history)
 
 dropout_decimal = dropout / 10
@@ -74,7 +74,7 @@ if predict_complete:
         full_prediciton.train_network(savename="trainedLSTM_complete",
                                       save=True,
                                       lr_schedule="polynomal",
-                                      power=2)  # lr_schedule="polynomal" oder "step
+                                      power=3)  # lr_schedule="polynomal" oder "step
 
     else:
         full_prediciton.load_model(savename="trainedLSTM_complete")
@@ -84,14 +84,11 @@ if predict_complete:
                                      filename="complete",
                                      learning_rate=learning_rate,
                                      past_history=past_history,
-                                     layers=layers)
+                                     layers=layers,
+                                     step=step)
     else:
         full_prediciton.predict(offset=0)
-    with open('Results/complete_results.csv', 'a', newline='') as fd:
-        writer = csv.writer(fd)
-        writer.writerow(
-            [past_history, learning_rate, full_prediciton.error,
-             full_prediciton.single_errors.tolist()])
+
 
 res_prediction = None
 statistical_pred = None

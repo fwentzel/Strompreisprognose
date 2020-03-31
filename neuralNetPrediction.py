@@ -13,7 +13,7 @@ from tensorflow_core.python.keras.callbacks import EarlyStopping, \
 
 class NeuralNetPrediction:
     TRAIN_LENGTH = .7  # percent
-    BATCH_SIZE = 128
+    BATCH_SIZE = 32
 
     def __init__(self, train_data, test_data, future_target,
                  past_history,
@@ -39,19 +39,21 @@ class NeuralNetPrediction:
                                        return_sequences=True,
                                        input_shape=(self.x.shape[-2:])))
         for i in range(additional_layers):
-            model.add(
-                tf.keras.layers.LSTM(self.past_history,
-                                     return_sequences=True,
-                                     dropout=dropout))  # 0,3 3,7
+            if i < additional_layers - 1:
+                model.add(
+                    tf.keras.layers.LSTM(self.past_history,
+                                         return_sequences=True,
+                                         dropout=dropout))  # 0,3 3,7
+            else:
+                model.add(tf.keras.layers.LSTM(int(self.past_history)))
 
-        model.add(tf.keras.layers.LSTM(int(self.past_history)))
         # model.add(tf.keras.layers.Dense(self.future_target))
         model.add(tf.keras.layers.Dense(1))
-        model.compile(
-            optimizer=tf.keras.optimizers.Adadelta(learning_rate=0.1),
-            loss="mae")
-        # model.compile(optimizer=tf.keras.optimizers.Adam(
-        # learning_rate=learning_rate), loss="mae")
+        # model.compile(
+        #     optimizer=tf.keras.optimizers.Adadelta(learning_rate=0.1),
+        #     loss="mae")
+        model.compile(optimizer=tf.keras.optimizers.Adam(
+            learning_rate=learning_rate), loss="mae")
         self.model = model
 
     def load_model(self, savename):
@@ -71,7 +73,7 @@ class NeuralNetPrediction:
                                          -1), np.array(
             labels).astype(float)
 
-    def train_network(self, savename, power=1, initAlpha=0.1,
+    def train_network(self, savename, power=1, initAlpha=0.01,
                       lr_schedule="polynomal", save=True):
         if lr_schedule == "polynomal":
             if power is None:
@@ -81,21 +83,20 @@ class NeuralNetPrediction:
         elif lr_schedule == "step":
             schedule = StepDecay(initAlpha=initAlpha, factor=0.8,
                                  dropEvery=10)
-
+        #schedule.plot(self.epochs)
         es = EarlyStopping(monitor='val_loss', mode='min', verbose=1,
-                           patience=10)  # restore_best_weights=True
+                           patience=3)  # restore_best_weights=True
         history = self.model.fit(x=self.x, y=self.y,
                                  epochs=self.epochs,
                                  batch_size=self.BATCH_SIZE,
-                                 verbose=2,
+                                 verbose=1,
                                  validation_split=1 -
                                                   self.TRAIN_LENGTH,
                                  shuffle=True,
                                  callbacks=[
-                                     es,
                                      LearningRateScheduler(schedule)])
         # tf.keras.callbacks.LearningRateScheduler(schedule)
-        # schedule.plot(self.epochs)
+
         # self.plot_train_history(history, 'Multi-Step Training
         # and validation loss')
         if save:
@@ -134,8 +135,8 @@ class NeuralNetPrediction:
         self.error = np.around(
             np.sqrt(
                 np.mean(np.square(self.truth.values - predictions))), 2)
-        self.single_errors = np.sqrt(
-            np.square(self.truth.values - predictions))
+        self.single_errors = np.around(np.sqrt(
+            np.square(self.truth.values - predictions)),2)
 
     # LatexSingleStepMarkerEnd
 
@@ -197,27 +198,31 @@ class NeuralNetPrediction:
 
     def mass_predict(self, iterations, filename, learning_rate,
                      past_history, layers, step=1):
-        error = 0
         j = 0
-        single_errorlist = np.empty([iterations, self.future_target])
+        single_errorlist = np.empty([int(iterations/step), self.future_target])
         offsets = range(0, iterations, step)
+        plt.plot(self.test_target.index[
+                 past_history:self.future_target + iterations + past_history],
+                 self.test_target.iloc[
+                 past_history:self.future_target + iterations + past_history],
+                 label="TRUTH", lw=5)
         for i in offsets:
-            j += 1
-            print("\rmass predict: {}/{}".format(j, iterations),
-                  sep=' ',
-                  end='', flush=True)
             self.predict(offset=i)
-            error += self.error
-            single_errorlist[i] = self.single_errors
+            print("errors for prediciton {}:   {} , {}  ".format(j,self.error,
+                                                       self.single_errors))
+            single_errorlist[j] = self.single_errors
+            j += 1
+            plt.plot(self.pred,label="prediciton {}: RMSE {}".format(i,self.error))
 
-        error /= j
-        mean_errorlist = np.around(np.mean(single_errorlist, axis=0),
-                                   decimals=2)
-        plt.plot(offsets, mean_errorlist, label="mean Error over time")
         plt.legend()
         plt.show()
+        mean_errorlist = np.around(np.mean(single_errorlist, axis=0),
+                                   decimals=2)
+        # plt.plot(offsets, mean_errorlist, label="mean Error over time")
+        # plt.legend()
+        # plt.show()
         # self.plot_mass_error_over_day(mean_errorlist)
-
+        mean_error=np.around(mean_errorlist.mean(),2)
         min_error = 100
         min_config = None
         with open("Results/best_config_{}.csv".format(
@@ -226,17 +231,17 @@ class NeuralNetPrediction:
             for row in reader:
                 min_config = row
             min_error = float(min_config[-1])
-        print("ERRORS: ", error, mean_errorlist)
+        print("mean errors of predicitons: ", mean_error, mean_errorlist)
 
         with open('Results/{}_results.csv'.format(filename), 'a',
                   newline='') as fd:
             writer = csv.writer(fd)
             writer.writerow(
-                [learning_rate, past_history, layers, error,
+                [learning_rate, past_history, layers, mean_error,
                  mean_errorlist.tolist()])
 
-        if error < min_error:
-            min_error = error
+        if mean_error < min_error:
+            min_error = mean_error
             min_config = [learning_rate, past_history, layers,
                           min_error]
             self.model.save('.\checkpoints\{}_best'.format(filename))
@@ -263,30 +268,34 @@ class LearningRateDecay:
     def plot(self, epochs, title="Learning Rate Schedule"):
         # compute the set of learning rates for each corresponding
         # epoch
-
+        self.level_start = 5
         lrs = [self(i) for i in range(0, epochs)]
         # the learning rate schedule
         plt.style.use("ggplot")
         plt.figure()
-        plt.plot(range(0, epochs), lrs)
+        plt.plot(range(0, epochs), lrs,"o")
         plt.title(title)
         plt.xlabel("Epoch #")
         plt.ylabel("Learning Rate")
+        plt.show()
 
 
 class PolynomialDecay(LearningRateDecay):
-    def __init__(self, maxEpochs=100, initAlpha=0.001, power=1.0):
+    def __init__(self, initAlpha, maxEpochs=100, power=1.0,
+                 headstart=5):
         # store the maximum number of epochs, base learning rate,
         # and power of the polynomial
+        self.headstart = headstart
         self.maxEpochs = maxEpochs
         self.initAlpha = initAlpha
         self.power = power
 
     def __call__(self, epoch):
-        if epoch < 10:
+        if epoch < self.headstart:
             return self.initAlpha
         # compute the new learning rate based on polynomial decay
-        decay = (1 - (epoch / float(self.maxEpochs))) ** self.power
+        decay = (1 - ((epoch - self.headstart) / float(
+            self.maxEpochs))) ** self.power
         alpha = self.initAlpha * decay
         # return the new learning rate
         return float(alpha)
