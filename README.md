@@ -1,6 +1,5 @@
 # Strompreisprognose
 Dieses Projekt behandelt die Prognose des Day Ahead-Strompreises für das Marktbegiebt Deutschland/Luxemburg. Für die Prognosen werden Einflussfaktoren wie Wetter, Feiertage und Tageszeit berücksichtigt.
-Es werden 24 Stunden Prognosen berechnet.
 
 ## Einführung
 prognose.py berechnet standardmäßig für alle Prognosemethoden (neuronale Netze/statistische Methoden) mit der bisher optimalsten Konfiguration für die neuronalen Netze und statistischen Methoden. 
