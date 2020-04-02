@@ -1,6 +1,6 @@
 @echo off
 setlocal ENABLEDELAYEDEXPANSION
-rem for /l %%r in (0,1,10) do python prognose.py -lr=%%r
+for /l %%p in (48, 6, 72) do for /l %%l in (0,1,3) do python prognose.py -p=%%p -l=%%l
 
 rem pause
 
@@ -14,7 +14,7 @@ for /l %%p in (48, 24, 168) do (
 
               if not defined continue (
               rem python prognose.py -p=%%p -lr=%%l -d=%%d -cp=True -dp=True -mp=True
-              python prognose.py -p=%%p -lr=%%l  -cp=True -dp=False
+              rem python prognose.py -p=%%p -lr=%%l  -cp=True -dp=False
                     rem set "interrupted=1"
                     rem for /l %%i in (0,1,20) do (
                     rem    if defined interrupted (

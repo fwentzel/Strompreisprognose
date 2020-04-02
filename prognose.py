@@ -8,12 +8,13 @@ from pandas.plotting import register_matplotlib_converters
 from csv_reader import get_data
 from neuralNetPrediction import NeuralNetPrediction
 from statisticalPrediction import StatisticalPrediction
-import ipykernel #fix progress bar
+import ipykernel  # fix progress bar
+
 register_matplotlib_converters()
 
 future_target = 24
 iterations = 24  # amount of predicitons for mass predict
-step = 3
+step = 1
 epochs = 100
 train_complete = False
 train_residual = False
@@ -22,21 +23,21 @@ train_residual = False
 parser = ArgumentParser()
 parser.add_argument("-lr",
                     default=7, type=int,
-                    help=" learning rate index for learning_rate_list")
+                    help=" learning rate index for learning_rate list")
 parser.add_argument("-p", default=48, type=int,
                     help="amount of input timesteps")
-parser.add_argument("-l", default=1, type=int,
+parser.add_argument("-l", default=2, type=int,
                     help="additional layers for neural net")
-parser.add_argument("-d", default=2, type=int,
+parser.add_argument("-d", default=0, type=int,
                     help="dropout percentage in additional layer")
 parser.add_argument("-cp",
                     default=True, type=bool,
                     help="predict complete part of time series")
 parser.add_argument("-dp",
-                    default=False, type=bool,
+                    default=True, type=bool,
                     help=" predict decomposed part of time series")
 parser.add_argument("-mp",
-                    default=True, type=bool,
+                    default=False, type=bool,
                     help="use mass prediction for error calculation")
 
 args = parser.parse_args()
@@ -49,11 +50,13 @@ mass_predict_neural = args.mp
 learning_rate = np.arange(0.0001, 0.001, 0.0001)[args.lr]
 # learning_rate = .0004
 plot_all = mass_predict_neural == False
-test_length = future_target + iterations+168  # Timesteps for testing.
+test_length = future_target + iterations + 800  # Timesteps for testing.
 
 train_data, test_data = get_data(test_length=test_length,
-                                 test_pred_start_hour=0,
+                                 test_pred_start_hour=6,
                                  past_history=past_history)
+#test_data.Price.plot()
+# plt.show()
 
 dropout_decimal = dropout / 10
 print("configuation: ", past_history, layers, dropout, learning_rate)
@@ -77,7 +80,7 @@ if predict_complete:
                                       power=3)  # lr_schedule="polynomal" oder "step
 
     else:
-        full_prediciton.load_model(savename="trainedLSTM_complete")
+        full_prediciton.load_model(savename="complete_best")
 
     if mass_predict_neural:
         full_prediciton.mass_predict(iterations=iterations,
@@ -88,7 +91,6 @@ if predict_complete:
                                      step=step)
     else:
         full_prediciton.predict(offset=0)
-
 
 res_prediction = None
 statistical_pred = None
@@ -114,7 +116,7 @@ if predict_decomposed:
                                      power=2)
         # lr_schedule="polynomal" oder "step
     else:
-        res_prediction.load_model(savename="trainedLSTM_resid")
+        res_prediction.load_model(savename="residual_best")
 
     if mass_predict_neural:
         res_prediction.mass_predict(iterations=iterations,
@@ -142,22 +144,23 @@ if predict_decomposed:
 
         # add error
 
-        decomp_error += np.around(np.sqrt(
-            np.mean(np.square(test_data["Price"].iloc[
-                              past_history + i: past_history + i + future_target] - sum_pred))),
+        decomp_error += np.around(np.sqrt(np.mean(np.square(
+            test_data["Price"].iloc[
+            past_history + i: past_history + i + future_target] - sum_pred))),
             2)
         i += 1
-    with open('Results/residual_results.csv', 'a', newline='') as fd:
-        writer = csv.writer(fd)
-        writer.writerow([learning_rate, res_prediction.error,
-                         res_prediction.single_errors.tolist()])
+    # with open('Results/residual_results.csv', 'a', newline='') as fd:
+    #     writer = csv.writer(fd)
+    #     writer.writerow([learning_rate, res_prediction.error,
+    #                      res_prediction.single_errors.tolist()])
 
 # decomp_error /= (i + 1)
-plot_all = False
+plot_all = True
 if plot_all:
-    fig, ax = plt.subplots(4, 1, sharex=True)
-    timeframe = slice(i + past_history,
-                      past_history + future_target + i)
+    fig, ax = plt.subplots(4, 1, sharex=True)#
+
+    timeframe = slice(i - 1 + past_history,
+                      past_history + future_target + i - 1)
     index = test_data.iloc[timeframe].index
     ax[0].plot(index, test_data["Price"].iloc[timeframe],
                label="Truth")
@@ -184,11 +187,15 @@ if plot_all:
     ax[3].plot(index,
                test_data["Trend"].iloc[timeframe])
 
+    ax[0].set_ylabel("Komplett")
+    ax[1].set_ylabel("Remainder")
     ax[2].set_ylabel("Seasonal")
+    ax[3].set_ylabel("Trend")
 
     ax[0].legend()
     ax[1].legend()
     ax[2].legend()
     # Plot the predictions of components and their combination with the
     # corresponding truth
+    fig.suptitle("24-Stunden Prognose der einzelnen Zeireihenkomponenten und der kompletten Zeitreihe")
     plt.show()

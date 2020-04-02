@@ -59,6 +59,10 @@ class NeuralNetPrediction:
     def load_model(self, savename):
         self.model = tf.keras.models.load_model(
             '.\checkpoints\{0}'.format(savename))
+        model_input=self.model.layers[0].input.shape[1]
+        if self.past_history != model_input:
+            print("Saved model expects {} Input steps. past History adjusted to fit this requirement".format(model_input))
+            self.past_history=model_input
 
     def multivariate_data_single_step(self):
         multivariate_data = []
@@ -82,10 +86,10 @@ class NeuralNetPrediction:
                                        initAlpha=initAlpha, power=power)
         elif lr_schedule == "step":
             schedule = StepDecay(initAlpha=initAlpha, factor=0.8,
-                                 dropEvery=10)
+                                 dropEvery=15)
         #schedule.plot(self.epochs)
         es = EarlyStopping(monitor='val_loss', mode='min', verbose=1,
-                           patience=3)  # restore_best_weights=True
+                           patience=5,restore_best_weights=True)  # restore_best_weights=True
         history = self.model.fit(x=self.x, y=self.y,
                                  epochs=self.epochs,
                                  batch_size=self.BATCH_SIZE,
@@ -93,7 +97,7 @@ class NeuralNetPrediction:
                                  validation_split=1 -
                                                   self.TRAIN_LENGTH,
                                  shuffle=True,
-                                 callbacks=[
+                                 callbacks=[es,
                                      LearningRateScheduler(schedule)])
         # tf.keras.callbacks.LearningRateScheduler(schedule)
 
@@ -125,7 +129,9 @@ class NeuralNetPrediction:
             if j > 0:
                 x_in[-1, -1, 0] = predictions[
                     j - 1]  # replace last power price with forecast
+
             predictions.append(self.model.predict(x_in)[0][-1])
+
 
         target_rows = target.iloc[-self.future_target:]
         self.truth = target_rows
@@ -199,7 +205,7 @@ class NeuralNetPrediction:
     def mass_predict(self, iterations, filename, learning_rate,
                      past_history, layers, step=1):
         j = 0
-        single_errorlist = np.empty([int(iterations/step), self.future_target])
+        single_errorlist = np.empty([round(iterations/step), self.future_target])
         offsets = range(0, iterations, step)
         plt.plot(self.test_target.index[
                  past_history:self.future_target + iterations + past_history],
@@ -215,7 +221,7 @@ class NeuralNetPrediction:
             plt.plot(self.pred,label="prediciton {}: RMSE {}".format(i,self.error))
 
         plt.legend()
-        plt.show()
+        #plt.show()
         mean_errorlist = np.around(np.mean(single_errorlist, axis=0),
                                    decimals=2)
         # plt.plot(offsets, mean_errorlist, label="mean Error over time")
@@ -237,7 +243,7 @@ class NeuralNetPrediction:
                   newline='') as fd:
             writer = csv.writer(fd)
             writer.writerow(
-                [learning_rate, past_history, layers, mean_error,
+                [learning_rate, past_history, layers,iterations, mean_error,
                  mean_errorlist.tolist()])
 
         if mean_error < min_error:
@@ -282,7 +288,7 @@ class LearningRateDecay:
 
 class PolynomialDecay(LearningRateDecay):
     def __init__(self, initAlpha, maxEpochs=100, power=1.0,
-                 headstart=5):
+                 headstart=0):
         # store the maximum number of epochs, base learning rate,
         # and power of the polynomial
         self.headstart = headstart
