@@ -7,11 +7,12 @@ Die Konfiguration der Netze und weitere Parameter können über die Variablen in
 
 ## Variablen
 normale Varialben:
-- "future_target" beschreibt die Länge der Vorhersage (24)
-- "iterations" beschreibt, wie viele Stunden eine "mass predict" durchgeführt werden soll (168). 
-- "step" beschreibt in was für Abständen die einzelnen Prognosen der Massenprognose berechnet werden. (24)
-- "epochs" beschreibt die Anzahl an Epochen für den Trainingsprozess
-- train_complete und train_residual beschreiben, ob ein Netz neu trainiert werden soll (True) oder ein bereits trainiertes Netz geladen werden soll (False)
+- *future_target* beschreibt die Länge der Vorhersage (24)
+- *iterations* beschreibt, wie viele Stunden eine "mass predict" durchgeführt werden soll (168). 
+- *step* beschreibt in was für Abständen die einzelnen Prognosen der Massenprognose berechnet werden. (24)
+- *epochs* beschreibt die Anzahl an Epochen für den Trainingsprozess
+- *train_complete* und *train_residual* beschreiben, ob ein Netz neu trainiert werden soll (True) oder ein bereits trainiertes Netz geladen werden soll (False)
+
 Zu den Argument Parametern, die Entscheiden wie lang der Inputzeitraum und die Struktur des Netzes ist, sind jeweils Hilfesätze gegeben, die die Funktion aufklären sollten.
 
 
