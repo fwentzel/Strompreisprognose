@@ -5,6 +5,7 @@ Dieses Projekt behandelt die Prognose des Day Ahead-Strompreises für das Marktb
 prognose.py berechnet standardmäßig für alle Prognosemethoden (neuronale Netze/statistische Methoden) mit der bisher optimalsten Konfiguration für die neuronalen Netze und statistischen Methoden. 
 Die Konfiguration der Netze und weitere Parameter können über die Variablen in prognose.py eingestellt werden. 
 
+
 ## Variablen
 normale Varialben:
 - **future_target** beschreibt die Länge der Vorhersage (24)
@@ -15,7 +16,7 @@ normale Varialben:
 
 Zu den Argument Parametern, die Entscheiden wie lang der Inputzeitraum und die Struktur des Netzes ist, sind jeweils Hilfesätze gegeben, die die Funktion aufklären sollten.
 
-
+Für jede Prognose werden für die  Objekte der Prognosemethoden die Variablen **pred**,**error** und **single_errors** gesetzt. So wird nach jeder Prognose auf die Vorhersage, die mittlere Abweichung (RMSE) dieser Vorhersage und die Abweichung der einzelnen Zeitschritte gespeichert, sodass nach jeder Prognose darauf zugegriffen werden kann.
 
 ## Daten
 Der automatische Download für die Daten ist deaktiviert, sodass bereits heruntergeladene Daten verwendet werden. Um die Daten zu aktualisieren muss der override für **get_new_power_data** und **get_new_weather_data** in **csv_Reader.get_data** auskommentiert werden.
