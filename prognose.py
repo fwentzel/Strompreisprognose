@@ -203,6 +203,6 @@ if mass_predict_neural==False:
     ax[2].legend()
     # Plot the predictions of components and their combination with the
     # corresponding truth
-    #fig.suptitle("24-Stunden Prognose der einzelnen Zeireihenkomponenten und der kompletten Zeitreihe")
+    fig.suptitle("24-Stunden Prognose der einzelnen Zeireihenkomponenten und der kompletten Zeitreihe")
     #plt.savefig("Abbildungen/prediction_{}.png".format(test_pred_start_hour),dpi=300,bbox_inches='tight')
-    #plt.show()
+    plt.show()
