@@ -8,15 +8,15 @@ Die Konfiguration der Netze und weitere Parameter können über die Variablen in
 
 ## Variablen
 normale Varialben:
-- **future_target** beschreibt die Länge der Vorhersage (24)
-- **iterations** beschreibt, wie viele Stunden eine "mass predict" durchgeführt werden soll (168). 
-- **step** beschreibt in was für Abständen die einzelnen Prognosen der Massenprognose berechnet werden. (24)
-- **epochs** beschreibt die Anzahl an Epochen für den Trainingsprozess
-- **train_complete** und **train_residual** beschreiben, ob ein Netz neu trainiert werden soll (True) oder ein bereits trainiertes Netz geladen werden soll (False)
+- `future_target` beschreibt die Länge der Vorhersage (24)
+- `iterations` beschreibt, wie viele Stunden eine "mass predict" durchgeführt werden soll (168). 
+- `step` beschreibt in was für Abständen die einzelnen Prognosen der Massenprognose berechnet werden. (24)
+- `epochs` beschreibt die Anzahl an Epochen für den Trainingsprozess
+- `train_complete` und `train_residual` beschreiben, ob ein Netz neu trainiert werden soll (True) oder ein bereits trainiertes Netz geladen werden soll (False)
 
 Zu den Argument Parametern, die Entscheiden wie lang der Inputzeitraum und die Struktur des Netzes ist, sind jeweils Hilfesätze gegeben, die die Funktion aufklären sollten.
 
-Für jede Prognose werden für die  Objekte der Prognosemethoden die Variablen **pred**,**error** und **single_errors** gesetzt. So wird nach jeder Prognose auf die Vorhersage, die mittlere Abweichung (RMSE) dieser Vorhersage und die Abweichung der einzelnen Zeitschritte gespeichert, sodass nach jeder Prognose darauf zugegriffen werden kann.
+Für jede Prognose werden für die  Objekte der Prognosemethoden die Variablen `pred`,`error` und `single_errors` gesetzt. So wird nach jeder Prognose auf die Vorhersage, die mittlere Abweichung (RMSE) dieser Vorhersage und die Abweichung der einzelnen Zeitschritte gespeichert, sodass nach jeder Prognose darauf zugegriffen werden kann.
 
 ## Daten
 Der automatische Download für die Daten ist deaktiviert, sodass bereits heruntergeladene Daten verwendet werden. Um die Daten zu aktualisieren muss der override für **get_new_power_data** und **get_new_weather_data** in **csv_Reader.get_data** auskommentiert werden.
