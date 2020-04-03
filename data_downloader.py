@@ -14,36 +14,37 @@ import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
 import csv_reader
+import numpy as np
 
 
 def fill_power_na(series):
-    mask = series.isna()
-    newMask = mask.copy()
-    for i in range(3, len(mask) - 3):
-        if mask[i + 3] or mask[i - 3]:
-            newMask[i] = True
-    for i in range(168, len(newMask) - 168):
-        if newMask[i + 168]:
-            newMask[i] = True
-    nanFrame = series[newMask]
-    split = int(len(nanFrame) / 4)
-    for i in range(2):
-        if i == 0:
-            laggedSeries = nanFrame.iloc[:split]
-            nanSeries = nanFrame.iloc[split:split * 2]
-        else:
-            laggedSeries = nanFrame.iloc[split * 2:split * 3]
-            nanSeries = nanFrame.iloc[split * 3:]
-
-        diff = laggedSeries[2] - nanSeries[2]
-        laggedSeries = laggedSeries.apply(lambda x: x - diff)
-        laggedSeries.index = laggedSeries.index.shift(7, freq='D')
-        series.loc[laggedSeries.index] = laggedSeries
+    series_copy=series.copy()
+    shifted_series = series_copy.iloc[168:]
+    lagged_series=series_copy # index  0 will be the value lagged by 168 hours (1 week)
+    mask = shifted_series.isna()
+    values=[]
+    for i in range(len(mask) - 1):
+        if mask[i + 1] and mask[i]==False: #look for begining of missing day
+            j=i+1
+            if mask[i+2] and mask[i+3] and  mask[i+4]: # up to 4 nan can be interpolated. everything else needs better fill methods
+                values.append([shifted_series.iloc[i],lagged_series.iloc[i]])
+                while mask[j] :
+                    values.append([shifted_series.iloc[j],lagged_series.iloc[j]])
+                    j+=1
+                values2 = np.array(values)
+                diff = (values2[0][0] - values2[0][1])
+                values2[:][1] = values2[:][1] + diff
+                set=values2[1:,1]
+                value_series=pd.Series(set,index=mask.index[i+1:j])
+                series_copy=series_copy.fillna(value_series)
 
         # plt.plot(range(len(nanSeries)), laggedSeries, label="24.7.2019")
         # plt.plot(range(len(nanSeries)), nanSeries, label="31.7.2019")
         # plt.legend()
         # plt.show()
+    series_copy=series_copy.interpolate() #interpolate small missing nans (1-4 hours of missing data)
+    sum2 = series_copy.isna().sum()
+    return series_copy
 
 
 def plot_decomposed_data(data):
@@ -71,7 +72,7 @@ def decompose_data(price_series):
         new_frame = pd.DataFrame(price_series.iloc[i:])
     else:
         new_frame = pd.DataFrame(price_series)
-
+    print(new_frame.index.freq)
     components = STL(new_frame["Price"], seasonal=13).fit()
     new_frame["Remainder"] = components.resid
     new_frame["Seasonal"] = components.seasonal
@@ -87,7 +88,7 @@ def update_power_price():
     path = sys.path[0]
     data_path = "{}\\Data".format(path)
     getNewData = False
-    milliseconds_since_epoch = datetime.now().timestamp() * 1000
+    milliseconds_since_epoch = datetime.datetime.now().timestamp() * 1000
 
     existing_data = csv_reader.read_power_data().asfreq("H")
     start_for_new_data = existing_data.index[-1].timestamp() * 1000
@@ -104,7 +105,7 @@ def update_power_price():
         start_for_new_data,
         milliseconds_since_epoch)  # 1420502400000 für 6.1.2015; 1538352000000 für 1.10.2018
     options = Options()
-    # options.add_argument('headless')
+    options.add_argument('headless')
     options.add_experimental_option('prefs', {
         "download": {
             "default_directory": data_path
@@ -122,9 +123,9 @@ def update_power_price():
 
     while not [filename for filename in os.listdir(data_path) if
                filename.startswith("Tabellen_Daten")]:
-        print("not there yet")
-        time.sleep(2)
-    print("finished")
+        print("downloading")
+        time.sleep(1)
+    print("finished download")
 
     driver.quit()
     print("reading ZIP")
@@ -152,22 +153,27 @@ def update_power_price():
                 new_frame["Price2"] = new_frame["Price2"].apply(
                     lambda x: x.replace(",", "."))
                 new_frame = new_frame[
-                    ~new_frame.index.duplicated()].asfreq(
-                    freq='H')  # remove duplicate entries (2 faulty values from database) and set frequency to Hourly
+                    ~new_frame.index.duplicated()]  # remove duplicate entries (2 faulty values from database) and set frequency to Hourly
+                new_frame = new_frame.asfreq(freq='H')
                 new_frame["Price"] = pd.to_numeric(
                     new_frame["Price"], errors="coerce")
                 new_frame["Price2"] = pd.to_numeric(
                     new_frame["Price2"], errors="coerce")
                 new_frame["Price"] = new_frame.mean(axis=1)
                 new_frame.drop("Price2", axis=1, inplace=True)
+
                 sum = new_frame["Price"].isna().sum()
                 # new_frame = new_frame.interpolate(
                 #     limit=1)  # interpolate to fill missing value 21.3.2019 2:00
                 # sum = new_frame["Price"].isna().sum()
                 # fill_power_na(new_frame["Price"])
             os.remove(zip_filename)
+    print(existing_data.index.freq, new_frame.index.freq)
     existing_data = existing_data.append(new_frame)
+    existing_data["Price"] = fill_power_na(existing_data["Price"])
+    print(existing_data.index.freq)
     existing_data.dropna(inplace=True, how='all')
+    print(existing_data.index.freq)
     existing_data = decompose_data(existing_data)
     existing_data.to_csv("Data/price.csv")
     print("finished")
@@ -207,7 +213,7 @@ def fill_weather_na(frame):
 
 def updateWeatherHistory():
     existing_data = csv_reader.read_weather_data().asfreq("H")
-    start = existing_data.index[-1]+datetime.timedelta( hours=1)
+    start = existing_data.index[-1] + datetime.timedelta(hours=1)
     end = datetime.date.today() - datetime.timedelta(days=1, hours=0)
     i = 0
     new_data = pd.DataFrame(

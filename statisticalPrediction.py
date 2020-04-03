@@ -43,7 +43,7 @@ class StatisticalPrediction:
         min_error = 100
         best_smoothing_level = .2
         # for i in np.arange(0, 1, .01):
-        fit = model.fit(smoothing_level=.2)
+        fit = model.fit(smoothing_level=.3)
         # print(fit.mle_retvals)
         start = len(train)
         end = len(train) + self.forecast_length - 1
