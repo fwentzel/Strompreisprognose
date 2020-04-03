@@ -214,14 +214,16 @@ class NeuralNetPrediction:
                  label="TRUTH", lw=5)
         for i in offsets:
             self.predict(offset=i)
-            print("errors for prediciton {}:   {} , {}  ".format(j,self.error,
-                                                       self.single_errors))
+            #print("errors for prediciton {}:   {} , {}  ".format(j,self.error,
+            #                                          self.single_errors))
             single_errorlist[j] = self.single_errors
             j += 1
-            plt.plot(self.pred,label="prediciton {}: RMSE {}".format(i,self.error))
+            plt.plot(self.pred)
 
         plt.legend()
+        plt.title("{} Steunden Predictions für {} Zeitschritte wiederholt in {} Stunden Abständen".format(self.future_target,iterations,step))
         #plt.show()
+
         mean_errorlist = np.around(np.mean(single_errorlist, axis=0),
                                    decimals=2)
         # plt.plot(offsets, mean_errorlist, label="mean Error over time")

@@ -1,8 +1,11 @@
 from __future__ import absolute_import, division, print_function, \
     unicode_literals
 import csv
+import os
+import sys
 from argparse import ArgumentParser
 import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 from pandas.plotting import register_matplotlib_converters
 from csv_reader import get_data
@@ -11,10 +14,9 @@ from statisticalPrediction import StatisticalPrediction
 import ipykernel  # fix progress bar
 
 register_matplotlib_converters()
-
 future_target = 24
-iterations = 24  # amount of predicitons for mass predict
-step = 1
+iterations = 168  # amount of predicitons for mass predict
+step = 24
 epochs = 100
 train_complete = False
 train_residual = False
@@ -28,7 +30,7 @@ parser.add_argument("-p", default=48, type=int,
                     help="amount of input timesteps")
 parser.add_argument("-l", default=2, type=int,
                     help="additional layers for neural net")
-parser.add_argument("-d", default=0, type=int,
+parser.add_argument("-d", default=2, type=int,
                     help="dropout percentage in additional layer")
 parser.add_argument("-cp",
                     default=True, type=bool,
@@ -39,6 +41,9 @@ parser.add_argument("-dp",
 parser.add_argument("-mp",
                     default=False, type=bool,
                     help="use mass prediction for error calculation")
+parser.add_argument("-s",
+                    default=0, type=int,
+                    help="hour of the day, where the prediciton should start")
 
 args = parser.parse_args()
 past_history = args.p
@@ -48,12 +53,13 @@ predict_complete = args.cp
 predict_decomposed = args.dp
 mass_predict_neural = args.mp
 learning_rate = np.arange(0.0001, 0.001, 0.0001)[args.lr]
+test_pred_start_hour=args.s
 # learning_rate = .0004
 plot_all = mass_predict_neural == False
 test_length = future_target + iterations + 800  # Timesteps for testing.
 
 train_data, test_data = get_data(test_length=test_length,
-                                 test_pred_start_hour=6,
+                                 test_pred_start_hour=test_pred_start_hour,
                                  past_history=past_history)
 #test_data.Price.plot()
 # plt.show()
@@ -155,9 +161,9 @@ if predict_decomposed:
     #                      res_prediction.single_errors.tolist()])
 
 # decomp_error /= (i + 1)
-plot_all = True
-if plot_all:
-    fig, ax = plt.subplots(4, 1, sharex=True)#
+if mass_predict_neural==False:
+    fig, ax = plt.subplots(4, 1, sharex=True,figsize=(10.0, 10.0))#
+
 
     timeframe = slice(i - 1 + past_history,
                       past_history + future_target + i - 1)
@@ -197,5 +203,6 @@ if plot_all:
     ax[2].legend()
     # Plot the predictions of components and their combination with the
     # corresponding truth
-    fig.suptitle("24-Stunden Prognose der einzelnen Zeireihenkomponenten und der kompletten Zeitreihe")
-    plt.show()
+    #fig.suptitle("24-Stunden Prognose der einzelnen Zeireihenkomponenten und der kompletten Zeitreihe")
+    #plt.savefig("Abbildungen/prediction_{}.png".format(test_pred_start_hour),dpi=300,bbox_inches='tight')
+    #plt.show()
