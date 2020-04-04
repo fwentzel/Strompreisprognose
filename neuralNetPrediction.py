@@ -13,7 +13,7 @@ from tensorflow_core.python.keras.callbacks import EarlyStopping, \
 
 class NeuralNetPrediction:
     TRAIN_LENGTH = .7  # percent
-    BATCH_SIZE = 32
+    BATCH_SIZE = 64
 
     def __init__(self, train_data, test_data, future_target,
                  past_history,
@@ -77,7 +77,7 @@ class NeuralNetPrediction:
                                          -1), np.array(
             labels).astype(float)
 
-    def train_network(self, savename, power=1, initAlpha=0.01,
+    def train_network(self, savename, power=1, initAlpha=0.001,
                       lr_schedule="polynomal", save=True):
         if lr_schedule == "polynomal":
             if power is None:
@@ -203,7 +203,7 @@ class NeuralNetPrediction:
         plt.show()
 
     def mass_predict(self, iterations, filename, learning_rate,
-                     past_history, layers, step=1):
+                     past_history, layers, step=1, write_to_File=True):
         j = 0
         single_errorlist = np.empty([round(iterations/step), self.future_target])
         offsets = range(0, iterations, step)
@@ -233,6 +233,7 @@ class NeuralNetPrediction:
         mean_error=np.around(mean_errorlist.mean(),2)
         min_error = 100
         min_config = None
+
         with open("Results/best_config_{}.csv".format(
                 filename)) as config:
             reader = csv.reader(config, delimiter=',')
@@ -240,13 +241,13 @@ class NeuralNetPrediction:
                 min_config = row
             min_error = float(min_config[-1])
         print("mean errors of predicitons: ", mean_error, mean_errorlist)
-
-        with open('Results/{}_results.csv'.format(filename), 'a',
-                  newline='') as fd:
-            writer = csv.writer(fd)
-            writer.writerow(
-                [learning_rate, past_history, layers,iterations, mean_error,
-                 mean_errorlist.tolist()])
+        if write_to_File:
+            with open('Results/{}_results.csv'.format(filename), 'a',
+                      newline='') as fd:
+                writer = csv.writer(fd)
+                writer.writerow(
+                    [learning_rate, past_history, layers,iterations, mean_error,
+                     mean_errorlist.tolist()])
 
         if mean_error < min_error:
             min_error = mean_error

@@ -17,7 +17,7 @@ register_matplotlib_converters()
 future_target = 24
 iterations = 168  # amount of predicitons for mass predict
 step = 24
-epochs = 100
+epochs = 150
 train_complete = False
 train_residual = False
 
@@ -26,9 +26,9 @@ parser = ArgumentParser()
 parser.add_argument("-lr",
                     default=7, type=int,
                     help=" learning rate index for learning_rate list")
-parser.add_argument("-p", default=48, type=int,
+parser.add_argument("-p", default=72, type=int,
                     help="amount of input timesteps")
-parser.add_argument("-l", default=2, type=int,
+parser.add_argument("-l", default=1, type=int,
                     help="additional layers for neural net")
 parser.add_argument("-d", default=2, type=int,
                     help="dropout percentage in additional layer")
@@ -56,7 +56,7 @@ learning_rate = np.arange(0.0001, 0.001, 0.0001)[args.lr]
 test_pred_start_hour=args.s
 # learning_rate = .0004
 plot_all = mass_predict_neural == False
-test_length = future_target + iterations + 800  # Timesteps for testing.
+test_length = future_target + iterations + 185  # Timesteps for testing.
 
 train_data, test_data = get_data(test_length=test_length,
                                  test_pred_start_hour=test_pred_start_hour,
@@ -83,10 +83,10 @@ if predict_complete:
         full_prediciton.train_network(savename="trainedLSTM_complete",
                                       save=True,
                                       lr_schedule="polynomal",
-                                      power=3)  # lr_schedule="polynomal" oder "step
+                                      power=2)  # lr_schedule="polynomal" oder "step
 
     else:
-        full_prediciton.load_model(savename="complete_best")
+        full_prediciton.load_model(savename="trainedLSTM_complete")
 
     if mass_predict_neural:
         full_prediciton.mass_predict(iterations=iterations,
@@ -94,7 +94,8 @@ if predict_complete:
                                      learning_rate=learning_rate,
                                      past_history=past_history,
                                      layers=layers,
-                                     step=step)
+                                     step=step,
+                                     write_to_File=False)
     else:
         full_prediciton.predict(offset=0)
 
@@ -122,14 +123,15 @@ if predict_decomposed:
                                      power=2)
         # lr_schedule="polynomal" oder "step
     else:
-        res_prediction.load_model(savename="residual_best")
+        res_prediction.load_model(savename="trainedLSTM_resid")
 
     if mass_predict_neural:
         res_prediction.mass_predict(iterations=iterations,
                                     filename="residual",
                                     learning_rate=learning_rate,
                                     past_history=past_history,
-                                    layers=layers)
+                                    layers=layers,
+                                    write_to_File=False)
     else:
         # Remainder
         res_prediction.predict(offset=i)
@@ -176,15 +178,14 @@ if mass_predict_neural==False:
                label='truth')
 
     ax[0].plot(index, sum_pred,
-               label='decomposed; mean RMSE of 168 predictions: '
-                     '{}'.format(
+               label='decomposed; RMSE : {}'.format(
                    decomp_error))
     ax[0].plot(index, full_prediciton.pred,
-               label='complete; mean RMSE of 168 predicitions: {}'.format(
+               label='complete; RMSE: {}'.format(
                    full_prediciton.error))
 
     ax[1].plot(index, res_prediction.pred,
-               label='Remainder prediciton '
+               label='Remainder prediciton ; RMSE: '
                      '{}'.format(
                    res_prediction.error))
     ax[2].plot(index, statistical_pred.pred,
@@ -203,6 +204,6 @@ if mass_predict_neural==False:
     ax[2].legend()
     # Plot the predictions of components and their combination with the
     # corresponding truth
-    #fig.suptitle("24-Stunden Prognose der einzelnen Zeireihenkomponenten und der kompletten Zeitreihe")
-    #plt.savefig("Abbildungen/prediction_{}.png".format(test_pred_start_hour),dpi=300,bbox_inches='tight')
-    #plt.show()
+    #fig.suptitle("24-Stunden Prognose der einzelnen Zeireihenkomponenten und der kompletten Zeitreihe. Startet um {} Uhr".format(test_pred_start_hour))
+    plt.savefig("Abbildungen/prediction_{}.png".format(test_pred_start_hour),dpi=300,bbox_inches='tight')
+    # plt.show()

@@ -21,8 +21,8 @@ def get_data(test_length,
     get_new_weather_data = weather_last_index.day < yesterday or \
                            weather_last_index.month < datetime.today().month
     #override for testing
-    # get_new_power_data=False
-    # get_new_weather_data=False
+    get_new_power_data=False
+    get_new_weather_data=False
 
     weather_frame = data_downloader.updateWeatherHistory() if get_new_weather_data else read_weather_data()
     power_price_frame = data_downloader.update_power_price() if get_new_power_data else read_power_data()

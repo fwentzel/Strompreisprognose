@@ -42,18 +42,20 @@ class StatisticalPrediction:
         # Search Best Smoothing Level
         min_error = 100
         best_smoothing_level = .2
-        # for i in np.arange(0, 1, .01):
-        fit = model.fit(smoothing_level=.3)
-        # print(fit.mle_retvals)
-        start = len(train)
-        end = len(train) + self.forecast_length - 1
-        pred = fit.predict(start, end)
-        error = np.sqrt(
-            np.mean(np.square(self.truth.values - pred.values)))
-        if error < min_error:
-            min_error = error
-            self.pred = pred
-            self.error = min_error
+        for i in np.arange(.1, 1, .1):
+            fit = model.fit(smoothing_level=i)
+            # print(fit.mle_retvals)
+            start = len(train)
+            end = len(train) + self.forecast_length - 1
+            pred = fit.predict(start, end)
+            error =np.around( np.sqrt(
+                np.mean(np.square(self.truth.values - pred.values))),2)
+            if error < min_error:
+                min_error = error
+                self.pred = pred
+                self.error = min_error
+                best_smoothing_level=i
+        print("BEST SMOOTHIN: ",best_smoothing_level)
         return self.pred
 
     def arima_prediction(self, test_orders=False, order=(15, 0, 2)):
