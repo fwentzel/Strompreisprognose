@@ -18,7 +18,7 @@ Zu den Argument Parametern, die Entscheiden wie lang der Inputzeitraum und die S
 
 
 ## Daten
-Der automatische Download für die Daten ist deaktiviert, sodass bereits heruntergeladene Daten verwendet werden. Um die Daten zu aktualisieren muss der override für `get_new_power_data` und `get_new_weather_data` in **csv_Reader.get_data` auskommentiert werden.
+Der automatische Download für die Daten ist deaktiviert, sodass bereits heruntergeladene Daten verwendet werden. Um die Daten zu aktualisieren muss der override für `get_new_power_data` und `get_new_weather_data` in **csv_Reader.get_data** auskommentiert werden.
 
 Die Strompreisdaten werden nach der Creative Commonons Lizens CC BY 4.0 von der Bundesnetzagentur | SMARD.de (https://www.smard.de/home/downloadcenter/download_marktdaten) heruntergeladen und unter Daten/price.csv gespeichert.
 
