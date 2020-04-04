@@ -1,31 +1,35 @@
 import numpy as np
 from statsmodels.tsa.arima_model import ARIMA
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
-from statsmodels.tsa.ar_model import AR
+from statsmodels.tsa.ar_model import AutoReg
+from statsmodels.tsa.ar_model import ar_select_order
 
 
 class StatisticalPrediction:
 
     def __init__(self, data, forecast_length,
-                 neural_past_history, offset=0):
+                 neural_past_history,component, offset=0):
+        self.component=component
         self.data = data
         self.start = neural_past_history + offset
         self.forecast_length = forecast_length
-        self.truth = data["Seasonal"].iloc[
+        self.truth = data[component].iloc[
                      self.start:self.start + forecast_length]
 
     # best Length 190 Best ARIMA(8, 0, 2) MSE=2.422
-    def predict(self, method, component):
+    def predict(self, method):
         if method == "AR":
-            self.AR_prediction(component)
+            self.AR_prediction()
         elif method == "ARIMA":
-            self.arima_prediction(component)
+            self.arima_prediction()
         elif method == "exp":
-            self.exponential_smoothing_prediction(component)
+            self.exponential_smoothing_prediction()
 
-    def AR_prediction(self, component):
-        train = self.data["Seasonal"].iloc[:self.start]
-        model = AR(train, freq="H")
+    def AR_prediction(self):
+        train = self.data[self.component].iloc[:self.start].asfreq("H")
+        lags=ar_select_order(train,maxlag=len(train)-50)
+        lags=lags.ar_lags
+        model = AutoReg(train, lags=lags)
         model_fit = model.fit()
         self.pred = model_fit.predict(start=len(train),
                                       end=len(
@@ -34,8 +38,8 @@ class StatisticalPrediction:
         self.error = np.sqrt(
             np.mean(np.square(self.truth.values - self.pred.values)))
 
-    def exponential_smoothing_prediction(self, component):
-        train = self.data[component].iloc[self.start - 48:self.start]
+    def exponential_smoothing_prediction(self):
+        train = self.data[self.component].iloc[self.start - 48:self.start]
         model = ExponentialSmoothing(train, trend="add", seasonal="add",
                                      seasonal_periods=24,
                                      damped=True, freq="H")
@@ -62,7 +66,7 @@ class StatisticalPrediction:
         if test_orders == True:
             order = self.test_orders()
 
-        train = self.data["Seasonal"].iloc[:self.start]
+        train = self.data[self.component].iloc[:self.start]
         model = ARIMA(train, order=order, freq="H")
         model_fit = model.fit(disp=0)
         start_index = len(train)
@@ -78,7 +82,7 @@ class StatisticalPrediction:
         d_values = range(0, 3)
 
         best_score, best_cfg, best_length = float("inf"), None, None
-        data = self.data["Seasonal"].iloc[:self.start]
+        data = self.data[self.component].iloc[:self.start]
         start_index = len(data)
         end_index = start_index + self.forecast_length - 1
         for p in p_values:

@@ -53,7 +53,7 @@ predict_complete = args.cp
 predict_decomposed = args.dp
 mass_predict_neural = args.mp
 learning_rate = np.arange(0.0001, 0.001, 0.0001)[args.lr]
-test_pred_start_hour=args.s
+test_pred_start_hour = args.s
 # learning_rate = .0004
 plot_all = mass_predict_neural == False
 test_length = future_target + iterations + 185  # Timesteps for testing.
@@ -61,7 +61,7 @@ test_length = future_target + iterations + 185  # Timesteps for testing.
 train_data, test_data = get_data(test_length=test_length,
                                  test_pred_start_hour=test_pred_start_hour,
                                  past_history=past_history)
-#test_data.Price.plot()
+# test_data.Price.plot()
 # plt.show()
 
 dropout_decimal = dropout / 10
@@ -100,7 +100,7 @@ if predict_complete:
         full_prediciton.predict(offset=0)
 
 res_prediction = None
-statistical_pred = None
+seasonal_pred = None
 i = 0
 decomp_error = 0
 sum_pred = 0
@@ -138,17 +138,22 @@ if predict_decomposed:
         sum_pred = res_prediction.pred.copy()
 
         # Seasonal
-        statistical_pred = StatisticalPrediction(data=test_data,
-                                                 forecast_length=future_target,
-                                                 offset=i,
-                                                 neural_past_history=past_history)
-        statistical_pred.predict("exp", "Seasonal")
-        sum_pred += statistical_pred.pred
+        seasonal_pred = StatisticalPrediction(data=test_data,
+                                              forecast_length=future_target,
+                                              offset=i,
+                                              neural_past_history=past_history,
+                                              component="Seasonal")
+        seasonal_pred.predict("AR")
+        sum_pred += seasonal_pred.pred
 
         # Trend
-        trend_pred = test_data["Trend"].iloc[
-                     past_history + i: past_history + i + future_target]
-        sum_pred += trend_pred
+        trend_pred = StatisticalPrediction(data=test_data,
+                                           forecast_length=future_target,
+                                           offset=i,
+                                           neural_past_history=past_history,
+                                           component="Trend")
+        trend_pred.predict("AR")
+        sum_pred += trend_pred.pred
 
         # add error
 
@@ -163,9 +168,8 @@ if predict_decomposed:
     #                      res_prediction.single_errors.tolist()])
 
 # decomp_error /= (i + 1)
-if mass_predict_neural==False:
-    fig, ax = plt.subplots(4, 1, sharex=True,figsize=(10.0, 10.0))#
-
+if mass_predict_neural == False:
+    fig, ax = plt.subplots(4, 1, sharex=True, figsize=(10.0, 10.0))  #
 
     timeframe = slice(i - 1 + past_history,
                       past_history + future_target + i - 1)
@@ -175,6 +179,8 @@ if mass_predict_neural==False:
     ax[1].plot(index, test_data["Remainder"].iloc[timeframe],
                label="Truth")
     ax[2].plot(index, test_data["Seasonal"].iloc[timeframe],
+               label='truth')
+    ax[3].plot(index, test_data["Trend"].iloc[timeframe],
                label='truth')
 
     ax[0].plot(index, sum_pred,
@@ -188,11 +194,12 @@ if mass_predict_neural==False:
                label='Remainder prediciton ; RMSE: '
                      '{}'.format(
                    res_prediction.error))
-    ax[2].plot(index, statistical_pred.pred,
+    ax[2].plot(index, seasonal_pred.pred,
                label="prediction ; Error: {}".format(
-                   statistical_pred.error))
-    ax[3].plot(index,
-               test_data["Trend"].iloc[timeframe])
+                   seasonal_pred.error))
+    ax[3].plot(index, trend_pred.pred,
+               label="prediction ; Error: {}".format(
+                   trend_pred.error))
 
     ax[0].set_ylabel("Komplett")
     ax[1].set_ylabel("Remainder")
@@ -202,8 +209,9 @@ if mass_predict_neural==False:
     ax[0].legend()
     ax[1].legend()
     ax[2].legend()
+    ax[3].legend()
     # Plot the predictions of components and their combination with the
     # corresponding truth
-    #fig.suptitle("24-Stunden Prognose der einzelnen Zeireihenkomponenten und der kompletten Zeitreihe. Startet um {} Uhr".format(test_pred_start_hour))
-    plt.savefig("Abbildungen/prediction_{}.png".format(test_pred_start_hour),dpi=300,bbox_inches='tight')
-    # plt.show()
+    # fig.suptitle("24-Stunden Prognose der einzelnen Zeireihenkomponenten und der kompletten Zeitreihe. Startet um {} Uhr".format(test_pred_start_hour))
+    #plt.savefig("Abbildungen/prediction_{}.png".format(test_pred_start_hour),dpi=300,bbox_inches='tight')
+    plt.show()
