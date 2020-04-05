@@ -32,10 +32,6 @@ def get_data(test_length,
             pd.DatetimeIndex(data.index).dayofweek > 5).astype(int)
     data["Hour"] = data.index.hour
     read_holidays(data)
-    # data["Price"].plot()
-    # plt.ylabel("Strompreis [€/MWh]")
-    # plt.xlabel("")
-    # plt.show()
     test_split_at_hour = data.index[
                              -test_length + past_history].hour - test_pred_start_hour
     test_split_at_hour += test_length

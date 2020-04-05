@@ -7,60 +7,55 @@ from statsmodels.tsa.ar_model import ar_select_order
 
 class StatisticalPrediction:
 
-    def __init__(self, data, forecast_length,
-                 neural_past_history,component, offset=0):
-        self.component=component
+    def __init__(self, data, future_target,
+                 neural_past_history, component, offset=0):
+        self.component = component
         self.data = data
         self.start = neural_past_history + offset
-        self.forecast_length = forecast_length
+        self.future_target = future_target
         self.truth = data[component].iloc[
-                     self.start:self.start + forecast_length]
+                     self.start:self.start + future_target]
 
     # best Length 190 Best ARIMA(8, 0, 2) MSE=2.422
     def predict(self, method):
-        if method == "AR":
-            self.AR_prediction()
+        if method == "AutoReg":
+            self.AutoReg_prediction()
         elif method == "ARIMA":
             self.arima_prediction()
-        elif method == "exp":
-            self.exponential_smoothing_prediction()
+        elif method == "naive":
+            self.naive_prediction()
 
-    def AR_prediction(self):
-        train = self.data[self.component].iloc[:self.start].asfreq("H")
-        lags=ar_select_order(train,maxlag=len(train)-50)
-        lags=lags.ar_lags
-        model = AutoReg(train, lags=lags)
-        model_fit = model.fit()
-        self.pred = model_fit.predict(start=len(train),
-                                      end=len(
-                                          train) + self.forecast_length - 1,
-                                      dynamic=False)
         self.error = np.sqrt(
             np.mean(np.square(self.truth.values - self.pred.values)))
+    def naive_prediction(self):
+        self.pred=self.data[self.component].iloc[self.start-2:self.start-2+self.future_target]
 
-    def exponential_smoothing_prediction(self):
-        train = self.data[self.component].iloc[self.start - 48:self.start]
-        model = ExponentialSmoothing(train, trend="add", seasonal="add",
-                                     seasonal_periods=24,
-                                     damped=True, freq="H")
-        # Search Best Smoothing Level
-        min_error = 100
-        best_smoothing_level = .2
-        for i in np.arange(.1, 1, .1):
-            fit = model.fit(smoothing_level=i)
-            # print(fit.mle_retvals)
-            start = len(train)
-            end = len(train) + self.forecast_length - 1
-            pred = fit.predict(start, end)
-            error =np.around( np.sqrt(
-                np.mean(np.square(self.truth.values - pred.values))),2)
-            if error < min_error:
-                min_error = error
-                self.pred = pred
-                self.error = min_error
-                best_smoothing_level=i
-        print("BEST SMOOTHIN: ",best_smoothing_level)
-        return self.pred
+    def AutoReg_prediction(self):
+        train = self.data[self.component].iloc[:self.start].asfreq("H")
+        exog_components = ["wind", "cloudiness", "air_temperature",
+                           "sun", 'Weekend', 'Hour', 'Holiday']
+        exog = self.data[exog_components].iloc[:self.start+self.future_target].asfreq("H")
+        use_exog=False
+        if use_exog :
+            lags = ar_select_order(endog=train,exog=exog.iloc[:self.start], maxlag=len(train) - 50)
+            lags = lags.ar_lags
+            model = AutoReg(train, lags=lags, exog=exog.iloc[:self.start])
+            model_fit = model.fit()
+            self.pred = model_fit.predict(start=len(train),
+                                      end=len(train) + self.future_target - 1,
+                                      dynamic=False,
+                                      exog_oos=exog.iloc[self.start:])
+        else:
+            lags = ar_select_order(endog=train,
+                                   maxlag=len(train) - 50)
+            lags = lags.ar_lags
+            model = AutoReg(train, lags=lags)
+            model_fit = model.fit()
+            self.pred = model_fit.predict(start=len(train),
+                                          end=len(
+                                              train) + self.future_target - 1,
+                                          dynamic=False)
+
 
     def arima_prediction(self, test_orders=False, order=(15, 0, 2)):
         if test_orders == True:
@@ -70,11 +65,9 @@ class StatisticalPrediction:
         model = ARIMA(train, order=order, freq="H")
         model_fit = model.fit(disp=0)
         start_index = len(train)
-        end_index = start_index + self.forecast_length - 1
+        end_index = start_index + self.future_target - 1
         prediction = model_fit.predict(start=start_index, end=end_index)
         self.pred = prediction
-        self.error = np.around(
-            np.sqrt(np.mean(np.square(self.truth - prediction))), 2)
 
     def test_orders(self):
         p_values = range(15, 90)
@@ -84,12 +77,13 @@ class StatisticalPrediction:
         best_score, best_cfg, best_length = float("inf"), None, None
         data = self.data[self.component].iloc[:self.start]
         start_index = len(data)
-        end_index = start_index + self.forecast_length - 1
+        end_index = start_index + self.future_target - 1
         for p in p_values:
             for d in d_values:
                 for q in q_values:
                     order = (
-                    p, d, q)  # immer 0, da Series schon stationary ist
+                        p, d,
+                        q)  # immer 0, da Series schon stationary ist
                     try:
                         model = ARIMA(data, order=order, freq="H")
                         model_fit = model.fit(disp=0)

@@ -59,7 +59,7 @@ def plot_decomposed_data(data):
     ax[3].title.set_text("TREND")
     ax[3].plot(data["Trend"])
     # plt.savefig("{}.png".format(i))
-    plt.show()
+    # plt.show()
 
 
 # LatexDecomposeMarkerStart
@@ -72,15 +72,12 @@ def decompose_data(price_series):
         new_frame = pd.DataFrame(price_series.iloc[i:])
     else:
         new_frame = pd.DataFrame(price_series)
-    print(new_frame.index.freq)
-    components = STL(new_frame["Price"], seasonal=13).fit()
+    components = STL(new_frame["Price"], seasonal= 13).fit()
     new_frame["Remainder"] = components.resid
     new_frame["Seasonal"] = components.seasonal
     new_frame["Trend"] = components.trend
-    # plot_decomposed_data(new_frame)
+    plot_decomposed_data(new_frame)
     return new_frame
-
-
 # LatexDecomposeMarkerEnd
 
 
@@ -168,12 +165,9 @@ def update_power_price():
                 # sum = new_frame["Price"].isna().sum()
                 # fill_power_na(new_frame["Price"])
             os.remove(zip_filename)
-    print(existing_data.index.freq, new_frame.index.freq)
     existing_data = existing_data.append(new_frame)
     existing_data["Price"] = fill_power_na(existing_data["Price"])
-    print(existing_data.index.freq)
     existing_data.dropna(inplace=True, how='all')
-    print(existing_data.index.freq)
     existing_data = decompose_data(existing_data)
     existing_data.to_csv("Data/price.csv")
     print("finished")

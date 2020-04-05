@@ -6,16 +6,14 @@ prognose.py berechnet standardmäßig für alle Prognosemethoden (neuronale Netz
 Die Konfiguration der Netze und weitere Parameter können über die Variablen in prognose.py eingestellt werden. 
 
 ## Variablen
-normale Varialben:
-- `future_target` beschreibt die Länge der Vorhersage (24)
-- `iterations` beschreibt, wie viele Stunden eine "mass predict" durchgeführt werden soll (168). 
-- `step` beschreibt in was für Abständen die einzelnen Prognosen der Massenprognose berechnet werden. (24)
-- `epochs` beschreibt die Anzahl an Epochen für den Trainingsprozess
-- `train_complete` und `train_residual` beschreiben, ob ein Netz neu trainiert werden soll (True) oder ein bereits trainiertes Netz geladen werden soll (False)
+normale Variablen:
+- `future_target` beschreibt die Länge der Vorhersage.
+- `iterations` beschreibt, wie viele Stunden eine "mass predict" durchgeführt werden soll. 
+- `step` beschreibt in was für Abständen die einzelnen Prognosen der Massenprognose berechnet werden.
+- `epochs` beschreibt die Anzahl an Epochen für den Trainingsprozess.
+- `train_complete` und `train_residual` beschreiben, ob ein Netz neu trainiert werden soll (True) oder ein bereits trainiertes Netz geladen werden soll.
 
 Zu den Argument Parametern, die Entscheiden wie lang der Inputzeitraum und die Struktur des Netzes ist, sind jeweils Hilfesätze gegeben, die die Funktion aufklären sollten.
-
-
 
 ## Daten
 Der automatische Download für die Daten ist deaktiviert, sodass bereits heruntergeladene Daten verwendet werden. Um die Daten zu aktualisieren muss der override für `get_new_power_data` und `get_new_weather_data` in **csv_Reader.get_data** auskommentiert werden.

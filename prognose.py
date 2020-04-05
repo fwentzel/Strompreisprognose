@@ -1,11 +1,7 @@
 from __future__ import absolute_import, division, print_function, \
     unicode_literals
-import csv
-import os
-import sys
 from argparse import ArgumentParser
 import matplotlib.pyplot as plt
-import matplotlib
 import numpy as np
 from pandas.plotting import register_matplotlib_converters
 from csv_reader import get_data
@@ -81,7 +77,7 @@ if predict_complete:
                                            additional_layers=layers,
                                            learning_rate=learning_rate)
         full_prediciton.train_network(savename="trainedLSTM_complete",
-                                      save=True,
+                                      save=False,
                                       lr_schedule="polynomal",
                                       power=2)  # lr_schedule="polynomal" oder "step
 
@@ -98,6 +94,8 @@ if predict_complete:
                                      write_to_File=False)
     else:
         full_prediciton.predict(offset=0)
+
+
 
 res_prediction = None
 seasonal_pred = None
@@ -118,7 +116,7 @@ if predict_decomposed:
                                           additional_layers=layers,
                                           learning_rate=learning_rate)
         res_prediction.train_network(savename="trainedLSTM_resid",
-                                     save=True,
+                                     save=False,
                                      lr_schedule="polynomal",
                                      power=2)
         # lr_schedule="polynomal" oder "step
@@ -139,20 +137,20 @@ if predict_decomposed:
 
         # Seasonal
         seasonal_pred = StatisticalPrediction(data=test_data,
-                                              forecast_length=future_target,
+                                              future_target=future_target,
                                               offset=i,
                                               neural_past_history=past_history,
                                               component="Seasonal")
-        seasonal_pred.predict("AR")
+        seasonal_pred.predict("AutoReg")
         sum_pred += seasonal_pred.pred
 
         # Trend
         trend_pred = StatisticalPrediction(data=test_data,
-                                           forecast_length=future_target,
+                                           future_target=future_target,
                                            offset=i,
                                            neural_past_history=past_history,
                                            component="Trend")
-        trend_pred.predict("AR")
+        trend_pred.predict("AutoReg")
         sum_pred += trend_pred.pred
 
         # add error
@@ -167,9 +165,17 @@ if predict_decomposed:
     #     writer.writerow([learning_rate, res_prediction.error,
     #                      res_prediction.single_errors.tolist()])
 
+
+naive_complete_pred = StatisticalPrediction(data=test_data,
+                                            future_target=future_target,
+                                            offset=0,
+                                            neural_past_history=past_history,
+                                            component="Price")
+naive_complete_pred.predict(method="naive")
+
 # decomp_error /= (i + 1)
 if mass_predict_neural == False:
-    fig, ax = plt.subplots(4, 1, sharex=True, figsize=(10.0, 10.0))  #
+    fig, ax = plt.subplots(5, 1, sharex=True, figsize=(10.0, 10.0))  #
 
     timeframe = slice(i - 1 + past_history,
                       past_history + future_target + i - 1)
@@ -182,6 +188,8 @@ if mass_predict_neural == False:
                label='truth')
     ax[3].plot(index, test_data["Trend"].iloc[timeframe],
                label='truth')
+    ax[4].plot(index, naive_complete_pred.truth,
+               label="Truth")
 
     ax[0].plot(index, sum_pred,
                label='decomposed; RMSE : {}'.format(
@@ -200,18 +208,23 @@ if mass_predict_neural == False:
     ax[3].plot(index, trend_pred.pred,
                label="prediction ; Error: {}".format(
                    trend_pred.error))
+    ax[4].plot(index, naive_complete_pred.pred,
+             label="prediction; RMSE: {}".format(
+                 naive_complete_pred.error))
 
     ax[0].set_ylabel("Komplett")
     ax[1].set_ylabel("Remainder")
     ax[2].set_ylabel("Seasonal")
     ax[3].set_ylabel("Trend")
+    ax[4].set_ylabel("Naive Prediction")
 
     ax[0].legend()
     ax[1].legend()
     ax[2].legend()
     ax[3].legend()
+    ax[4].legend()
     # Plot the predictions of components and their combination with the
     # corresponding truth
     # fig.suptitle("24-Stunden Prognose der einzelnen Zeireihenkomponenten und der kompletten Zeitreihe. Startet um {} Uhr".format(test_pred_start_hour))
-    #plt.savefig("Abbildungen/prediction_{}.png".format(test_pred_start_hour),dpi=300,bbox_inches='tight')
-    plt.show()
+    plt.savefig("Abbildungen/prediction_{}.png".format(test_pred_start_hour),dpi=300,bbox_inches='tight')
+    #plt.show()
