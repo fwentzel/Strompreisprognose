@@ -4,6 +4,7 @@ import numpy as np
 import os
 import csv
 import json
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 import tensorflow as tf
 import pandas as pd
@@ -13,53 +14,66 @@ from tensorflow_core.python.keras.callbacks import EarlyStopping, \
 
 class NeuralNetPrediction:
     TRAIN_LENGTH = .7  # percent
-    BATCH_SIZE = 64
 
-    def __init__(self, train_data, test_data, future_target,
-                 past_history,
-                 datacolumn, epochs):
+    def __init__(self, data, future_target, datacolumn,
+                 test_split_at_hour, net_type):
+
+        self.read_json(net_type)
+        test_data = data.iloc[-test_split_at_hour - self.past_history:]
+        train_data = data.iloc[:-test_split_at_hour]
+
         self.RELEVANT_COLUMNS = [datacolumn, "wind", "cloudiness",
                                  "air_temperature", "sun", 'Weekend',
                                  'Hour',
                                  'Holiday']
         self.train_target = train_data[datacolumn]
         self.train_dataset = train_data[self.RELEVANT_COLUMNS].values
+
         self.test_target = test_data[datacolumn]
         self.test_dataset = test_data[self.RELEVANT_COLUMNS].values
+
         self.future_target = future_target  # timesteps into future
-        self.past_history = past_history  # inputtimesteps
-        self.epochs = epochs
         self.x, self.y = self.multivariate_data_single_step()
-        self.day_models = []
-        for i in range(7):
-            if datacolumn == "Price":
-                save_name = "complete_day_{}".format(i)
-            else:
-                save_name = "residual_day_{}".format(i)
-            self.load_model(savename=save_name,
-                            day_model=True)
+        if not net_type.startswith(
+                "day_model_"):  # only read in day_models when its a "complete" net
+            self.day_models = []
+            for i in range(7):
+                if datacolumn == "Price":
+                    save_name = "complete_day_{}".format(i)
+                else:
+                    save_name = "residual_day_{}".format(i)
+                self.load_model(savename=save_name,
+                                day_model=True)
+
+    def read_json(self, net_type):
+        with open('configurations.json', 'r') as f:
+            models_dict = json.load(f)
+        self.dropout = models_dict[net_type]["dropout"]
+        self.epochs = models_dict[net_type]["epochs"]
+        self.additional_layers = models_dict[net_type]["layer"]
+        self.past_history = models_dict[net_type]["past_history"]
+        self.batch_size = models_dict[net_type]["batch_size"]
 
     # LatexMarkerWeekdayStart
-    def train_data_day_of_week(self, day_of_week, train_data):
-        indices = [train_data.index.dayofweek == day_of_week][0]
+    def update_train_data_day_of_week(self, day_of_week):
+        indices = [self.train_target.index.dayofweek == day_of_week][0]
         indices = indices[self.past_history:]
-        self.x_day = self.x[indices]
-        self.y_day = self.y[indices]
+        self.x = self.x[indices]
+        self.y = self.y[indices]
 
     # LatexMarkerWeekdayEnd
 
-    def initialize_network(self, dropout, additional_layers):
-
+    def initialize_network(self):
         model = tf.keras.models.Sequential()
         model.add(tf.keras.layers.LSTM(self.past_history,
                                        return_sequences=True,
                                        input_shape=(self.x.shape[-2:])))
-        for i in range(additional_layers):
-            if i < additional_layers - 1:
+        for i in range(self.additional_layers):
+            if i < self.additional_layers - 1:
                 model.add(
                     tf.keras.layers.LSTM(self.past_history,
                                          return_sequences=True,
-                                         dropout=dropout))  # 0,3 3,7
+                                         dropout=self.dropout))  # 0,3 3,7
             else:
                 model.add(tf.keras.layers.LSTM(int(self.past_history)))
 
@@ -76,7 +90,7 @@ class NeuralNetPrediction:
         model = tf.keras.models.load_model(
             '.\checkpoints\{0}'.format(savename))
         model_input = model.layers[0].input.shape[1]
-        if self.past_history != model_input:
+        if self.past_history != model_input and not "_day_" in savename:  # only throw "error" when its a "completed" net
             print(
                 "Saved model expects {} Input steps. past History adjusted to fit this requirement".format(
                     model_input))
@@ -118,7 +132,7 @@ class NeuralNetPrediction:
                            restore_best_weights=True)  # restore_best_weights=True
         history = self.model.fit(x=self.x, y=self.y,
                                  epochs=self.epochs,
-                                 batch_size=self.BATCH_SIZE,
+                                 batch_size=self.batch_size,
                                  verbose=1,
                                  validation_split=1 -
                                                   self.TRAIN_LENGTH,
@@ -146,13 +160,14 @@ class NeuralNetPrediction:
 
     # LatexSingleStepMarkerStart
     def single_step_predict(self, inputs, model, target=None):
+        model_past_history = model.layers[0].input.shape[1]
         predictions = []
         inputCopy = np.copy(inputs)
         for j in range(self.future_target):
-            x_in = inputCopy[j:j + self.past_history].reshape(1,
-                                                              self.past_history,
-                                                              inputCopy.shape[
-                                                                  1])
+            x_in = inputCopy[j:j + model_past_history].reshape(1,
+                                                               model_past_history,
+                                                               inputCopy.shape[
+                                                                   1])
             if j > 0:
                 x_in[-1, -1, 0] = predictions[
                     j - 1]  # replace last power price with forecast
@@ -175,9 +190,11 @@ class NeuralNetPrediction:
     def multi_step_predict(self, inputs, model, target=None):
         inputCopy = np.copy(
             inputs)  # copy Array to not overwrite original train_data
-        x_in = inputCopy[:self.past_history].reshape(1,
-                                                     self.past_history,
-                                                     inputCopy.shape[1])
+        model_past_history = model.layers[0].input.shape[1]
+        x_in = inputCopy[:model_past_history].reshape(1,
+                                                      model_past_history,
+                                                      inputCopy.shape[
+                                                          1])
         prediction = model.predict(x_in)
         target_rows = target.iloc[-self.future_target:]
         self.truth = target_rows
@@ -191,25 +208,27 @@ class NeuralNetPrediction:
             np.square(self.truth.values - prediction))
 
     def predict(self, use_day_model=False, offset=0):
-
         dataset = self.test_dataset
         target = self.test_target
+
+        # use random day model for past_history. ATM doesnt matter which one taken
+        model_past_history = self.day_models[0].layers[0].input.shape[
+            1] if use_day_model else self.model.layers[0].input.shape[1]
+
         prediction_timeframe = slice(offset,
-                                     self.past_history + self.future_target +
+                                     model_past_history + self.future_target +
                                      offset)
         input = dataset[prediction_timeframe]
         target = target.iloc[
-                 self.past_history + offset:self.past_history + offset +
-                                            self.future_target]
-
-        shape = self.model.layers[-1].output.shape[1]
-
+                 model_past_history + offset:model_past_history + offset +
+                                             self.future_target]
         if use_day_model:
             start_day = target.index[0].dayofweek
             print("Predicting using model for day:", start_day)
             model = self.day_models[start_day]
         else:
             model = self.model
+        shape = model.layers[-1].output.shape[1]
 
         if shape == 1:
             self.single_step_predict(inputs=input, model=model,
@@ -239,8 +258,7 @@ class NeuralNetPrediction:
         # plt.xticks([8,9,10,11,12,13,14,15,16,17,18,19,20,21,23,0,1,2,3,4,5,6,7,8])
         plt.show()
 
-    def mass_predict(self, iterations, filename,
-                     past_history, layers, step=1, write_to_File=True,use_day_model=False):
+    def mass_predict(self, iterations, step=1, use_day_model=False):
         j = 0
         single_errorlist = np.empty(
             [round(iterations / step), self.future_target])
@@ -251,7 +269,7 @@ class NeuralNetPrediction:
             print("\rmass predict: {}/{}".format(j, round(
                 iterations / step)),
                   sep=' ', end='', flush=True)
-            self.predict(offset=i,use_day_model=use_day_model)
+            self.predict(offset=i, use_day_model=use_day_model)
             single_errorlist[j] = self.single_errors
             arr = np.nanmean([error_array[i:i + self.future_target],
                               single_errorlist[j].reshape(
@@ -277,42 +295,10 @@ class NeuralNetPrediction:
                 iterations, step))
         plt.legend()
         plt.show()
-
         mean_error_over_time = [np.mean(mean_errorlist[:x]) for x in
                                 range(1, len(mean_errorlist) + 1)]
 
         mean_error = np.around(mean_errorlist.mean(), 2)
-        min_error = 100
-        min_config = None
-
-
-        if write_to_File:
-            with open("Results/best_config_{}.csv".format(
-                    filename)) as config:
-                reader = csv.reader(config, delimiter=',')
-                for row in reader:
-                    min_config = row
-                min_error = float(min_config[-1])
-            print("mean errors of predicitons: ", mean_error,
-                  mean_errorlist)
-            with open('Results/{}_results.csv'.format(filename), 'a',
-                      newline='') as fd:
-                writer = csv.writer(fd)
-                writer.writerow(
-                    [past_history, layers, iterations,
-                     mean_error,
-                     mean_errorlist.tolist()])
-
-        if mean_error < min_error:
-            min_error = mean_error
-            min_config = [past_history, layers,
-                          min_error]
-            self.model.save('.\checkpoints\{}_best'.format(filename))
-            with open('Results/best_config_{}.csv'.format(filename),
-                      'w',
-                      newline='') as fd:
-                writer = csv.writer(fd)
-                writer.writerow(min_config)
 
     def plot_predictions(self, ax):
         time_slice = slice(self.past_history,

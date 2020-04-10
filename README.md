@@ -10,11 +10,15 @@ normale Variablen:
 - `future_target` beschreibt die Länge der Vorhersage.
 - `iterations` beschreibt, wie viele Stunden eine "mass predict" durchgeführt werden soll. 
 - `step` beschreibt in was für Abständen die einzelnen Prognosen der Massenprognose berechnet werden.
-- `epochs` beschreibt die Anzahl an Epochen für den Trainingsprozess.
-- `train_complete` und `train_residual` beschreiben, ob ein Netz neu trainiert werden soll (True) oder ein bereits trainiertes Netz geladen werden soll.
+- `train_` Variablen beschreiben, ob ein Netz neu trainiert werden soll (True) oder ein bereits trainiertes Netz geladen werden soll.
 
-Zu den Argument Parametern, die Entscheiden wie lang der Inputzeitraum und die Struktur des Netzes ist, sind jeweils Hilfesätze gegeben, die die Funktion aufklären sollten.
-
+Der Aufbau für neu trainierte Netze kann in der Konfigurationsdatei **configurations.json** für die jeweiligen Netze eingestellt werden.
+Einzustellen sind:
+-`dropout` steht für die Dezimalstelle der dropout Menge in den zusätzlichen Ebenen (2 steht für 0.2=20% Dropout)
+-`layer` steht für die zusätzlichen Ebenen neben der Input Ebene und der Dense Ebene
+-`past_history` steht für die Länge des Inputzeitraums für dieses Netz
+-`epochs` beschreibt, wie viele Epochen trainiert werden sollen. Da ein Early Stopping callback genutzt wird, hat die Epochenanzahl hauptsächlich Einfluss auf die Lernrate, da sie bei einem polynomischen Lernratenplan schneller fällt, wenn es weniger Epochen gibt.
+-`batch_size` beschreibt die batch_size des Trainings. Nach jeden Batch werden die internen Gewichtungen des Netzes angepasst. Sie sollte eine Potenz von 2 sein.
 ## Daten
 Der automatische Download für die Daten ist deaktiviert, sodass bereits heruntergeladene Daten verwendet werden. Um die Daten zu aktualisieren muss der override für `get_new_power_data` und `get_new_weather_data` in **csv_Reader.get_data** auskommentiert werden.
 
