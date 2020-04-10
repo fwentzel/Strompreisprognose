@@ -4,7 +4,7 @@ Dieses Projekt behandelt die Prognose des Day Ahead-Strompreises für das Marktb
 ## Einführung
 prognose.py berechnet standardmäßig für alle Prognosemethoden (neuronale Netze/statistische Methoden) mit der bisher optimalsten Konfiguration für die neuronalen Netze und statistischen Methoden. 
 Die Konfiguration der Netze und weitere Parameter können über die Variablen in prognose.py eingestellt werden. 
-
+Die Ergebnisse eines Zeitschrittes werden in 4 Diagrammen dargestellt. Oben befindet sich dabei die komplette Zeitreihe des Strompreises mit der Prognose des Neuronalen Netzes und der aufsummierten Prognose der einzelnen Zeitreihenkomponenten. In dem untersten Diagramm wird die Referenzprognose des naiven Modells dargestellt. In den anderen drei mittleren Diagrammen sind die Prognosen für die einzelnen Zeitreihenkomponenten dargestellt. In der Legende befindet sich jeweils der mittlere Fehler für diese Prognose. 
 ## Variablen
 normale Variablen:
 - `future_target` beschreibt die Länge der Vorhersage.

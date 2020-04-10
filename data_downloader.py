@@ -67,11 +67,7 @@ def decompose_data(price_series):
     i = 0
     while price_series.index[i].hour != 0:
         i += 1
-
-    if i > 0:
-        new_frame = pd.DataFrame(price_series.iloc[i:])
-    else:
-        new_frame = pd.DataFrame(price_series)
+    new_frame = pd.DataFrame(price_series.iloc[i:])
     components = STL(new_frame["Price"], seasonal= 13).fit()
     new_frame["Remainder"] = components.resid
     new_frame["Seasonal"] = components.seasonal

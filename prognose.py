@@ -12,16 +12,16 @@ import ipykernel  # fix progress bar
 register_matplotlib_converters()
 future_target = 24
 iterations = 168  # amount of predicitons for mass predict
-step = 24
+step = 1
 epochs = 150
 train_complete = False
 train_residual = False
+train_day_of_week = False
+day_of_week_predictions=False
+mass_predict_day_of_week=False
 
 # argument parsing for grid search
 parser = ArgumentParser()
-parser.add_argument("-lr",
-                    default=7, type=int,
-                    help=" learning rate index for learning_rate list")
 parser.add_argument("-p", default=72, type=int,
                     help="amount of input timesteps")
 parser.add_argument("-l", default=1, type=int,
@@ -32,10 +32,10 @@ parser.add_argument("-cp",
                     default=True, type=bool,
                     help="predict complete part of time series")
 parser.add_argument("-dp",
-                    default=True, type=bool,
+                    default=False, type=bool,
                     help=" predict decomposed part of time series")
 parser.add_argument("-mp",
-                    default=False, type=bool,
+                    default=True, type=bool,
                     help="use mass prediction for error calculation")
 parser.add_argument("-s",
                     default=0, type=int,
@@ -48,9 +48,7 @@ dropout = args.d
 predict_complete = args.cp
 predict_decomposed = args.dp
 mass_predict_neural = args.mp
-learning_rate = np.arange(0.0001, 0.001, 0.0001)[args.lr]
 test_pred_start_hour = args.s
-# learning_rate = .0004
 plot_all = mass_predict_neural == False
 test_length = future_target + iterations + 185  # Timesteps for testing.
 
@@ -61,7 +59,36 @@ train_data, test_data = get_data(test_length=test_length,
 # plt.show()
 
 dropout_decimal = dropout / 10
-print("configuation: ", past_history, layers, dropout, learning_rate)
+print("configuation: ", past_history, layers, dropout)
+
+
+if day_of_week_predictions :
+    complete_nets=[]
+    residual_nets = []
+
+    for i in range(7):
+        print("initializing net ",i)
+        complete_nets.append(NeuralNetPrediction(datacolumn="Price",
+                                          train_data=train_data,
+                                          test_data=test_data,
+                                          future_target=future_target,
+                                          past_history=past_history,
+                                          epochs=epochs))
+
+
+        if train_day_of_week:
+            print("training net ", i)
+            complete_nets[i].initialize_network(dropout=dropout_decimal,
+                                               additional_layers=layers)
+            complete_nets[i].train_network(
+                savename="complete_day_{}".format(i),
+                save=True,
+                lr_schedule="polynomal",
+                power=2)  # lr_schedule="polynomal" oder "step
+
+        else:
+            complete_nets[i].load_model(savename="complete_day_{}".format(i))
+
 
 full_prediciton = None
 if predict_complete:
@@ -74,8 +101,7 @@ if predict_complete:
 
     if train_complete:
         full_prediciton.initialize_network(dropout=dropout_decimal,
-                                           additional_layers=layers,
-                                           learning_rate=learning_rate)
+                                           additional_layers=layers)
         full_prediciton.train_network(savename="trainedLSTM_complete",
                                       save=False,
                                       lr_schedule="polynomal",
@@ -87,13 +113,29 @@ if predict_complete:
     if mass_predict_neural:
         full_prediciton.mass_predict(iterations=iterations,
                                      filename="complete",
-                                     learning_rate=learning_rate,
                                      past_history=past_history,
                                      layers=layers,
                                      step=step,
-                                     write_to_File=False)
+                                     write_to_File=False,
+                                     use_day_model=False)
+        full_prediciton.mass_predict(iterations=iterations,
+                                     filename="day_model",
+                                     past_history=past_history,
+                                     layers=layers,
+                                     step=step,
+                                     write_to_File=False,
+                                     use_day_model=True)
+
     else:
-        full_prediciton.predict(offset=0)
+        full_prediciton.predict(offset=0,use_day_model=True)
+        plt.plot(full_prediciton.pred,label="day_model, Error:{}".format(full_prediciton.error))
+        full_prediciton.predict(offset=0,use_day_model=False)
+        plt.plot(full_prediciton.pred,
+                 label="complete_model, Error:{}".format(
+                     full_prediciton.error))
+        plt.plot(full_prediciton.truth.index,full_prediciton.truth,label="Truth")
+        plt.legend()
+        plt.show()
 
 
 
@@ -113,8 +155,7 @@ if predict_decomposed:
 
     if train_residual:
         res_prediction.initialize_network(dropout=dropout_decimal,
-                                          additional_layers=layers,
-                                          learning_rate=learning_rate)
+                                          additional_layers=layers)
         res_prediction.train_network(savename="trainedLSTM_resid",
                                      save=False,
                                      lr_schedule="polynomal",
@@ -126,9 +167,9 @@ if predict_decomposed:
     if mass_predict_neural:
         res_prediction.mass_predict(iterations=iterations,
                                     filename="residual",
-                                    learning_rate=learning_rate,
                                     past_history=past_history,
                                     layers=layers,
+                                    step=step,
                                     write_to_File=False)
     else:
         # Remainder
@@ -166,6 +207,7 @@ if predict_decomposed:
     #                      res_prediction.single_errors.tolist()])
 
 
+
 naive_complete_pred = StatisticalPrediction(data=test_data,
                                             future_target=future_target,
                                             offset=0,
@@ -174,7 +216,7 @@ naive_complete_pred = StatisticalPrediction(data=test_data,
 naive_complete_pred.predict(method="naive")
 
 # decomp_error /= (i + 1)
-if mass_predict_neural == False:
+if mass_predict_neural == False and predict_complete ==True and predict_decomposed==True:
     fig, ax = plt.subplots(5, 1, sharex=True, figsize=(10.0, 10.0))  #
 
     timeframe = slice(i - 1 + past_history,
@@ -225,6 +267,8 @@ if mass_predict_neural == False:
     ax[4].legend()
     # Plot the predictions of components and their combination with the
     # corresponding truth
-    # fig.suptitle("24-Stunden Prognose der einzelnen Zeireihenkomponenten und der kompletten Zeitreihe. Startet um {} Uhr".format(test_pred_start_hour))
+
+    fig.suptitle("Start: {} Stunden nach Trainingsende des anderen Versuchs".format(test_pred_start_hour))
     plt.savefig("Abbildungen/prediction_{}.png".format(test_pred_start_hour),dpi=300,bbox_inches='tight')
     #plt.show()
+

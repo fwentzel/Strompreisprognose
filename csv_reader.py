@@ -28,8 +28,10 @@ def get_data(test_length,
     power_price_frame = data_downloader.update_power_price() if get_new_power_data else read_power_data()
 
     data = power_price_frame.join(weather_frame, how='inner')
-    data['Weekend'] = (
-            pd.DatetimeIndex(data.index).dayofweek > 5).astype(int)
+    # data["Price"].plot()
+    # plt.ylabel("Strompreis €/MWh")
+    # plt.show()
+    data['Weekend'] = (pd.DatetimeIndex(data.index).dayofweek > 5).astype(int)
     data["Hour"] = data.index.hour
     read_holidays(data)
     test_split_at_hour = data.index[

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import csv
-
+import json
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 import tensorflow as tf
 import pandas as pd
@@ -30,9 +30,25 @@ class NeuralNetPrediction:
         self.past_history = past_history  # inputtimesteps
         self.epochs = epochs
         self.x, self.y = self.multivariate_data_single_step()
+        self.day_models = []
+        for i in range(7):
+            if datacolumn == "Price":
+                save_name = "complete_day_{}".format(i)
+            else:
+                save_name = "residual_day_{}".format(i)
+            self.load_model(savename=save_name,
+                            day_model=True)
 
-    def initialize_network(self, dropout, additional_layers,
-                           learning_rate):
+    # LatexMarkerWeekdayStart
+    def train_data_day_of_week(self, day_of_week, train_data):
+        indices = [train_data.index.dayofweek == day_of_week][0]
+        indices = indices[self.past_history:]
+        self.x_day = self.x[indices]
+        self.y_day = self.y[indices]
+
+    # LatexMarkerWeekdayEnd
+
+    def initialize_network(self, dropout, additional_layers):
 
         model = tf.keras.models.Sequential()
         model.add(tf.keras.layers.LSTM(self.past_history,
@@ -52,18 +68,25 @@ class NeuralNetPrediction:
         # model.compile(
         #     optimizer=tf.keras.optimizers.Adadelta(learning_rate=0.1),
         #     loss="mae")
-        model.compile(optimizer=tf.keras.optimizers.Adam(
-            learning_rate=learning_rate), loss="mae")
+        model.compile(optimizer=tf.keras.optimizers.Adam(), loss="mae")
         self.model = model
 
-    def load_model(self, savename):
-        self.model = tf.keras.models.load_model(
-            '.\checkpoints\{0}'.format(savename))
-        model_input=self.model.layers[0].input.shape[1]
-        if self.past_history != model_input:
-            print("Saved model expects {} Input steps. past History adjusted to fit this requirement".format(model_input))
-            self.past_history=model_input
+    def load_model(self, savename, day_model=False):
 
+        model = tf.keras.models.load_model(
+            '.\checkpoints\{0}'.format(savename))
+        model_input = model.layers[0].input.shape[1]
+        if self.past_history != model_input:
+            print(
+                "Saved model expects {} Input steps. past History adjusted to fit this requirement".format(
+                    model_input))
+            self.past_history = model_input
+        if day_model:
+            self.day_models.append(model)
+        else:
+            self.model = model
+
+    # LatexMarkerDataStart
     def multivariate_data_single_step(self):
         multivariate_data = []
         labels = []
@@ -74,8 +97,10 @@ class NeuralNetPrediction:
         multivariate_data = np.array(multivariate_data).astype(float)
         return multivariate_data.reshape(multivariate_data.shape[0],
                                          multivariate_data.shape[1],
-                                         -1), np.array(
-            labels).astype(float)
+                                         -1), np.array(labels).astype(
+            float)
+
+    # LatexMarkerDataEnd
 
     def train_network(self, savename, power=1, initAlpha=0.001,
                       lr_schedule="polynomal", save=True):
@@ -87,9 +112,10 @@ class NeuralNetPrediction:
         elif lr_schedule == "step":
             schedule = StepDecay(initAlpha=initAlpha, factor=0.8,
                                  dropEvery=15)
-        #schedule.plot(self.epochs)
+        # schedule.plot(self.epochs)
         es = EarlyStopping(monitor='val_loss', mode='min', verbose=1,
-                           patience=5,restore_best_weights=True)  # restore_best_weights=True
+                           patience=5,
+                           restore_best_weights=True)  # restore_best_weights=True
         history = self.model.fit(x=self.x, y=self.y,
                                  epochs=self.epochs,
                                  batch_size=self.BATCH_SIZE,
@@ -98,7 +124,8 @@ class NeuralNetPrediction:
                                                   self.TRAIN_LENGTH,
                                  shuffle=True,
                                  callbacks=[es,
-                                     LearningRateScheduler(schedule)])
+                                            LearningRateScheduler(
+                                                schedule)])
         # tf.keras.callbacks.LearningRateScheduler(schedule)
 
         # self.plot_train_history(history, 'Multi-Step Training
@@ -118,7 +145,7 @@ class NeuralNetPrediction:
         plt.show()
 
     # LatexSingleStepMarkerStart
-    def single_step_predict(self, inputs, target=None):
+    def single_step_predict(self, inputs, model, target=None):
         predictions = []
         inputCopy = np.copy(inputs)
         for j in range(self.future_target):
@@ -130,8 +157,7 @@ class NeuralNetPrediction:
                 x_in[-1, -1, 0] = predictions[
                     j - 1]  # replace last power price with forecast
 
-            predictions.append(self.model.predict(x_in)[0][-1])
-
+            predictions.append(model.predict(x_in)[0][-1])
 
         target_rows = target.iloc[-self.future_target:]
         self.truth = target_rows
@@ -142,17 +168,17 @@ class NeuralNetPrediction:
             np.sqrt(
                 np.mean(np.square(self.truth.values - predictions))), 2)
         self.single_errors = np.around(np.sqrt(
-            np.square(self.truth.values - predictions)),2)
+            np.square(self.truth.values - predictions)), 2)
 
     # LatexSingleStepMarkerEnd
 
-    def multi_step_predict(self, inputs, target=None):
+    def multi_step_predict(self, inputs, model, target=None):
         inputCopy = np.copy(
             inputs)  # copy Array to not overwrite original train_data
         x_in = inputCopy[:self.past_history].reshape(1,
                                                      self.past_history,
                                                      inputCopy.shape[1])
-        prediction = self.model.predict(x_in)
+        prediction = model.predict(x_in)
         target_rows = target.iloc[-self.future_target:]
         self.truth = target_rows
         self.pred = pd.Series(
@@ -164,7 +190,7 @@ class NeuralNetPrediction:
         self.single_errors = np.sqrt(
             np.square(self.truth.values - prediction))
 
-    def predict(self, offset=0):
+    def predict(self, use_day_model=False, offset=0):
 
         dataset = self.test_dataset
         target = self.test_target
@@ -175,11 +201,22 @@ class NeuralNetPrediction:
         target = target.iloc[
                  self.past_history + offset:self.past_history + offset +
                                             self.future_target]
+
         shape = self.model.layers[-1].output.shape[1]
-        if shape == 1:
-            self.single_step_predict(inputs=input, target=target)
+
+        if use_day_model:
+            start_day = target.index[0].dayofweek
+            print("Predicting using model for day:", start_day)
+            model = self.day_models[start_day]
         else:
-            self.multi_step_predict(inputs=input, target=target)
+            model = self.model
+
+        if shape == 1:
+            self.single_step_predict(inputs=input, model=model,
+                                     target=target)
+        else:
+            self.multi_step_predict(inputs=input, model=model,
+                                    target=target)
 
     def plot_mass_error_over_day(self, mean_errorlist):
 
@@ -202,56 +239,73 @@ class NeuralNetPrediction:
         # plt.xticks([8,9,10,11,12,13,14,15,16,17,18,19,20,21,23,0,1,2,3,4,5,6,7,8])
         plt.show()
 
-    def mass_predict(self, iterations, filename, learning_rate,
-                     past_history, layers, step=1, write_to_File=True):
+    def mass_predict(self, iterations, filename,
+                     past_history, layers, step=1, write_to_File=True,use_day_model=False):
         j = 0
-        single_errorlist = np.empty([round(iterations/step), self.future_target])
+        single_errorlist = np.empty(
+            [round(iterations / step), self.future_target])
         offsets = range(0, iterations, step)
-        plt.plot(self.test_target.index[
-                 past_history:self.future_target + iterations + past_history],
-                 self.test_target.iloc[
-                 past_history:self.future_target + iterations + past_history],
-                 label="TRUTH", lw=5)
+        error_array = np.empty((iterations + self.future_target, 1))
+        error_array[:] = np.nan
         for i in offsets:
-            self.predict(offset=i)
-            #print("errors for prediciton {}:   {} , {}  ".format(j,self.error,
-            #                                          self.single_errors))
+            print("\rmass predict: {}/{}".format(j, round(
+                iterations / step)),
+                  sep=' ', end='', flush=True)
+            self.predict(offset=i,use_day_model=use_day_model)
             single_errorlist[j] = self.single_errors
+            arr = np.nanmean([error_array[i:i + self.future_target],
+                              single_errorlist[j].reshape(
+                                  self.future_target, 1)], axis=0)
+            error_array[i:i + self.future_target] = arr
             j += 1
-            plt.plot(self.pred)
-
-        plt.legend()
-        plt.title("{} Steunden Predictions für {} Zeitschritte wiederholt in {} Stunden Abständen".format(self.future_target,iterations,step))
-        #plt.show()
 
         mean_errorlist = np.around(np.mean(single_errorlist, axis=0),
                                    decimals=2)
-        # plt.plot(offsets, mean_errorlist, label="mean Error over time")
-        # plt.legend()
-        # plt.show()
-        # self.plot_mass_error_over_day(mean_errorlist)
-        mean_error=np.around(mean_errorlist.mean(),2)
+
+        mean_mean_error_over_time = [np.mean(error_array[x - 12:x + 12])
+                                     for x in
+                                     range(12, len(error_array) - 12)]
+        plt.plot(error_array, label="RMSE: {}".format(
+            np.around(np.mean(mean_errorlist), 2)))
+        plt.plot(range(12, len(error_array) - 12),
+                 mean_mean_error_over_time,
+                 label="Mean error of t-12 - t+12 window")
+        plt.xticks(
+            [x for x in range(0, iterations + self.future_target, 12)])
+        plt.title(
+            "Mean Error at every time step of mass prediciton with {} iterations and {} stepsize".format(
+                iterations, step))
+        plt.legend()
+        plt.show()
+
+        mean_error_over_time = [np.mean(mean_errorlist[:x]) for x in
+                                range(1, len(mean_errorlist) + 1)]
+
+        mean_error = np.around(mean_errorlist.mean(), 2)
         min_error = 100
         min_config = None
 
-        with open("Results/best_config_{}.csv".format(
-                filename)) as config:
-            reader = csv.reader(config, delimiter=',')
-            for row in reader:
-                min_config = row
-            min_error = float(min_config[-1])
-        print("mean errors of predicitons: ", mean_error, mean_errorlist)
+
         if write_to_File:
+            with open("Results/best_config_{}.csv".format(
+                    filename)) as config:
+                reader = csv.reader(config, delimiter=',')
+                for row in reader:
+                    min_config = row
+                min_error = float(min_config[-1])
+            print("mean errors of predicitons: ", mean_error,
+                  mean_errorlist)
             with open('Results/{}_results.csv'.format(filename), 'a',
                       newline='') as fd:
                 writer = csv.writer(fd)
                 writer.writerow(
-                    [learning_rate, past_history, layers,iterations, mean_error,
+                    [past_history, layers, iterations,
+                     mean_error,
                      mean_errorlist.tolist()])
 
         if mean_error < min_error:
             min_error = mean_error
-            min_config = [learning_rate, past_history, layers,
+            min_config = [past_history, layers,
                           min_error]
             self.model.save('.\checkpoints\{}_best'.format(filename))
             with open('Results/best_config_{}.csv'.format(filename),
@@ -282,7 +336,7 @@ class LearningRateDecay:
         # the learning rate schedule
         plt.style.use("ggplot")
         plt.figure()
-        plt.plot(range(0, epochs), lrs,"o")
+        plt.plot(range(0, epochs), lrs, "o")
         plt.title(title)
         plt.xlabel("Epoch #")
         plt.ylabel("Learning Rate")
