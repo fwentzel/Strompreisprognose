@@ -7,7 +7,7 @@ from statsmodels.tsa.ar_model import AutoReg, ar_select_order
 class StatisticalPrediction:
 
     def __init__(self, data, future_target, component, test_split_at_hour,offset=0):
-        self.start=test_split_at_hour+offset
+        self.start=-test_split_at_hour+offset
         self.component = component
         self.data = data
         self.future_target = future_target
@@ -37,9 +37,10 @@ class StatisticalPrediction:
     # self.pred = np.ones(shape=(self.future_target))*self.data[self.component].iloc[self.start-1]
     # LatexAutoRegMarkerStart
     def AutoReg_prediction(self):
-        train = self.data[self.component].iloc[self.start-48:self.start].asfreq("H")
+        train = self.data[self.component].iloc[self.start-160:self.start].asfreq("H")
         lags = ar_select_order(endog=train,
-                               maxlag=len(train) - 50)
+                               maxlag=70)
+
         model = AutoReg(train, lags=lags.ar_lags)
         model_fit = model.fit()
         self.pred = model_fit.predict(start=len(train),

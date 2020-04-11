@@ -17,31 +17,18 @@ train_residual = False
 train_day_of_week = False
 
 predict_complete = True
-predict_decomposed = False
-mass_predict_neural = True
-test_pred_start_hour = 6
+predict_decomposed = True
+predict_with_day = False
+mass_predict_neural = False
+test_pred_start_hour = 0
 plot_all = mass_predict_neural == False
-test_length = future_target + iterations + 15  # Timesteps for testing.
+test_length = future_target + iterations + 172 # Timesteps for testing.
 data = get_data()
 test_split_at_hour = data.index[
                          -test_length].hour - test_pred_start_hour + test_length
 # test_data.Price.plot()
 # plt.show()
-if train_day_of_week:
-    for i in range(7):
-        net = NeuralNetPrediction(datacolumn="Price",
-                                  data=data,
-                                  future_target=future_target,
-                                  test_split_at_hour=test_split_at_hour,
-                                  net_type="day_model_complete")
-        net.update_train_data_day_of_week(i)
-        print("training net ", i)
-        net.initialize_network()
-        net.train_network(
-            savename="complete_day_{}".format(i),
-            save=True,
-            lr_schedule="polynomal",
-            power=2)  # lr_schedule="polynomal" oder "step
+
 
 full_prediciton = None
 if predict_complete:
@@ -49,7 +36,8 @@ if predict_complete:
                                           data=data,
                                           future_target=future_target,
                                           test_split_at_hour=test_split_at_hour,
-                                          net_type="complete")
+                                          net_type="complete",
+                                          train_day_of_week=train_day_of_week)
 
     if train_complete:
         full_prediciton.initialize_network()
@@ -65,23 +53,9 @@ if predict_complete:
         full_prediciton.mass_predict(iterations=iterations,
                                      step=step,
                                      use_day_model=True)
-        full_prediciton.mass_predict(iterations=iterations,
-                                     step=step,
-                                     use_day_model=False)
 
     else:
-        full_prediciton.predict(offset=0, use_day_model=True)
-        plt.plot(full_prediciton.pred,
-                 label="day_model, Error:{}".format(
-                     full_prediciton.error))
-        full_prediciton.predict(offset=0, use_day_model=False)
-        plt.plot(full_prediciton.pred,
-                 label="complete_model, Error:{}".format(
-                     full_prediciton.error))
-        plt.plot(full_prediciton.truth.index, full_prediciton.truth,
-                 label="Truth")
-        plt.legend()
-        plt.show()
+        full_prediciton.predict(offset=0, use_day_model=predict_with_day)
 
 res_prediction = None
 seasonal_pred = None
@@ -94,7 +68,8 @@ if predict_decomposed:
                                          data=data,
                                          future_target=future_target,
                                          test_split_at_hour=test_split_at_hour,
-                                         net_type="remainder")
+                                         net_type="remainder",
+                                         train_day_of_week=train_day_of_week)
 
     if train_residual:
         res_prediction.initialize_network()
@@ -106,13 +81,17 @@ if predict_decomposed:
     else:
         res_prediction.load_model(savename="trainedLSTM_resid")
 
-    res_prediction.mass_predict(iterations=iterations,
-                                step=step)
+
     if mass_predict_neural:
-        pass
+        res_prediction.mass_predict(iterations=iterations,
+                                    step=step)
     else:
         # Remainder
-        res_prediction.predict(offset=i)
+        res_prediction.predict(offset=0, use_day_model=predict_with_day)
+
+
+
+
         sum_pred = res_prediction.pred.copy()
 
         # Seasonal
@@ -134,10 +113,10 @@ if predict_decomposed:
         sum_pred += trend_pred.pred
 
         # add error
-
+        timeframe = slice(i - test_split_at_hour,
+                          future_target + i - test_split_at_hour)
         decomp_error += np.around(np.sqrt(np.mean(np.square(
-            data["Price"].iloc[
-            test_split_at_hour + i: test_split_at_hour + i + future_target] - sum_pred))),
+            data["Price"].iloc[timeframe] - sum_pred))),
             2)
         i += 1
     # with open('Results/residual_results.csv', 'a', newline='') as fd:
@@ -156,8 +135,7 @@ naive_complete_pred.predict(method="naive")
 if mass_predict_neural == False and predict_complete == True and predict_decomposed == True:
     fig, ax = plt.subplots(5, 1, sharex=True, figsize=(10.0, 10.0))  #
 
-    timeframe = slice(i + test_split_at_hour,
-                      future_target + i + test_split_at_hour)
+
     index = data.iloc[timeframe].index
     ax[0].plot(index, data["Price"].iloc[timeframe],
                label="Truth")
@@ -205,10 +183,10 @@ if mass_predict_neural == False and predict_complete == True and predict_decompo
     # Plot the predictions of components and their combination with the
     # corresponding truth
 
-    fig.suptitle(
-        "Start: {} Stunden nach Trainingsende des anderen Versuchs".format(
-            test_pred_start_hour))
-    plt.savefig(
-        "Abbildungen/prediction_{}.png".format(test_pred_start_hour),
-        dpi=300, bbox_inches='tight')
-    # plt.show()
+    #fig.suptitle(
+    #    "Start: {} Stunden nach Trainingsende des anderen Versuchs".format(
+     #       test_pred_start_hour))
+    #plt.savefig(
+    #    "Abbildungen/prediction_{}.png".format(test_pred_start_hour),
+    #    dpi=300, bbox_inches='tight')
+    plt.show()

@@ -16,7 +16,7 @@ class NeuralNetPrediction:
     TRAIN_LENGTH = .7  # percent
 
     def __init__(self, data, future_target, datacolumn,
-                 test_split_at_hour, net_type):
+                 test_split_at_hour, net_type, train_day_of_week=False):
 
         self.read_json(net_type)
         test_data = data.iloc[-test_split_at_hour - self.past_history:]
@@ -24,8 +24,7 @@ class NeuralNetPrediction:
 
         self.RELEVANT_COLUMNS = [datacolumn, "wind", "cloudiness",
                                  "air_temperature", "sun", 'Weekend',
-                                 'Hour',
-                                 'Holiday']
+                                 'Hour', 'Holiday']
         self.train_target = train_data[datacolumn]
         self.train_dataset = train_data[self.RELEVANT_COLUMNS].values
 
@@ -34,25 +33,41 @@ class NeuralNetPrediction:
 
         self.future_target = future_target  # timesteps into future
         self.x, self.y = self.multivariate_data_single_step()
-        if not net_type.startswith(
-                "day_model_"):  # only read in day_models when its a "complete" net
-            self.day_models = []
-            for i in range(7):
-                if datacolumn == "Price":
-                    save_name = "complete_day_{}".format(i)
-                else:
-                    save_name = "residual_day_{}".format(i)
-                self.load_model(savename=save_name,
-                                day_model=True)
 
-    def read_json(self, net_type):
-        with open('configurations.json', 'r') as f:
-            models_dict = json.load(f)
-        self.dropout = models_dict[net_type]["dropout"]
-        self.epochs = models_dict[net_type]["epochs"]
-        self.additional_layers = models_dict[net_type]["layer"]
-        self.past_history = models_dict[net_type]["past_history"]
-        self.batch_size = models_dict[net_type]["batch_size"]
+        # only read in day_models when its a "complete" net
+        if not net_type.startswith("day_model_"):
+            self.manage_day_models(data, train_day_of_week, datacolumn,
+                                   test_split_at_hour)
+
+    def manage_day_models(self, data, train_day_of_week, datacolumn,
+                          test_split_at_hour):
+        self.day_models = []
+        for i in range(7):
+
+            if datacolumn == "Price":
+                save_name = "complete_day_{}".format(i)
+                net_type = "day_model_complete"
+            else:
+                save_name = "residual_day_{}".format(i)
+                net_type = "day_model_residual"
+
+            net = NeuralNetPrediction(datacolumn="Price",
+                                      data=data,
+                                      future_target=self.future_target,
+                                      test_split_at_hour=test_split_at_hour,
+                                      net_type=net_type)
+            if train_day_of_week:
+                net.update_train_data_day_of_week(i)
+                print("training net ", i)
+                net.initialize_network()
+                net.train_network(
+                    savename=save_name,
+                    save=True,
+                    lr_schedule="polynomal",
+                    power=2)  # lr_schedule="polynomal" oder "step
+            else:
+                net.load_model(savename=save_name)
+            self.day_models.append(net)
 
     # LatexMarkerWeekdayStart
     def update_train_data_day_of_week(self, day_of_week):
@@ -62,6 +77,15 @@ class NeuralNetPrediction:
         self.y = self.y[indices]
 
     # LatexMarkerWeekdayEnd
+
+    def read_json(self, net_type):
+        with open('configurations.json', 'r') as f:
+            models_dict = json.load(f)
+        self.dropout = models_dict[net_type]["dropout"]
+        self.epochs = models_dict[net_type]["epochs"]
+        self.additional_layers = models_dict[net_type]["layer"]
+        self.past_history = models_dict[net_type]["past_history"]
+        self.batch_size = models_dict[net_type]["batch_size"]
 
     def initialize_network(self):
         model = tf.keras.models.Sequential()
@@ -95,10 +119,7 @@ class NeuralNetPrediction:
                 "Saved model expects {} Input steps. past History adjusted to fit this requirement".format(
                     model_input))
             self.past_history = model_input
-        if day_model:
-            self.day_models.append(model)
-        else:
-            self.model = model
+        self.model = model
 
     # LatexMarkerDataStart
     def multivariate_data_single_step(self):
@@ -208,25 +229,27 @@ class NeuralNetPrediction:
             np.square(self.truth.values - prediction))
 
     def predict(self, use_day_model=False, offset=0):
-        dataset = self.test_dataset
-        target = self.test_target
+        if use_day_model:
+            dataset = self.day_models[0].test_dataset
+            target = self.day_models[0].test_target
+            # use random day model for past_history. ATM doesnt matter which one taken
+            model_past_history = self.day_models[0].past_history
+        else:
+            dataset = self.test_dataset
+            target = self.test_target
+            model_past_history = self.past_history
 
-        # use random day model for past_history. ATM doesnt matter which one taken
-        model_past_history = self.day_models[0].layers[0].input.shape[
-            1] if use_day_model else self.model.layers[0].input.shape[1]
-
-        prediction_timeframe = slice(offset,
-                                     model_past_history + self.future_target +
+        prediction_timeframe = slice(offset,model_past_history + self.future_target +
                                      offset)
         input = dataset[prediction_timeframe]
-        target = target.iloc[
-                 model_past_history + offset:model_past_history + offset +
+        target = target.iloc[model_past_history + offset:model_past_history + offset +
                                              self.future_target]
         if use_day_model:
             start_day = target.index[0].dayofweek
             print("Predicting using model for day:", start_day)
-            model = self.day_models[start_day]
+            model = self.day_models[start_day].model
         else:
+            print("Predicting using normal model:", offset)
             model = self.model
         shape = model.layers[-1].output.shape[1]
 
