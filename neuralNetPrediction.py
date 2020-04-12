@@ -17,7 +17,7 @@ class NeuralNetPrediction:
 
     def __init__(self, data, future_target, datacolumn,
                  test_split_at_hour, net_type, train_day_of_week=False):
-
+        self.net_type=net_type
         self.read_json(net_type)
         test_data = data.iloc[-test_split_at_hour - self.past_history:]
         train_data = data.iloc[:-test_split_at_hour]
@@ -51,7 +51,7 @@ class NeuralNetPrediction:
                 save_name = "residual_day_{}".format(i)
                 net_type = "day_model_residual"
 
-            net = NeuralNetPrediction(datacolumn="Price",
+            net = NeuralNetPrediction(datacolumn=datacolumn,
                                       data=data,
                                       future_target=self.future_target,
                                       test_split_at_hour=test_split_at_hour,
@@ -138,7 +138,8 @@ class NeuralNetPrediction:
     # LatexMarkerDataEnd
 
     def train_network(self, savename, power=1, initAlpha=0.001,
-                      lr_schedule="polynomal", save=True):
+                      lr_schedule="polynomal", save=True,day_model=None):
+
         if lr_schedule == "polynomal":
             if power is None:
                 power = 1
@@ -178,6 +179,38 @@ class NeuralNetPrediction:
         plt.title(title)
         plt.legend()
         plt.show()
+
+    def predict(self, use_day_model=False, offset=0):
+        if use_day_model:
+            dataset = self.day_models[0].test_dataset
+            target = self.day_models[0].test_target
+            # use random day model for past_history. ATM doesnt matter which one taken
+            model_past_history = self.day_models[0].past_history
+        else:
+            dataset = self.test_dataset
+            target = self.test_target
+            model_past_history = self.past_history
+
+        prediction_timeframe = slice(offset,model_past_history + self.future_target +
+                                     offset)
+        input = dataset[prediction_timeframe]
+        target = target.iloc[model_past_history + offset:model_past_history + offset +
+                                             self.future_target]
+        if use_day_model:
+            start_day = target.index[0].dayofweek
+            print("Predicting using model for day:", start_day)
+            model = self.day_models[start_day].model
+        else:
+            print("Predicting using normal model:", offset)
+            model = self.model
+        shape = model.layers[-1].output.shape[1]
+
+        if shape == 1:
+            self.single_step_predict(inputs=input, model=model,
+                                     target=target)
+        else:
+            self.multi_step_predict(inputs=input, model=model,
+                                    target=target)
 
     # LatexSingleStepMarkerStart
     def single_step_predict(self, inputs, model, target=None):
@@ -228,37 +261,6 @@ class NeuralNetPrediction:
         self.single_errors = np.sqrt(
             np.square(self.truth.values - prediction))
 
-    def predict(self, use_day_model=False, offset=0):
-        if use_day_model:
-            dataset = self.day_models[0].test_dataset
-            target = self.day_models[0].test_target
-            # use random day model for past_history. ATM doesnt matter which one taken
-            model_past_history = self.day_models[0].past_history
-        else:
-            dataset = self.test_dataset
-            target = self.test_target
-            model_past_history = self.past_history
-
-        prediction_timeframe = slice(offset,model_past_history + self.future_target +
-                                     offset)
-        input = dataset[prediction_timeframe]
-        target = target.iloc[model_past_history + offset:model_past_history + offset +
-                                             self.future_target]
-        if use_day_model:
-            start_day = target.index[0].dayofweek
-            print("Predicting using model for day:", start_day)
-            model = self.day_models[start_day].model
-        else:
-            print("Predicting using normal model:", offset)
-            model = self.model
-        shape = model.layers[-1].output.shape[1]
-
-        if shape == 1:
-            self.single_step_predict(inputs=input, model=model,
-                                     target=target)
-        else:
-            self.multi_step_predict(inputs=input, model=model,
-                                    target=target)
 
     def plot_mass_error_over_day(self, mean_errorlist):
 

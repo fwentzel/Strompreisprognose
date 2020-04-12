@@ -6,12 +6,14 @@ from statsmodels.tsa.ar_model import AutoReg, ar_select_order
 
 class StatisticalPrediction:
 
-    def __init__(self, data, future_target, component, test_split_at_hour,offset=0):
-        self.start=-test_split_at_hour+offset
+    def __init__(self, data, future_target, component,
+                 test_split_at_hour, offset=0):
+        self.start = -test_split_at_hour + offset
         self.component = component
         self.data = data
         self.future_target = future_target
-        self.truth = data[component].iloc[self.start:self.start + future_target]
+        self.truth = data[component].iloc[
+                     self.start:self.start + future_target]
 
     # best Length 190 Best ARIMA(8, 0, 2) MSE=2.422
     def predict(self, method):
@@ -22,13 +24,11 @@ class StatisticalPrediction:
         elif method == "naive":
             self.naive_prediction()
         try:  # TODO Hacky workaround für umgehen von .value call auf numpy array
-            self.error = np.sqrt(
-                np.mean(
-                    np.square(self.truth.values - self.pred.values)))
+            self.error = np.around(np.sqrt(np.mean(
+                np.square(self.truth.values - self.pred.values))), 2)
         except:
-            self.error = np.sqrt(
-                np.mean(
-                    np.square(self.truth - self.pred)))
+            self.error = np.around(
+                np.sqrt(np.mean(np.square(self.truth - self.pred))), 2)
 
     def naive_prediction(self):
         self.pred = self.data[self.component].iloc[
@@ -37,7 +37,8 @@ class StatisticalPrediction:
     # self.pred = np.ones(shape=(self.future_target))*self.data[self.component].iloc[self.start-1]
     # LatexAutoRegMarkerStart
     def AutoReg_prediction(self):
-        train = self.data[self.component].iloc[self.start-160:self.start].asfreq("H")
+        train = self.data[self.component].iloc[
+                self.start - 160:self.start].asfreq("H")
         lags = ar_select_order(endog=train,
                                maxlag=70)
 
@@ -71,7 +72,8 @@ class StatisticalPrediction:
         if test_orders == True:
             order = self.test_orders()
 
-        train = self.data[self.component].iloc[self.start-48:self.start]
+        train = self.data[self.component].iloc[
+                self.start - 48:self.start]
         model = ARIMA(train, order=order, freq="H")
         model_fit = model.fit(disp=0)
         start_index = len(train)
@@ -85,7 +87,8 @@ class StatisticalPrediction:
         d_values = range(0, 3)
 
         best_score, best_cfg, best_length = float("inf"), None, None
-        data = self.data[self.component].iloc[self.start-48:self.start]
+        data = self.data[self.component].iloc[
+               self.start - 48:self.start]
         start_index = len(data)
         end_index = start_index + self.future_target - 1
         for p in p_values:

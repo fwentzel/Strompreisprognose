@@ -16,15 +16,15 @@
    "day_model_complete":{
       "dropout":0,
       "layer":1,
-      "past_history":90,
+      "past_history":64,
       "epochs":150,
       "batch_size":128
    },
    "day_model_residual":{
-      "dropout":2,
+      "dropout":0,
       "layer":1,
-      "past_history":90,
-      "epochs":150,
-      "batch_size":128
+      "past_history":12,
+      "epochs":300,
+      "batch_size":64
    }
 }

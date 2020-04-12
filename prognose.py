@@ -18,7 +18,7 @@ train_day_of_week = False
 
 predict_complete = True
 predict_decomposed = True
-predict_with_day = False
+predict_with_day = True
 mass_predict_neural = False
 test_pred_start_hour = 0
 plot_all = mass_predict_neural == False
@@ -91,7 +91,7 @@ if predict_decomposed:
 
 
 
-
+        # copy so original doesnt get overwritten when adding other components
         sum_pred = res_prediction.pred.copy()
 
         # Seasonal
@@ -183,10 +183,15 @@ if mass_predict_neural == False and predict_complete == True and predict_decompo
     # Plot the predictions of components and their combination with the
     # corresponding truth
 
-    #fig.suptitle(
-    #    "Start: {} Stunden nach Trainingsende des anderen Versuchs".format(
-     #       test_pred_start_hour))
+    fig.suptitle(
+       "Start: {} Stunden nach Trainingsende. Daymodels benutzt:{}".format(
+           test_pred_start_hour,predict_with_day))
     #plt.savefig(
     #    "Abbildungen/prediction_{}.png".format(test_pred_start_hour),
     #    dpi=300, bbox_inches='tight')
     plt.show()
+else:
+    if full_prediciton is not None:
+        print("full error:",full_prediciton.error)
+    if res_prediction is not None:
+        print("remainder error:", res_prediction.error)
