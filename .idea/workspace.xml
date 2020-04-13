@@ -8,9 +8,6 @@
     <list default="true" id="68c788c7-5bf5-44ad-a565-79828c80a8e0" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gs.bat" beforeDir="false" afterPath="$PROJECT_DIR$/gs.bat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/neuralNetPrediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/neuralNetPrediction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prognose.py" beforeDir="false" afterPath="$PROJECT_DIR$/prognose.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,7 +25,7 @@
     <option name="PUSH_AUTO_UPDATE" value="true" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="development" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -127,8 +124,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.prognose" />
         <item itemvalue="Python.test" />
+        <item itemvalue="Python.prognose" />
         <item itemvalue="Python.3D Walk test" />
         <item itemvalue="Python.prognose" />
         <item itemvalue="Python.test" />
@@ -675,11 +672,11 @@
     </state>
     <state x="548" y="121" key="SettingsEditor/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585341931701" />
     <state x="806" y="146" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1581930835499" />
-    <state x="476" y="257" width="985" height="536" key="Vcs.Push.Dialog.v2" timestamp="1586023564546">
+    <state x="476" y="257" width="985" height="536" key="Vcs.Push.Dialog.v2" timestamp="1586790052249">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="-1444" y="257" key="Vcs.Push.Dialog.v2/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585671661271" />
-    <state x="476" y="257" width="985" height="536" key="Vcs.Push.Dialog.v2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1586023564546" />
+    <state x="476" y="257" width="985" height="536" key="Vcs.Push.Dialog.v2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1586790052249" />
     <state x="552" y="240" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1581936892272" />
     <state width="968" height="528" key="XDebugger.FullValuePopup" timestamp="1586172614903">
       <screen x="0" y="0" width="1920" height="1040" />
