@@ -316,8 +316,8 @@ class NeuralNetPrediction:
         plt.xticks(
             [x for x in range(0, iterations + self.future_target, 12)])
         plt.title(
-            "Mean Error at every time step of mass prediciton with {} iterations and {} stepsize".format(
-                iterations, step))
+            "Mean Error at every time step of mass prediciton with {} iterations and {} stepsize. daymodel:{}".format(
+                iterations, step,use_day_model))
         plt.legend()
         plt.show()
         mean_error_over_time = [np.mean(mean_errorlist[:x]) for x in

@@ -8,9 +8,12 @@ Die Ergebnisse eines Zeitschrittes werden in 4 Diagrammen dargestellt. Oben befi
 ## Variablen
 normale Variablen:
 - `future_target` beschreibt die Länge der Vorhersage.
-- `iterations` beschreibt, wie viele Stunden eine "mass predict" durchgeführt werden soll. 
+- `mass_predict_neural` beschreibt, ob anstelle einer einzelnen Prognose eine Massenprognose durchgeführt werden soll. Anstelle der normalen Plots als Ergebnis werden wird dann der Verlauf der Fehlerwerte über die einzelnen Zeitschritte dargestellt.
+- `iterations` beschreibt, wie für viele Stunden eine "mass predict" durchgeführt werden soll. 
 - `step` beschreibt in was für Abständen die einzelnen Prognosen der Massenprognose berechnet werden.
 - `train_` Variablen beschreiben, ob ein Netz neu trainiert werden soll (True) oder ein bereits trainiertes Netz geladen werden soll.
+- `predict_` Variablen können eingestellt werden, um verschiedene Prognosemethoden nicht zu benutzen. 
+- `predict_with_day` gibt an, ob zu jeder "normalen" Prognose auch eine Prognose mit einem Modell, dass für den Tag trainiert wurde, durchgeführt werden soll. 
 
 Der Aufbau für neu trainierte Netze kann in der Konfigurationsdatei **configurations.json** für die jeweiligen Netze eingestellt werden.
 Einzustellen sind:
@@ -21,6 +24,7 @@ Einzustellen sind:
 -`batch_size` beschreibt die batch_size des Trainings. Nach jeden Batch werden die internen Gewichtungen des Netzes angepasst. Sie sollte eine Potenz von 2 sein.
 ## Daten
 Der automatische Download für die Daten ist deaktiviert, sodass bereits heruntergeladene Daten verwendet werden. Um die Daten zu aktualisieren muss der override für `get_new_power_data` und `get_new_weather_data` in **csv_Reader.get_data** auskommentiert werden.
+Der automatische Stromdatendownload funktioniert nur mit Hilfe von `selenium`. Selenium simuliert einen Browser und ist in der Lage auch Buttons zu drücken. Dafür wird eine Installation von Chrome benötigt, da hier nur der chromedriver gespeichert wird.
 
 Die Strompreisdaten werden nach der Creative Commonons Lizens CC BY 4.0 von der Bundesnetzagentur | SMARD.de (https://www.smard.de/home/downloadcenter/download_marktdaten) heruntergeladen und unter Daten/price.csv gespeichert.
 
