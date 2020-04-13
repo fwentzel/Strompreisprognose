@@ -10,8 +10,7 @@ temp_scaler = MinMaxScaler(feature_range=(0, 1))
 hour_scaler = MinMaxScaler(feature_range=(0, 1))
 
 
-def get_data(test_length,
-             test_pred_start_hour, past_history):
+def get_data():
     # Only download new Data when the Data is 1 day old
     power_last_index = read_power_data().index[-1]
     weather_last_index = read_weather_data().index[-1]
@@ -28,20 +27,14 @@ def get_data(test_length,
     power_price_frame = data_downloader.update_power_price() if get_new_power_data else read_power_data()
 
     data = power_price_frame.join(weather_frame, how='inner')
-    data['Weekend'] = (
-            pd.DatetimeIndex(data.index).dayofweek > 5).astype(int)
+    # data["Price"].plot()
+    # plt.ylabel("Strompreis €/MWh")
+    # plt.show()
+    data['Weekend'] = (pd.DatetimeIndex(data.index).dayofweek > 5).astype(int)
     data["Hour"] = data.index.hour
     read_holidays(data)
-    # data["Price"].plot()
-    # plt.ylabel("Strompreis [€/MWh]")
-    # plt.xlabel("")
-    # plt.show()
-    test_split_at_hour = data.index[
-                             -test_length + past_history].hour - test_pred_start_hour
-    test_split_at_hour += test_length
-    test_data = data.iloc[-test_split_at_hour-past_history:]
-    train_data = data.iloc[:-test_split_at_hour]
-    return train_data, test_data
+
+    return data
 
 
 def read_holidays(data):
