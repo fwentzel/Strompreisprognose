@@ -8,17 +8,17 @@
    },
    "remainder":{
       "dropout":2,
-      "layer":1,
+      "layer":0,
       "past_history":72,
       "epochs":150,
       "batch_size":64
    },
    "day_model_complete":{
-      "dropout":0,
-      "layer":1,
-      "past_history":64,
+      "dropout":4,
+      "layer":2,
+      "past_history":48,
       "epochs":150,
-      "batch_size":128
+      "batch_size":64
    },
    "day_model_residual":{
       "dropout":0,
