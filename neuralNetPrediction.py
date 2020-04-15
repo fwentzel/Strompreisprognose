@@ -81,7 +81,7 @@ class NeuralNetPrediction:
     def read_json(self, net_type):
         with open('configurations.json', 'r') as f:
             models_dict = json.load(f)
-        self.dropout = models_dict[net_type]["dropout"]
+        self.dropout = models_dict[net_type]["dropout"]/10
         self.epochs = models_dict[net_type]["epochs"]
         self.additional_layers = models_dict[net_type]["layer"]
         self.past_history = models_dict[net_type]["past_history"]
