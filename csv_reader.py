@@ -32,6 +32,7 @@ def get_data():
     # plt.show()
     data['Weekend'] = (pd.DatetimeIndex(data.index).dayofweek > 5).astype(int)
     data["Hour"] = data.index.hour
+
     read_holidays(data)
 
     return data
@@ -49,6 +50,7 @@ def read_power_data():
     power_price = pd.read_csv("Data/price.csv", index_col="MESS_DATUM")
     power_price.index = pd.to_datetime(power_price.index)
     # power_price['diffScaledPrice']=differenceData(power_price['Price'],power_scaler)
+    power_price=data_downloader.decompose_data(power_price["Price"])
     return power_price
 
 

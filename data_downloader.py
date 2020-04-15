@@ -64,11 +64,15 @@ def plot_decomposed_data(data):
 
 # LatexDecomposeMarkerStart
 def decompose_data(price_series):
+    from scipy.stats import pearsonr
     i = 0
     while price_series.index[i].hour != 0:
         i += 1
     new_frame = pd.DataFrame(price_series.iloc[i:])
     components = STL(new_frame["Price"], seasonal= 13).fit()
+    correlation = pearsonr(new_frame["Price"], components.resid)
+    print(i,"Mean: ", components.resid.mean(), "Correlation: ",
+          correlation)
     new_frame["Remainder"] = components.resid
     new_frame["Seasonal"] = components.seasonal
     new_frame["Trend"] = components.trend
