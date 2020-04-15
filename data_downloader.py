@@ -76,7 +76,7 @@ def decompose_data(price_series):
     new_frame["Remainder"] = components.resid
     new_frame["Seasonal"] = components.seasonal
     new_frame["Trend"] = components.trend
-    plot_decomposed_data(new_frame)
+    #plot_decomposed_data(new_frame)
     return new_frame
 # LatexDecomposeMarkerEnd
 
