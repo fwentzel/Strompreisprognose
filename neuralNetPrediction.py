@@ -36,7 +36,7 @@ class NeuralNetPrediction:
 
         # only read in day_models when its a "complete" net
         if not net_type.startswith("day_model_"):
-            print("Loading day_models")
+            print("Loading day models for {} prediciton".format(datacolumn))
             self.manage_day_models(data, train_day_of_week, datacolumn,
                                    test_split_at_hour)
 

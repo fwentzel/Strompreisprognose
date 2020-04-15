@@ -32,6 +32,7 @@ def get_data():
     # plt.show()
     data['Weekend'] = (pd.DatetimeIndex(data.index).dayofweek > 5).astype(int)
     data["Hour"] = data.index.hour
+
     read_holidays(data)
 
     return data
