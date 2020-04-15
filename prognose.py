@@ -20,13 +20,13 @@ step = 1
 
 train_complete = False
 train_residual = False
-train_day_of_week = True
+train_day_of_week = False
 
 test_pred_start_hour = 0
 
 predict_complete = True
-predict_remainder = False
-predict_decomposed = False
+predict_remainder = True
+predict_decomposed = True
 predict_naive=True
 
 predict_with_day = True
