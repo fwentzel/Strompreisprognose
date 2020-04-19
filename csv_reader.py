@@ -12,13 +12,13 @@ hour_scaler = MinMaxScaler(feature_range=(0, 1))
 
 def get_data():
     # Only download new Data when the Data is 1 day old
-    power_last_index = read_power_data().index[-1]
-    weather_last_index = read_weather_data().index[-1]
-    yesterday = datetime.today().day - 1
-    get_new_power_data = power_last_index.day < yesterday or \
-                         power_last_index.month < datetime.today().month
-    get_new_weather_data = weather_last_index.day < yesterday or \
-                           weather_last_index.month < datetime.today().month
+    # power_last_index = read_power_data().index[-1]
+    # weather_last_index = read_weather_data().index[-1]
+    # yesterday = datetime.today().day - 1
+    # get_new_power_data = power_last_index.day < yesterday or \
+    #                      power_last_index.month < datetime.today().month
+    # get_new_weather_data = weather_last_index.day < yesterday or \
+    #                        weather_last_index.month < datetime.today().month
     #override for testing
     get_new_power_data=False
     get_new_weather_data=False
@@ -48,7 +48,7 @@ def read_holidays(data):
 
 def read_power_data():
     power_price = pd.read_csv("Data/price.csv", index_col="MESS_DATUM")
-    power_price.index = pd.to_datetime(power_price.index)
+    power_price.index = pd.to_datetime(power_price.index,utc=True)
     # power_price['diffScaledPrice']=differenceData(power_price['Price'],power_scaler)
     return power_price
 
@@ -56,6 +56,6 @@ def read_power_data():
 def read_weather_data():
     weather_frame = pd.read_csv("Data/weather.csv",
                                 index_col="MESS_DATUM")
-    weather_frame.index = pd.to_datetime(weather_frame.index)
+    weather_frame.index = pd.to_datetime(weather_frame.index,utc=True)
     # weather_frame["sun"].fillna(0, inplace=True)
     return weather_frame

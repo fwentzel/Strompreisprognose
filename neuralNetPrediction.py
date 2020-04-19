@@ -46,10 +46,10 @@ class NeuralNetPrediction:
         for i in range(7):
 
             if datacolumn == "Price":
-                save_name = "complete_day_{}".format(i)
+                save_name = "complete_day_{}UTC".format(i)
                 net_type = "day_model_complete"
             else:
-                save_name = "residual_day_{}".format(i)
+                save_name = "residual_day_{}UTC".format(i)
                 net_type = "day_model_residual"
 
             net = NeuralNetPrediction(datacolumn=datacolumn,

@@ -14,22 +14,22 @@ import ipykernel  # fix progress bar
 register_matplotlib_converters()
 future_target = 24
 
-mass_predict_neural = False
+mass_predict_neural = True
 iterations = 168  # amount of predicitons for mass predict
 step = 1
 
 train_complete = False
-train_residual = False
-train_day_of_week = False
+train_residual = True
+train_day_of_week = True
 
 test_pred_start_hour = 0
 
 predict_complete = True
 predict_remainder = True
-predict_decomposed = True
+predict_decomposed = False
 predict_naive=True
 
-predict_with_day = True
+predict_with_day = False
 
 
 test_length = future_target + iterations + 172 # Timesteps for testing.
@@ -48,13 +48,13 @@ if predict_complete:
 
     if train_complete:
         full_prediciton.initialize_network()
-        full_prediciton.train_network(savename="trainedLSTM_complete",
-                                      save=False,
+        full_prediciton.train_network(savename="trainedLSTM_completeUTC",
+                                      save=True,
                                       lr_schedule="polynomal",
                                       power=2)  # lr_schedule="polynomal" oder "step
 
     else:
-        full_prediciton.load_model(savename="trainedLSTM_complete")
+        full_prediciton.load_model(savename="trainedLSTM_completeUTC")
 
     if mass_predict_neural:
         full_prediciton.mass_predict(iterations=iterations,
@@ -80,13 +80,13 @@ if predict_remainder or predict_decomposed:
 
     if train_residual:
         res_prediction.initialize_network()
-        res_prediction.train_network(savename="trainedLSTM_resid",
-                                     save=False,
+        res_prediction.train_network(savename="trainedLSTM_residUTC",
+                                     save=True,
                                      lr_schedule="polynomal",
                                      power=2)
         # lr_schedule="polynomal" oder "step
     else:
-        res_prediction.load_model(savename="trainedLSTM_resid")
+        res_prediction.load_model(savename="trainedLSTM_residUTC")
 
 
     if mass_predict_neural:

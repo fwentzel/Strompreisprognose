@@ -8,10 +8,10 @@
    },
    "remainder":{
       "dropout":2,
-      "layer":0,
+      "layer":2,
       "past_history":72,
-      "epochs":150,
-      "batch_size":64
+      "epochs":200,
+      "batch_size":128
    },
    "day_model_complete":{
       "dropout":4,

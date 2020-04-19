@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup as bs
 from zipfile import ZipFile
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from statsmodels.graphics.tsaplots import plot_acf
 from statsmodels.tsa.seasonal import STL
 import sys
 import os.path
@@ -18,31 +19,35 @@ import numpy as np
 
 
 def fill_power_na(series):
-    series_copy=series.copy()
+    series_copy = series.copy()
     shifted_series = series_copy.iloc[168:]
-    lagged_series=series_copy # index  0 will be the value lagged by 168 hours (1 week)
+    lagged_series = series_copy  # index  0 will be the value lagged by 168 hours (1 week)
     mask = shifted_series.isna()
-    values=[]
+    values = []
     for i in range(len(mask) - 1):
-        if mask[i + 1] and mask[i]==False: #look for begining of missing day
-            j=i+1
-            if mask[i+2] and mask[i+3] and  mask[i+4]: # up to 4 nan can be interpolated. everything else needs better fill methods
-                values.append([shifted_series.iloc[i],lagged_series.iloc[i]])
-                while mask[j] :
-                    values.append([shifted_series.iloc[j],lagged_series.iloc[j]])
-                    j+=1
+        if mask[i + 1] and mask[
+            i] == False:  # look for begining of missing day
+            j = i + 1
+            if mask[i + 2] and mask[i + 3] and mask[
+                i + 4]:  # up to 4 nan can be interpolated. everything else needs better fill methods
+                values.append(
+                    [shifted_series.iloc[i], lagged_series.iloc[i]])
+                while mask[j]:
+                    values.append(
+                        [shifted_series.iloc[j], lagged_series.iloc[j]])
+                    j += 1
                 values2 = np.array(values)
                 diff = (values2[0][0] - values2[0][1])
                 values2[:][1] = values2[:][1] + diff
-                set=values2[1:,1]
-                value_series=pd.Series(set,index=mask.index[i+1:j])
-                series_copy=series_copy.fillna(value_series)
+                set = values2[1:, 1]
+                value_series = pd.Series(set, index=mask.index[i + 1:j])
+                series_copy = series_copy.fillna(value_series)
 
         # plt.plot(range(len(nanSeries)), laggedSeries, label="24.7.2019")
         # plt.plot(range(len(nanSeries)), nanSeries, label="31.7.2019")
         # plt.legend()
         # plt.show()
-    series_copy=series_copy.interpolate() #interpolate small missing nans (1-4 hours of missing data)
+    series_copy = series_copy.interpolate()  # interpolate small missing nans (1-4 hours of missing data)
     sum2 = series_copy.isna().sum()
     return series_copy
 
@@ -69,26 +74,29 @@ def decompose_data(price_series):
     while price_series.index[i].hour != 0:
         i += 1
     new_frame = pd.DataFrame(price_series.iloc[i:])
-    components = STL(new_frame["Price"], seasonal= 13).fit()
-    correlation = pearsonr(new_frame["Price"], components.resid)
-    print(i,"Mean: ", components.resid.mean(), "Correlation: ",
-          correlation)
+    components = STL(new_frame["Price"], seasonal=101).fit()
+    series = components.resid
+    # plot_acf(series, lags=200)
+    # plt.show()
     new_frame["Remainder"] = components.resid
     new_frame["Seasonal"] = components.seasonal
     new_frame["Trend"] = components.trend
-    #plot_decomposed_data(new_frame)
+    # plot_decomposed_data(new_frame)
     return new_frame
+
+
 # LatexDecomposeMarkerEnd
 
 
 def update_power_price():
     path = sys.path[0]
     data_path = "{}\\Data".format(path)
-    getNewData = False
-    milliseconds_since_epoch = datetime.datetime.now().timestamp() * 1000
+    # unix_timestamp = datetime.datetime.now().timestamp() * 1000
+    unix_timestamp = 1585951199000
 
-    existing_data = csv_reader.read_power_data().asfreq("H")
+    existing_data = csv_reader.read_power_data()
     start_for_new_data = existing_data.index[-1].timestamp() * 1000
+    #start_for_new_data = 1420502400000
 
     print("opening URL")
     URL = "https://www.smard.de/home/downloadcenter/download_marktdaten/726#!?" \
@@ -100,7 +108,7 @@ def update_power_price():
           "to%22:{},%22" \
           "selectedFileType%22:%22CSV%22%7D".format(
         start_for_new_data,
-        milliseconds_since_epoch)  # 1420502400000 für 6.1.2015; 1538352000000 für 1.10.2018
+        unix_timestamp)  # 1420502400000 für 6.1.2015; 1546382759999 für 3.4.2020
     options = Options()
     options.add_argument('headless')
     options.add_experimental_option('prefs', {
@@ -108,23 +116,23 @@ def update_power_price():
             "default_directory": data_path
         }
     })
-    driver = webdriver.Chrome(
-        "./selenium_web_driver/chromedriver.exe",
-        options=options)  #
-    driver.get(URL)
-    button = driver.find_element_by_xpath(
-        "//button[@name='button'][@type='button'][contains(text(), 'Datei herunterladen')]")
-    print("downloading")
-
-    button.click()
-
-    while not [filename for filename in os.listdir(data_path) if
-               filename.startswith("Tabellen_Daten")]:
-        print("downloading")
-        time.sleep(1)
-    print("finished download")
-
-    driver.quit()
+    # driver = webdriver.Chrome(
+    #     "./selenium_web_driver/chromedriver.exe",
+    #     options=options)  #
+    # driver.get(URL)
+    # button = driver.find_element_by_xpath(
+    #    "//button[@name='button'][@type='button'][contains(text(), 'Datei herunterladen')]")
+    # print("downloading")
+    #
+    # button.click()
+    #
+    # while not [filename for filename in os.listdir(data_path) if
+    #            filename.startswith("Tabellen_Daten")]:
+    #     print("downloading")
+    #     time.sleep(1)
+    # print("finished download")
+    #
+    # driver.quit()
     print("reading ZIP")
     for filename in os.listdir(data_path):
         if filename.startswith("Tabellen_Daten"):
@@ -149,60 +157,33 @@ def update_power_price():
                     lambda x: x.replace(",", "."))
                 new_frame["Price2"] = new_frame["Price2"].apply(
                     lambda x: x.replace(",", "."))
-                new_frame = new_frame[
-                    ~new_frame.index.duplicated()]  # remove duplicate entries (2 faulty values from database) and set frequency to Hourly
-                new_frame = new_frame.asfreq(freq='H')
-                new_frame["Price"] = pd.to_numeric(
-                    new_frame["Price"], errors="coerce")
-                new_frame["Price2"] = pd.to_numeric(
-                    new_frame["Price2"], errors="coerce")
-                new_frame["Price"] = new_frame.mean(axis=1)
-                new_frame.drop("Price2", axis=1, inplace=True)
+                localized_frame = new_frame.tz_localize(
+                    tz='Europe/Berlin', ambiguous="infer").asfreq(
+                    freq='H')
+                #localized_frame=localized_frame.tz_localize(tz=None)
 
-                sum = new_frame["Price"].isna().sum()
-                # new_frame = new_frame.interpolate(
-                #     limit=1)  # interpolate to fill missing value 21.3.2019 2:00
-                # sum = new_frame["Price"].isna().sum()
-                # fill_power_na(new_frame["Price"])
-            os.remove(zip_filename)
-    existing_data = existing_data.append(new_frame)
-    existing_data["Price"] = fill_power_na(existing_data["Price"])
+                localized_frame["Price"] = pd.to_numeric(
+                    localized_frame["Price"], errors="coerce")
+                localized_frame["Price2"] = pd.to_numeric(
+                    localized_frame["Price2"], errors="coerce")
+                localized_frame["Price"] = localized_frame.mean(axis=1)
+                localized_frame.drop("Price2", axis=1, inplace=True)
+
+                # sum of missing values
+                sum = localized_frame["Price"].isna().sum()
+                if sum > 0:
+                    print(
+                        "Missing values after Timezone Conversion detected. "
+                        "Automatically filling these values, but consider redownloading.")
+                    fill_power_na(localized_frame["Price"])
+            # os.remove(zip_filename)
+    existing_data = existing_data.append(localized_frame)
+    existing_data.index = pd.to_datetime(existing_data.index,utc=True)
     existing_data.dropna(inplace=True, how='all')
     existing_data = decompose_data(existing_data)
     existing_data.to_csv("Data/price.csv")
     print("finished")
     return existing_data
-
-
-def fill_weather_na(frame):
-    # #
-    for param in ["sun", "wind", "cloudiness", "air_temperature"]:
-        hours = [0 for x in range(24)]
-        days = [0 for x in range(7)]
-        series = frame[param]
-        mask = series.isna()
-        p = 0
-        for i in range(len(series) - 1):
-            if mask[i]:
-                if mask[i + 1] == False:
-                    p += 1
-                hours[series.index[i].hour] += 1
-                days[series.index[i].dayofweek] += 1
-
-    # plt.bar([x for x in range(24)], hours)
-    # plt.xlabel("Tageszeit")
-    # plt.ylabel("Anzahl fehlende Datenpunkte")
-    # plt.title("Tageszeit der fehlenden Datenpunkten zu den Sonnenstunden")
-    # plt.xticks([x for x in range(0, 24, 2)])
-    # plt.show()
-    sum = frame.isna().sum()
-    # print(hours)
-    frame["sun"].fillna(0, inplace=True)
-
-    # frame["wind"].fillna(0, inplace=True)
-    sum = frame.isna().sum()
-
-    print("x")
 
 
 def updateWeatherHistory():
@@ -242,7 +223,7 @@ def updateWeatherHistory():
                                                na_values="-999")
                 downloaded_frame.index = pd.to_datetime(
                     downloaded_frame.index,
-                    format='%Y%m%d%H')
+                    format='%Y%m%d%H',utc=True)
                 downloaded_frame = downloaded_frame.loc[
                     downloaded_frame.index >= start]
                 column = "{}_{}".format(params[val], timeMode)
