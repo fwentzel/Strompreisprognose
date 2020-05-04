@@ -25,16 +25,18 @@ def get_data():
 
     weather_frame = data_downloader.updateWeatherHistory() if get_new_weather_data else read_weather_data()
     power_price_frame = data_downloader.update_power_price() if get_new_power_data else read_power_data()
+    #drop first row since it has no data_component values from differening
+    power_price_frame=power_price_frame.iloc[1:]
 
     data = power_price_frame.join(weather_frame, how='inner')
     # data["Price"].plot()
     # plt.ylabel("Strompreis €/MWh")
     # plt.show()
-    data['Weekend'] = (pd.DatetimeIndex(data.index).dayofweek > 5).astype(int)
+    data['DayOfWeek'] = pd.DatetimeIndex(data.index).dayofweek.astype(int)
     data["Hour"] = data.index.hour
 
     read_holidays(data)
-
+    data=data[1:]#ignore first entry since it was used for differencing and contains nan value sfor Time series components
     return data
 
 
@@ -49,7 +51,6 @@ def read_holidays(data):
 def read_power_data():
     power_price = pd.read_csv("Data/price.csv", index_col="MESS_DATUM")
     power_price.index = pd.to_datetime(power_price.index,utc=True)
-    # power_price['diffScaledPrice']=differenceData(power_price['Price'],power_scaler)
     return power_price
 
 
@@ -57,5 +58,4 @@ def read_weather_data():
     weather_frame = pd.read_csv("Data/weather.csv",
                                 index_col="MESS_DATUM")
     weather_frame.index = pd.to_datetime(weather_frame.index,utc=True)
-    # weather_frame["sun"].fillna(0, inplace=True)
     return weather_frame

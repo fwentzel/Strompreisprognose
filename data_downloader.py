@@ -6,8 +6,8 @@ from bs4 import BeautifulSoup as bs
 from zipfile import ZipFile
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from statsmodels.tsa.seasonal import STL,seasonal_decompose
 from statsmodels.graphics.tsaplots import plot_acf
-from statsmodels.tsa.seasonal import STL
 import sys
 import os.path
 import time
@@ -52,39 +52,36 @@ def fill_power_na(series):
     return series_copy
 
 
-def plot_decomposed_data(data):
+def plot_decomposed_data(components):
     fig, ax = plt.subplots(4, 1, sharex=True)
-    data = data.iloc[1000:]
-    ax[0].title.set_text("ORIGINAL")
-    ax[0].plot(data["Price"])
-    ax[1].title.set_text("RESIDUAL")
-    ax[1].plot(data["Remainder"])
+    ax[0].title.set_text("DIFFERENZIERTER PREIS")
+    ax[0].plot(components.observed)
+    ax[1].title.set_text("REMAINDER")
+    ax[1].plot(components.resid)
     ax[2].title.set_text("SEASONAL")
-    ax[2].plot(data["Seasonal"])
+    ax[2].plot(components.seasonal)
     ax[3].title.set_text("TREND")
-    ax[3].plot(data["Trend"])
+    ax[3].plot(components.trend)
     # plt.savefig("{}.png".format(i))
-    # plt.show()
+    plt.show()
 
 
 # LatexDecomposeMarkerStart
 def decompose_data(price_series):
-    from scipy.stats import pearsonr
     i = 0
     while price_series.index[i].hour != 0:
         i += 1
     new_frame = pd.DataFrame(price_series.iloc[i:])
-    components = STL(new_frame["Price"], seasonal=101).fit()
-    series = components.resid
-    # plot_acf(series, lags=200)
-    # plt.show()
-    new_frame["Remainder"] = components.resid
-    new_frame["Seasonal"] = components.seasonal
-    new_frame["Trend"] = components.trend
-    # plot_decomposed_data(new_frame)
+
+    new_frame["diff_price"]=new_frame["Price"].diff()
+    components_day = STL(new_frame["diff_price"].iloc[1:],
+                         seasonal=101).fit()
+    new_frame["Remainder"] = components_day.resid
+    new_frame["Seasonal"] = components_day.seasonal
+    new_frame["Trend"] = components_day.trend
+    #drop differenced Price Column since its not needed anymore
+    new_frame=new_frame.drop("diff_price",axis=1)
     return new_frame
-
-
 # LatexDecomposeMarkerEnd
 
 
@@ -116,23 +113,23 @@ def update_power_price():
             "default_directory": data_path
         }
     })
-    # driver = webdriver.Chrome(
-    #     "./selenium_web_driver/chromedriver.exe",
-    #     options=options)  #
-    # driver.get(URL)
-    # button = driver.find_element_by_xpath(
-    #    "//button[@name='button'][@type='button'][contains(text(), 'Datei herunterladen')]")
-    # print("downloading")
-    #
-    # button.click()
-    #
-    # while not [filename for filename in os.listdir(data_path) if
-    #            filename.startswith("Tabellen_Daten")]:
-    #     print("downloading")
-    #     time.sleep(1)
-    # print("finished download")
-    #
-    # driver.quit()
+    driver = webdriver.Chrome(
+        "./selenium_web_driver/chromedriver.exe",
+        options=options)  #
+    driver.get(URL)
+    button = driver.find_element_by_xpath(
+       "//button[@name='button'][@type='button'][contains(text(), 'Datei herunterladen')]")
+    print("downloading")
+
+    button.click()
+
+    while not [filename for filename in os.listdir(data_path) if
+               filename.startswith("Tabellen_Daten")]:
+        print("downloading")
+        time.sleep(1)
+    print("finished download")
+
+    driver.quit()
     print("reading ZIP")
     for filename in os.listdir(data_path):
         if filename.startswith("Tabellen_Daten"):
@@ -157,11 +154,10 @@ def update_power_price():
                     lambda x: x.replace(",", "."))
                 new_frame["Price2"] = new_frame["Price2"].apply(
                     lambda x: x.replace(",", "."))
+
                 localized_frame = new_frame.tz_localize(
                     tz='Europe/Berlin', ambiguous="infer").asfreq(
                     freq='H')
-                #localized_frame=localized_frame.tz_localize(tz=None)
-
                 localized_frame["Price"] = pd.to_numeric(
                     localized_frame["Price"], errors="coerce")
                 localized_frame["Price2"] = pd.to_numeric(
