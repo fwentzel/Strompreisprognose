@@ -17,19 +17,19 @@ class StatisticalPrediction:
     def predict(self, component, method, offset=0,
                 use_auto_arima=False):
         if method == "AutoReg":
-            self.AutoReg_prediction(offset=offset, data_component=component)
-        elif method == "ARIMA":
+            self.autoreg(offset=offset, data_component=component)
+        elif method == "arima":
             self.arima(offset=offset, use_auto_arima=use_auto_arima,
                        data_component=component)
         elif method == "naiveLagged":
-            self.naive_lagged_prediction(data_component=component)
+            self.naive_lagged(data_component=component)
         elif method == "naive0":
-            self.naive0_prediction(data_component=component)
+            self.naive0(data_component=component)
         else:
             print(
                 "{} is not recognized. Make sure it is written correctly. Efaulting to naive0 Prediction".format(
                     method))
-            self.naive_lagged_prediction(data_component=component)
+            self.naive_lagged(data_component=component)
         self.truth = self.data[component].iloc[
                      self.start + offset:self.start + self.future_target + offset]
 
@@ -40,15 +40,15 @@ class StatisticalPrediction:
             self.error = np.around(
                 np.sqrt(np.mean(np.square(self.truth - self.pred))), 2)
 
-    def naive_lagged_prediction(self, data_component):
+    def naive_lagged(self, data_component):
         self.pred = self.data[data_component].iloc[
                     self.start - 2:self.start - 2 + self.future_target]
 
-    def naive0_prediction(self, data_component):
+    def naive0(self, data_component):
         self.pred = np.zeros(self.future_target)
 
     # LatexAutoRegMarkerStart
-    def AutoReg_prediction(self, data_component, offset=0):
+    def autoreg(self, data_component, offset=0):
         train = self.data[data_component].iloc[self.start + offset - 300
                                                :self.start + offset].asfreq(
             "H")
@@ -64,7 +64,7 @@ class StatisticalPrediction:
 
     def arima(self, use_auto_arima, data_component, offset=0):
         start = self.start + offset
-        train = self.data[data_component].iloc[start - 48:start]
+        train = self.data[data_component].iloc[start - 200:start]
         if use_auto_arima == True:
             model = pm.auto_arima(train, start_p=1, start_q=1,
                                   test='adf',
@@ -79,17 +79,19 @@ class StatisticalPrediction:
                                   error_action='ignore',
                                   suppress_warnings=True,
                                   stepwise=True)
-            with open('./checkpoints/arima_model.pkl', 'wb') as pkl:
-                pickle.dump(model, pkl)
+            print("model summary:", model.summary())
+            if offset == 0:
+                with open('./checkpoints/arima_model.pkl', 'wb') as pkl:
+                    pickle.dump(model, pkl)
         else:
             with open('./checkpoints/arima_model.pkl', 'rb') as pkl:
                 model = pickle.load(pkl)
 
-        print("arima model used for predication:",model.summary())
         prediction = model.predict(n_periods=self.future_target)
         self.pred = prediction
 
-    def mass_predict(self, iterations, component, step=1):
+    def mass_predict(self, iterations,method,component, use_auto_arima=False,
+                     step=1, ):
         j = 0
         single_errorlist = np.empty(
             [round(iterations / step), self.future_target])
@@ -98,10 +100,11 @@ class StatisticalPrediction:
         error_array[:] = np.nan
         max = round(iterations / step)
         for i in offsets:
-            print("\rmass predict arima: {}/{}".format(j, max),
+            print("\rmass predict {}: {}/{}".format(method,j, max),
                   sep=' ', end='', flush=True)
 
-            self.predict(offset=i, method="ARIMA")
+            self.predict(offset=i, method=method, component=component,
+                         use_auto_arima=use_auto_arima)
 
             # overwrite error since it doesnt account for offset
             start = self.start + i
@@ -115,7 +118,7 @@ class StatisticalPrediction:
                      label="truth")
             plt.legend()
             plt.savefig(
-                "./Abbildungen/arima/prediction_{}.png".format(
+                "./Abbildungen/{}/prediction_{}.png".format(method,
                     i),
                 dpi=300, bbox_inches='tight')
             plt.clf()
@@ -137,7 +140,7 @@ class StatisticalPrediction:
                                 for x in
                                 range(12, len(error_array) - 12)]
         plt.plot(error_array,
-                 label="Cumulative error. Overall mean: {}".format(
+                 label="mean error at timestep. Overall mean: {}".format(
                      np.around(np.mean(cumulative_errorlist), 2)))
         plt.plot(range(12, len(error_array) - 12),
                  mean_error_over_time,

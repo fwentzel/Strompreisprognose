@@ -51,6 +51,7 @@ def read_holidays(data):
 def read_power_data():
     power_price = pd.read_csv("Data/price.csv", index_col="MESS_DATUM")
     power_price.index = pd.to_datetime(power_price.index,utc=True)
+    power_price=data_downloader.decompose_data(power_price)
     return power_price
 
 

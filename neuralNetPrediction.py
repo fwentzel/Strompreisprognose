@@ -1,9 +1,9 @@
-import random
+
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-import csv
 import json
+
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 import tensorflow as tf
@@ -35,8 +35,10 @@ class NeuralNetPrediction:
         self.test_dataset = test_data[self.RELEVANT_COLUMNS].values
 
         self.future_target = future_target  # timesteps into future
-        self.x, self.y = self.multivariate_data_single_step()
+
+        self.model=None
         self.day_models = [None for x in range(7)]
+
         # only read in day_models when its a "complete" net
         if not net_type.startswith("day_model_"):
             if (train_day_of_week):
@@ -75,6 +77,8 @@ class NeuralNetPrediction:
 
     # LatexMarkerWeekdayStart
     def update_train_data_day_of_week(self, day_of_week):
+        if self.x==None:
+            self.x, self.y = self.multivariate_data_single_step()
         indices = [self.train_target.index.dayofweek == day_of_week][0]
         indices = indices[self.past_history:]
         self.x = self.x[indices]
@@ -155,6 +159,9 @@ class NeuralNetPrediction:
         es = EarlyStopping(monitor='val_loss', mode='min', verbose=1,
                            patience=5,
                            restore_best_weights=True)  # restore_best_weights=True
+
+        if self.x==None:
+            self.x, self.y = self.multivariate_data_single_step()
         history = self.model.fit(x=self.x, y=self.y,
                                  epochs=self.epochs,
                                  batch_size=self.batch_size,
@@ -220,6 +227,7 @@ class NeuralNetPrediction:
             self.multi_step_predict(inputs=input, model=model,
                                     target=target)
 
+
     # LatexSingleStepMarkerStart
     def single_step_predict(self, inputs, model, target=None):
         model_past_history = model.layers[0].input.shape[1]
@@ -234,6 +242,7 @@ class NeuralNetPrediction:
                 x_in[-1, -1, 0] = predictions[j - 1]
 
             predictions.append(model.predict(x_in)[0][-1])
+            del x_in
 
         target_rows = target.iloc[-self.future_target:]
         self.truth = target_rows
@@ -243,7 +252,6 @@ class NeuralNetPrediction:
                     self.truth.values - predictions))), 2)
         self.single_errors = np.around(np.sqrt(
             np.square(self.truth.values - predictions)), 2)
-
     # LatexSingleStepMarkerEnd
 
     def multi_step_predict(self, inputs, model, target=None):
@@ -323,7 +331,7 @@ class NeuralNetPrediction:
                                      for x in
                                      range(12, len(error_array) - 12)]
         plt.plot(error_array,
-                 label="Cumulative error. Overall mean: {}".format(
+                 label="mean error at timestep. Overall mean: {}".format(
                      np.around(np.mean(cumulative_errorlist), 2)))
         plt.plot(range(12, len(error_array) - 12),
                  mean_error_over_time,
