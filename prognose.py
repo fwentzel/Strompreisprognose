@@ -31,30 +31,19 @@ if use_setup_settings:
 figure, axes = plt.subplots(nrows=3, ncols=2)
 
 
-train_complete = settings_dict[
-    "train_complete"] if use_setup_settings else False
-train_remainder = settings_dict[
-    "train_remainder"] if use_setup_settings else False
-train_day_of_week = settings_dict[
-    "train_day_of_week"] if use_setup_settings else False
+train_complete = settings_dict["train_complete"] if use_setup_settings else False
+train_remainder = settings_dict[    "train_remainder"] if use_setup_settings else False
+train_day_of_week = settings_dict[    "train_day_of_week"] if use_setup_settings else False
 
-predict_complete = settings_dict[
-    "predict_complete"] if use_setup_settings else True
-predict_remainder = settings_dict[
-    "predict_remainder"] if use_setup_settings else True
-predict_decomposed = settings_dict[
-    "predict_decomposed"] if use_setup_settings else True
-predict_naive_lagged = settings_dict[
-    "predict_naive_lagged"] if use_setup_settings else True
-predict_naive_0 = settings_dict[
-    "predict_naive_0"] if use_setup_settings else True
-predict_sarima = settings_dict[
-    "predict_sarima"] if use_setup_settings else True
+predict_complete = settings_dict[    "predict_complete"] if use_setup_settings else True
+predict_remainder = settings_dict[    "predict_remainder"] if use_setup_settings else True
+predict_decomposed = settings_dict[    "predict_decomposed"] if use_setup_settings else True
+predict_naive_lagged = settings_dict[    "predict_naive_lagged"] if use_setup_settings else True
+predict_naive_0 = settings_dict[    "predict_naive_0"] if use_setup_settings else True
+predict_sarima = settings_dict[    "predict_sarima"] if use_setup_settings else True
 
-predict_with_day = settings_dict[
-    "predict_with_day"] if use_setup_settings else False
-test_pred_start_hour = settings_dict[
-    "test_pred_start_hour"] if use_setup_settings else 0
+predict_with_day = settings_dict[    "predict_with_day"] if use_setup_settings else False
+test_pred_start_hour = settings_dict[    "test_pred_start_hour"] if use_setup_settings else 0
 
 if test_pred_start_hour < 0:
     MASS_PREDICT = True

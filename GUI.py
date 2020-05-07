@@ -56,7 +56,7 @@ def save_config(config, new_config):
     if new_config:  # if there are stuff specified by another window, fill in those new config values
         for key in CONFIG_TO_ELEM:
             try:
-                config[key[0]][key[1]] = new_config[CONFIG_TO_ELEM[key]]
+                config[key[0]][key[1]] = int(new_config[CONFIG_TO_ELEM[key]])
             except Exception as e:
                 print(
                     f'Problem updating config from window values. Key = {key}')
@@ -95,6 +95,7 @@ def create_config_window(config):
                              size=(first_col_size, 1))] + [
                         sg.Spin(possible_values[0],
                                 size=(len(headers[t + 1]), 1),
+
                                 key="{}_{}".format(types[t],
                                                    variables[i])) for t
                         in range(len(types))]
