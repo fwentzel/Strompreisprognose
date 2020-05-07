@@ -14,7 +14,7 @@ register_matplotlib_converters()
 FUTURE_TARGET = 24
 MASS_PREDICT = False
 ITERATIONS = 24 * 7  # amount of predicitons for mass predict
-STEP = 24
+STEP = 1
 
 use_setup_settings = True
 settings_dict = None

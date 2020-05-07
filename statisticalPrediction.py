@@ -52,7 +52,7 @@ class StatisticalPrediction:
 
     # LatexAutoRegMarkerStart
     def autoreg(self, data_component, offset=0):
-        train = self.data[data_component].iloc[self.start + offset - 300
+        train = self.data[data_component].iloc[self.start + offset - 200
                                                :self.start + offset].asfreq(
             "H")
         lags = ar_select_order(endog=train, maxlag=70)

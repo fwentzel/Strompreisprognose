@@ -1,30 +1,30 @@
 {
     "price_complete": {
         "layer": 1,
-        "past_history": 168,
+        "past_history": "168",
         "dropout": 2,
         "epochs": 300,
-        "batch_size": 128
+        "batch_size": "128"
     },
     "remainder_complete": {
         "layer": 2,
-        "past_history": 72,
+        "past_history": "72",
         "dropout": 5,
         "epochs": 300,
-        "batch_size": 64
+        "batch_size": "64"
     },
     "price_day": {
         "layer": 1,
-        "past_history": 168,
+        "past_history": "168",
         "dropout": 2,
         "epochs": 300,
-        "batch_size": 128
+        "batch_size": "128"
     },
     "remainder_day": {
         "layer": 2,
-        "past_history": 72,
+        "past_history": "72",
         "dropout": 3,
         "epochs": 300,
-        "batch_size": 64
+        "batch_size": "64"
     }
 }
