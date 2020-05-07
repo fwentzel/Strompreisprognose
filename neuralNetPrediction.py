@@ -38,7 +38,7 @@ class NeuralNetPrediction:
 
         self.model=None
         self.day_models = [None for x in range(7)]
-
+        self.x, self.y = self.multivariate_data_single_step()
         # only read in day_models when its a "complete" net
         if not net_type.startswith("day_model_"):
             if (train_day_of_week):
@@ -77,8 +77,6 @@ class NeuralNetPrediction:
 
     # LatexMarkerWeekdayStart
     def update_train_data_day_of_week(self, day_of_week):
-        if self.x==None:
-            self.x, self.y = self.multivariate_data_single_step()
         indices = [self.train_target.index.dayofweek == day_of_week][0]
         indices = indices[self.past_history:]
         self.x = self.x[indices]
@@ -160,8 +158,6 @@ class NeuralNetPrediction:
                            patience=5,
                            restore_best_weights=True)  # restore_best_weights=True
 
-        if self.x==None:
-            self.x, self.y = self.multivariate_data_single_step()
         history = self.model.fit(x=self.x, y=self.y,
                                  epochs=self.epochs,
                                  batch_size=self.batch_size,

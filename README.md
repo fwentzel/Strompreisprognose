@@ -9,8 +9,10 @@ Anschließend kann gewählt werden, welche Methoden verwendet und angezeigt werd
 Soll nur die Remainderkomponente ausgegeben werden, sollte darauf geachtet werden, dass "decomposed" nicht genutzt wird.
 Außerdem kann gewählt werden, ob die Tagesmodelle der Netze für die Prognosen genutzt werden sollen und ob diese dann auch vorher trainiert weden sollen. Sie werden nur trainiert, wenn sie auch für die Prognosen genutzt werden sollen.
 Zuletzt kann angegeben werden, ob eine spezifische Prognose für einen bestimmten Zeitpunkt nach Trainingsende berechnet werden soll (0-168) oder ob eine Massenprognose mit einem Durchschnitt von einer Woche durchgeührt und dargetellt werden soll. 
+
 ![GUI zur Konfiguration der Prognosemethoden und neuronalen Netze](GUI.png)
-*Wird ein Netz trainiert, wird es nicht für zukünftige Verwendungen gespeichert, um zu verhindern dass das Urspüngliche Netz überschrieben wird.
+
+<sup>*Wird ein Netz trainiert, wird es nicht für zukünftige Verwendungen gespeichert, um zu verhindern dass das urspüngliche Netz überschrieben wird.</sup>
 ## Konfiguration der Netze
 Die Eingabemaske für die Konfigurationen baut sich aus den fünf Parametern `Additional Layers`, `Input Length`, `Dropout strength`, `Epochs` und `Batch size (Training)` für die jeweiligen Netze `Price complete`, `Remainder complete`,`Price day` und `Remainder day` auf.
 Einfach die Parameter für das jeweilige Netz ändern und speichern. Diese Einstellungen werde dann in einer Konfigurationsdatei gespeichert, sodass sie für die nächste Verwendung aktualisiert zur Verfügung stehen.

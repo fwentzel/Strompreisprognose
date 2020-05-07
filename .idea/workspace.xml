@@ -6,9 +6,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68c788c7-5bf5-44ad-a565-79828c80a8e0" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/neuralNetPrediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/neuralNetPrediction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prognose.py" beforeDir="false" afterPath="$PROJECT_DIR$/prognose.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,14 +51,14 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Felix\Dropbox\Uni-ty\7. Semester\Bachelorarbeit\Programm\Results" />
+      <recent name="C:\Users\Felix\Dropbox\Uni-ty\7. Semester\Bachelorarbeit\Programm" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Felix\Dropbox\Uni-ty\7. Semester\Bachelorarbeit\Programm" />
       <recent name="C:\Users\Felix\Dropbox\Uni-ty\7. Semester\Bachelorarbeit\Programm\Results" />
       <recent name="C:\Users\Felix\Dropbox\Uni-ty\7. Semester\Bachelorarbeit\Programm\selenium_web_driver" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\Felix\Dropbox\Uni-ty\7. Semester\Bachelorarbeit\Programm\Results" />
-      <recent name="C:\Users\Felix\Dropbox\Uni-ty\7. Semester\Bachelorarbeit\Programm" />
     </key>
   </component>
   <component name="RunManager" selected="Python.prognose">
@@ -683,28 +684,28 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="341" key="GridCell.Tab.-1.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1582725161544" />
-    <state width="1877" height="278" key="GridCell.Tab.0.bottom" timestamp="1588864409921">
+    <state width="1877" height="278" key="GridCell.Tab.0.bottom" timestamp="1588867722466">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="278" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588864409921" />
+    <state width="1877" height="278" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588867722466" />
     <state width="1877" height="278" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826924790" />
     <state width="1899" height="389" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705188" />
-    <state width="1877" height="278" key="GridCell.Tab.0.center" timestamp="1588864409921">
+    <state width="1877" height="278" key="GridCell.Tab.0.center" timestamp="1588867722465">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="278" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588864409921" />
+    <state width="1877" height="278" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588867722465" />
     <state width="1877" height="278" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826924790" />
     <state width="1899" height="389" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705187" />
-    <state width="1877" height="278" key="GridCell.Tab.0.left" timestamp="1588864409921">
+    <state width="1877" height="278" key="GridCell.Tab.0.left" timestamp="1588867722465">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="278" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588864409921" />
+    <state width="1877" height="278" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588867722465" />
     <state width="1877" height="278" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826924790" />
     <state width="1899" height="389" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705187" />
-    <state width="1877" height="278" key="GridCell.Tab.0.right" timestamp="1588864409921">
+    <state width="1877" height="278" key="GridCell.Tab.0.right" timestamp="1588867722465">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="278" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588864409921" />
+    <state width="1877" height="278" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588867722465" />
     <state width="1877" height="278" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826924790" />
     <state width="1899" height="389" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705188" />
     <state width="1877" height="2" key="GridCell.Tab.1.bottom" timestamp="1588862317274">
@@ -805,7 +806,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/neuralNetPrediction.py</url>
-          <line>309</line>
+          <line>305</line>
           <option name="timeStamp" value="56" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
