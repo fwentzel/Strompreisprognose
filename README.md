@@ -12,7 +12,7 @@ Zuletzt kann angegeben werden, ob eine spezifische Prognose für einen bestimmte
 
 ![GUI zur Konfiguration der Prognosemethoden und neuronalen Netze](GUI.png)
 
-<sup>*Wird ein Netz trainiert, wird es nicht für zukünftige Verwendungen gespeichert, um zu verhindern dass das Urspüngliche Netz überschrieben wird.</sup>
+<sup>*Wird ein Netz trainiert, wird es nicht für zukünftige Verwendungen gespeichert, um zu verhindern dass das urspüngliche Netz überschrieben wird.</sup>
 ## Konfiguration der Netze
 Die Eingabemaske für die Konfigurationen baut sich aus den fünf Parametern `Additional Layers`, `Input Length`, `Dropout strength`, `Epochs` und `Batch size (Training)` für die jeweiligen Netze `Price complete`, `Remainder complete`,`Price day` und `Remainder day` auf.
 Einfach die Parameter für das jeweilige Netz ändern und speichern. Diese Einstellungen werde dann in einer Konfigurationsdatei gespeichert, sodass sie für die nächste Verwendung aktualisiert zur Verfügung stehen.
