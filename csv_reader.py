@@ -25,7 +25,7 @@ def get_data():
 
     weather_frame = data_downloader.updateWeatherHistory() if get_new_weather_data else read_weather_data()
     power_price_frame = data_downloader.update_power_price() if get_new_power_data else read_power_data()
-    #drop first row since it has no data_component values from differening
+    #drop first row since it has no data_component new_config from differening
     power_price_frame=power_price_frame.iloc[1:]
 
     data = power_price_frame.join(weather_frame, how='inner')

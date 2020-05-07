@@ -51,11 +51,11 @@ class NeuralNetPrediction:
             print("Loading day model {} for {} prediciton".format(
                 i, self.datacolumn))
             if self.datacolumn == "Price":
-                save_name = "complete_day_{}UTC".format(i)
-                net_type = "day_model_complete"
+                save_name = "price_day_{}UTC".format(i)
+                net_type = "price_day"
             else:
-                save_name = "residual_day_{}UTC".format(i)
-                net_type = "day_model_remainder"
+                save_name = "remainder_day_{}UTC".format(i)
+                net_type = "remainder_day"
 
             net = NeuralNetPrediction(datacolumn=self.datacolumn,
                                       data=self.data,
@@ -70,7 +70,7 @@ class NeuralNetPrediction:
                     savename=save_name,
                     save=False,
                     lr_schedule="polynomal",
-                    power=3)  # lr_schedule="polynomal" oder "step
+                    power=3)  # lr_schedule="polynomal" oder "STEP
             else:
                 net.load_model(savename=save_name)
             self.day_models[i] = net
@@ -152,7 +152,7 @@ class NeuralNetPrediction:
                 power = 1
             schedule = PolynomialDecay(maxEpochs=self.epochs,
                                        initAlpha=initAlpha, power=power)
-        elif lr_schedule == "step":
+        elif lr_schedule == "STEP":
             schedule = StepDecay(initAlpha=initAlpha, factor=0.8,
                                  dropEvery=15)
         # schedule.plot(self.epochs)
@@ -190,7 +190,7 @@ class NeuralNetPrediction:
         plt.legend()
         plt.show()
 
-    def predict(self, use_day_model=False, offset=0):
+    def predict(self, use_day_model=False, offset=0,axis=None):
         if use_day_model:
             if self.day_models[0] is None:
                 self.manage_day_models(index=0, train_day_of_week=False)
@@ -226,6 +226,8 @@ class NeuralNetPrediction:
         else:
             self.multi_step_predict(inputs=input, model=model,
                                     target=target)
+        if axis is not None:
+            self.plot_prediction(axis,self.datacolumn)
 
 
     # LatexSingleStepMarkerStart
@@ -274,27 +276,8 @@ class NeuralNetPrediction:
         self.single_errors = np.sqrt(
             np.square(self.truth.values - prediction))
 
-    def plot_mass_error_over_day(self, mean_errorlist):
 
-        i = 0
-        hours = np.array([0.0 for x in range(24)])
-        for row in mean_errorlist:
-            for j in range(len(row)):
-                hour = i + j
-                while hour > 23:
-                    hour -= 24
-                hours[hour] += float(row[j])
-            i += 1
-        hours /= i
-        index = [x for x in range(0, 24)]
-        plt.bar(index, hours)
-        plt.xlabel("Tageszeit")
-        plt.ylabel("Durchschnittlicher Fehler ")
-        plt.title(
-            "Durchschittlicher Fehlerwert in Abhängigkeit zur Tageszeit")
-        plt.show()
-
-    def mass_predict(self, iterations, step=1, use_day_model=False):
+    def mass_predict(self, axis,iterations, step=1, use_day_model=False):
         j = 0
         single_errorlist = np.empty(
             [round(iterations / step), self.future_target])
@@ -330,29 +313,23 @@ class NeuralNetPrediction:
         mean_error_over_time = [np.mean(error_array[x - 12:x + 12])
                                      for x in
                                      range(12, len(error_array) - 12)]
-        plt.plot(error_array,
+        axis.plot(error_array,
                  label="mean error at timestep. Overall mean: {}".format(
                      np.around(np.mean(cumulative_errorlist), 2)))
-        plt.plot(range(12, len(error_array) - 12),
+        axis.plot(range(12, len(error_array) - 12),
                  mean_error_over_time,
                  label="Moving average in 25 hour window")
-        plt.xticks(
+        axis.xticks(
             [x for x in range(0, iterations + self.future_target, 12)])
-        plt.legend()
-        plt.show()
+        axis.set_title(self.net_type)
+        axis.legend()
 
-
-    def plot_predictions(self, ax):
-        time_slice = slice(self.past_history,
-                           self.past_history + self.future_target)
-
-        xticks = self.train_target.index[time_slice]
-
-        ax[1].plot(xticks, self.pred,
-                   label='predictions; RMSE: {}'.format(self.error))
-        ax[1].plot(xticks, self.truth, label='Truth')
-        ax[1].legend()
-        ax[1].set_ylabel("RESIDUAL")
+    def plot_prediction(self, ax,method):
+        ax.plot(self.truth.index, self.pred,
+                   label='prediction; RMSE: {}'.format(self.error))
+        ax.plot(self.truth.index, self.truth, label='Truth')
+        ax.set_title(method)
+        ax.legend()
 
 
 class LearningRateDecay:

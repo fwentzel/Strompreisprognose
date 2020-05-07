@@ -15,13 +15,13 @@ class StatisticalPrediction:
 
     # best Length 190 Best ARIMA(8, 0, 2) MSE=2.422
     def predict(self, component, method, offset=0,
-                use_auto_arima=False):
+                use_auto_arima=False,axis=None):
         if method == "AutoReg":
             self.autoreg(offset=offset, data_component=component)
         elif method == "arima":
             self.arima(offset=offset, use_auto_arima=use_auto_arima,
                        data_component=component)
-        elif method == "naiveLagged":
+        elif method == "naive_persistence":
             self.naive_lagged(data_component=component)
         elif method == "naive0":
             self.naive0(data_component=component)
@@ -39,6 +39,9 @@ class StatisticalPrediction:
         except:
             self.error = np.around(
                 np.sqrt(np.mean(np.square(self.truth - self.pred))), 2)
+        if axis is not None:
+            self.plot_prediction(axis,method)
+
 
     def naive_lagged(self, data_component):
         self.pred = self.data[data_component].iloc[
@@ -90,7 +93,7 @@ class StatisticalPrediction:
         prediction = model.predict(n_periods=self.future_target)
         self.pred = prediction
 
-    def mass_predict(self, iterations,method,component, use_auto_arima=False,
+    def mass_predict(self, iterations,axis,method,component, use_auto_arima=False,
                      step=1, ):
         j = 0
         single_errorlist = np.empty(
@@ -112,16 +115,16 @@ class StatisticalPrediction:
                     start:start + self.future_target]
             self.error = np.around(
                 np.sqrt(np.mean(np.square(truth - self.pred))), 2)
-            plt.plot(truth.index, self.pred,
-                     label="pred {}".format(self.error))
-            plt.plot(truth.index, truth,
-                     label="truth")
-            plt.legend()
-            plt.savefig(
-                "./Abbildungen/{}/prediction_{}.png".format(method,
-                    i),
-                dpi=300, bbox_inches='tight')
-            plt.clf()
+            # plt.plot(truth.index, self.pred,
+            #          label="pred {}".format(self.error))
+            # plt.plot(truth.index, truth,
+            #          label="truth")
+            # plt.legend()
+            # plt.savefig(
+            #     "./Abbildungen/{}/prediction_{}.png".format(method,
+            #         i),
+            #     dpi=300, bbox_inches='tight')
+            # plt.clf()
             # plt.show()
 
             single_errorlist[j] = np.around(
@@ -139,13 +142,23 @@ class StatisticalPrediction:
         mean_error_over_time = [np.mean(error_array[x - 12:x + 12])
                                 for x in
                                 range(12, len(error_array) - 12)]
-        plt.plot(error_array,
+        axis.plot(error_array,
                  label="mean error at timestep. Overall mean: {}".format(
                      np.around(np.mean(cumulative_errorlist), 2)))
-        plt.plot(range(12, len(error_array) - 12),
+        axis.plot(range(12, len(error_array) - 12),
                  mean_error_over_time,
                  label="Moving average in 25 hour window")
-        plt.xticks(
+        axis.xticks(
             [x for x in range(0, iterations + self.future_target, 12)])
-        plt.legend()
-        plt.show()
+        axis.set_title(method)
+        axis.legend()
+        axis.show()
+
+    def plot_prediction(self, ax,method):
+
+
+        ax.plot(self.truth.index, self.pred,
+                   label='prediction; RMSE: {}'.format(self.error))
+        ax.plot(self.truth.index, self.truth, label='Truth')
+        ax.set_title(method)
+        ax.legend()

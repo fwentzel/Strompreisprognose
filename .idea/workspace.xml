@@ -7,7 +7,79 @@
   <component name="ChangeListManager">
     <list default="true" id="68c788c7-5bf5-44ad-a565-79828c80a8e0" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/checkpoints/arima_model.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/checkpoints/arima_model.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_0UTC/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_0UTC/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_0UTC/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_0UTC/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_1UTC/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_1UTC/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_1UTC/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_1UTC/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_2UTC/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_2UTC/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_2UTC/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_2UTC/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_3UTC/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_3UTC/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_3UTC/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_3UTC/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_4UTC/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_4UTC/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_4UTC/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_4UTC/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_5UTC/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_5UTC/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_5UTC/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_5UTC/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_6UTC/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_6UTC/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_6UTC/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/complete_day_6UTC/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_0UTC/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_0UTC/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_0UTC/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_0UTC/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_1UTC/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_1UTC/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_1UTC/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_1UTC/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_2UTC/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_2UTC/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_2UTC/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_2UTC/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_3UTC/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_3UTC/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_3UTC/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_3UTC/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_4UTC/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_4UTC/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_4UTC/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_4UTC/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_5UTC/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_5UTC/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_5UTC/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_5UTC/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_6UTC/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_6UTC/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_6UTC/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/residual_day_6UTC/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_completeUTC/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_completeUTC/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_completeUTC/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_completeUTC/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_complete_ERGEBNISSE/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_complete_ERGEBNISSE/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_complete_ERGEBNISSE/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_complete_ERGEBNISSE/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_residUTC/saved_model.pb" beforeDir="false" afterPath="$PROJECT_DIR$/checkpoints/trainedLSTM_remainderUTC/saved_model.pb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_residUTC/variables/variables.data-00000-of-00002" beforeDir="false" afterPath="$PROJECT_DIR$/checkpoints/trainedLSTM_remainderUTC/variables/variables.data-00000-of-00002" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_residUTC/variables/variables.data-00001-of-00002" beforeDir="false" afterPath="$PROJECT_DIR$/checkpoints/trainedLSTM_remainderUTC/variables/variables.data-00001-of-00002" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_residUTC/variables/variables.index" beforeDir="false" afterPath="$PROJECT_DIR$/checkpoints/trainedLSTM_remainderUTC/variables/variables.index" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_resid_ERGEBNISSE/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_resid_ERGEBNISSE/variables/variables.data-00000-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_resid_ERGEBNISSE/variables/variables.data-00001-of-00002" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkpoints/trainedLSTM_resid_ERGEBNISSE/variables/variables.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/configurations.json" beforeDir="false" afterPath="$PROJECT_DIR$/configurations.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/csv_reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/csv_reader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data_downloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_downloader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/neuralNetPrediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/neuralNetPrediction.py" afterDir="false" />
@@ -85,6 +157,48 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="GUI (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Programm" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/GUI.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="GUI" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Programm" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/GUI" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="prognose" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Programm" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -130,10 +244,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.prognose" />
+        <item itemvalue="Python.GUI (1)" />
+        <item itemvalue="Python.GUI" />
         <item itemvalue="Python.test" />
         <item itemvalue="Python.3D Walk test" />
-        <item itemvalue="Python.prognose" />
-        <item itemvalue="Python.test" />
       </list>
     </recent_temporary>
   </component>
@@ -159,13 +273,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1573549103499</updated>
-    </task>
-    <task id="LOCAL-00001" summary="Series decomposion using statsmodels STL">
-      <created>1581672558333</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1581672558333</updated>
     </task>
     <task id="LOCAL-00002" summary="Codecleanup variable and method names lowecase">
       <created>1581675977905</created>
@@ -503,7 +610,14 @@
       <option name="project" value="LOCAL" />
       <updated>1588628993845</updated>
     </task>
-    <option name="localTasksCounter" value="50" />
+    <task id="LOCAL-00050" summary="All methods with mass predict working&#10;Code optimizations (memory leak fixed)&#10;code cleanup">
+      <created>1588790766118</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1588790766118</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -535,7 +649,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="Zwischenstand 1" />
     <MESSAGE value="Start_from_index entfernt, größere Trainingsdaten für längere Inputs während massenprognose" />
     <MESSAGE value="Bevor gridearch über extern programm" />
     <MESSAGE value="Gridsearch mit batch Datei" />
@@ -560,7 +673,8 @@
     <MESSAGE value="updated README.md" />
     <MESSAGE value="Data using UTC time format" />
     <MESSAGE value="ARIMA Prediciton&#10;Statistical masspredicts&#10;Decomposed masspredict almost working&#10;deleted single timestep plots" />
-    <option name="LAST_COMMIT_MESSAGE" value="ARIMA Prediciton&#10;Statistical masspredicts&#10;Decomposed masspredict almost working&#10;deleted single timestep plots" />
+    <MESSAGE value="All methods with mass predict working&#10;Code optimizations (memory leak fixed)&#10;code cleanup" />
+    <option name="LAST_COMMIT_MESSAGE" value="All methods with mass predict working&#10;Code optimizations (memory leak fixed)&#10;code cleanup" />
   </component>
   <component name="WindowStateProjectService">
     <state x="552" y="177" key="#Inspections" timestamp="1581671628942">
@@ -579,10 +693,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="552" y="177" key="#Plugins/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1584370227254" />
-    <state x="689" y="322" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1583921923383">
+    <state x="689" y="322" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1588800064500">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="689" y="322" key="#com.intellij.fileTypes.FileTypeChooser/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1583921923383" />
+    <state x="689" y="322" key="#com.intellij.fileTypes.FileTypeChooser/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588800064500" />
     <state x="444" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1584365377977">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -603,17 +717,17 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="756" y="371" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.1920.1040@0.0.1920.1040" timestamp="1581674267117" />
-    <state x="-1343" y="102" width="1227" height="814" key="CommitChangelistDialog2" timestamp="1588628991633">
+    <state x="-1343" y="102" width="1227" height="814" key="CommitChangelistDialog2" timestamp="1588790764949">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state x="-1343" y="102" width="1227" height="814" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588628991633" />
+    <state x="-1343" y="102" width="1227" height="814" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588790764949" />
     <state x="332" y="102" width="1066" height="814" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1586555720191" />
     <state x="896" y="141" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1581936883381" />
-    <state width="1688" height="466" key="DebuggerActiveHint" timestamp="1588666720674">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="1689" height="466" key="DebuggerActiveHint" timestamp="1588821336265">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1688" height="466" key="DebuggerActiveHint/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588666720674" />
-    <state width="1689" height="466" key="DebuggerActiveHint/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588533129273" />
+    <state width="1689" height="466" key="DebuggerActiveHint/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588821336265" />
     <state width="1420" height="466" key="DebuggerActiveHint/0.0.1920.1040@0.0.1920.1040" timestamp="1581935191111" />
     <state x="92" y="92" width="1736" height="856" key="DiffContextDialog" timestamp="1583921925869">
       <screen x="0" y="0" width="1920" height="1040" />
@@ -644,53 +758,53 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="341" key="GridCell.Tab.-1.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1582725161544" />
-    <state width="1877" height="384" key="GridCell.Tab.0.bottom" timestamp="1588790669425">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="1877" height="278" key="GridCell.Tab.0.bottom" timestamp="1588822035539">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588790669425" />
-    <state width="1877" height="278" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588786916620" />
+    <state width="1877" height="384" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
+    <state width="1877" height="278" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588822035539" />
     <state width="1899" height="389" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705188" />
-    <state width="1877" height="384" key="GridCell.Tab.0.center" timestamp="1588790669425">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="1877" height="278" key="GridCell.Tab.0.center" timestamp="1588822035539">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588790669425" />
-    <state width="1877" height="278" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588786916620" />
+    <state width="1877" height="384" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
+    <state width="1877" height="278" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588822035539" />
     <state width="1899" height="389" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705187" />
-    <state width="1877" height="384" key="GridCell.Tab.0.left" timestamp="1588790669425">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="1877" height="278" key="GridCell.Tab.0.left" timestamp="1588822035539">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588790669425" />
-    <state width="1877" height="278" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588786916620" />
+    <state width="1877" height="384" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
+    <state width="1877" height="278" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588822035539" />
     <state width="1899" height="389" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705187" />
-    <state width="1877" height="384" key="GridCell.Tab.0.right" timestamp="1588790669425">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="1877" height="278" key="GridCell.Tab.0.right" timestamp="1588822035539">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588790669425" />
-    <state width="1877" height="278" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588786916620" />
+    <state width="1877" height="384" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
+    <state width="1877" height="278" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588822035539" />
     <state width="1899" height="389" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705188" />
-    <state width="1877" height="384" key="GridCell.Tab.1.bottom" timestamp="1588790669468">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="1877" height="319" key="GridCell.Tab.1.bottom" timestamp="1588821383962">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.1.bottom/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588790669468" />
-    <state width="1877" height="293" key="GridCell.Tab.1.bottom/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588614075861" />
+    <state width="1877" height="384" key="GridCell.Tab.1.bottom/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
+    <state width="1877" height="319" key="GridCell.Tab.1.bottom/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588821383962" />
     <state width="1899" height="348" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1581940877071" />
-    <state width="1877" height="384" key="GridCell.Tab.1.center" timestamp="1588790669468">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="1877" height="319" key="GridCell.Tab.1.center" timestamp="1588821383962">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.1.center/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588790669468" />
-    <state width="1877" height="293" key="GridCell.Tab.1.center/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588614075861" />
+    <state width="1877" height="384" key="GridCell.Tab.1.center/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
+    <state width="1877" height="319" key="GridCell.Tab.1.center/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588821383962" />
     <state width="1899" height="348" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1581940877071" />
-    <state width="1877" height="384" key="GridCell.Tab.1.left" timestamp="1588790669468">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="1877" height="319" key="GridCell.Tab.1.left" timestamp="1588821383962">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.1.left/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588790669468" />
-    <state width="1877" height="293" key="GridCell.Tab.1.left/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588614075861" />
+    <state width="1877" height="384" key="GridCell.Tab.1.left/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
+    <state width="1877" height="319" key="GridCell.Tab.1.left/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588821383962" />
     <state width="1899" height="348" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1581940877070" />
-    <state width="1877" height="384" key="GridCell.Tab.1.right" timestamp="1588790669468">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state width="1877" height="319" key="GridCell.Tab.1.right" timestamp="1588821383962">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.1.right/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588790669468" />
-    <state width="1877" height="293" key="GridCell.Tab.1.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588614075861" />
+    <state width="1877" height="384" key="GridCell.Tab.1.right/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
+    <state width="1877" height="319" key="GridCell.Tab.1.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588821383962" />
     <state width="1899" height="348" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1581940877071" />
     <state x="143" y="0" width="1762" height="912" key="MergeDialog" timestamp="1583014732562">
       <screen x="0" y="0" width="1920" height="1040" />
@@ -726,6 +840,10 @@
     </state>
     <state x="-1870" y="53" width="1736" height="856" key="com.intellij.history.integration.ui.views.FileHistoryDialog/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588248444403" />
     <state x="50" y="53" width="1736" height="856" key="com.intellij.history.integration.ui.views.FileHistoryDialog/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588511204579" />
+    <state x="567" y="130" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1588806377454">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="567" y="130" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588806377454" />
     <state x="-1151" y="436" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1588790714862">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
@@ -736,24 +854,19 @@
     </state>
     <state x="-1235" y="232" key="git4idea.branch.GitSmartOperationDialog/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1585668491575" />
     <state x="685" y="232" key="git4idea.branch.GitSmartOperationDialog/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1585919580464" />
-    <state x="-1297" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1584910501222">
-      <screen x="-1920" y="0" width="1920" height="1040" />
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1588800043762">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="-1297" y="225" width="672" height="678" key="search.everywhere.popup/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1584910501222" />
-    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1584891695813" />
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588800043762" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/statisticalPrediction.py</url>
-          <line>67</line>
+          <line>70</line>
           <option name="timeStamp" value="21" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/prognose.py</url>
-          <line>112</line>
-          <option name="timeStamp" value="26" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

@@ -165,12 +165,12 @@ def update_power_price():
                 localized_frame["Price"] = localized_frame.mean(axis=1)
                 localized_frame.drop("Price2", axis=1, inplace=True)
 
-                # sum of missing values
+                # sum of missing new_config
                 sum = localized_frame["Price"].isna().sum()
                 if sum > 0:
                     print(
-                        "Missing values after Timezone Conversion detected. "
-                        "Automatically filling these values, but consider redownloading.")
+                        "Missing new_config after Timezone Conversion detected. "
+                        "Automatically filling these new_config, but consider redownloading.")
                     fill_power_na(localized_frame["Price"])
             # os.remove(zip_filename)
     existing_data = existing_data.append(localized_frame)

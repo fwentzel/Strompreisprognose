@@ -1,26 +1,26 @@
 {
-    "complete": {
+    "price_complete": {
         "layer": 1,
         "past_history": 168,
         "dropout": 2,
         "epochs": 300,
         "batch_size": 128
     },
-    "remainder": {
+    "remainder_complete": {
         "layer": 2,
         "past_history": 72,
         "dropout": 5,
         "epochs": 300,
         "batch_size": 64
     },
-    "day_model_complete": {
+    "price_day": {
         "layer": 1,
         "past_history": 168,
         "dropout": 2,
         "epochs": 300,
         "batch_size": 128
     },
-    "day_model_remainder": {
+    "remainder_day": {
         "layer": 2,
         "past_history": 72,
         "dropout": 3,
