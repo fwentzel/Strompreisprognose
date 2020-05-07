@@ -8,9 +8,8 @@
     <list default="true" id="68c788c7-5bf5-44ad-a565-79828c80a8e0" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/GUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/neuralNetPrediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/neuralNetPrediction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/configurations.json" beforeDir="false" afterPath="$PROJECT_DIR$/configurations.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/prognose.py" beforeDir="false" afterPath="$PROJECT_DIR$/prognose.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/statisticalPrediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/statisticalPrediction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,27 +61,6 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.prognose">
-    <configuration name="3D Walk test" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Programm" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/3D Walk test" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="GUI (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Programm" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -117,6 +95,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/GUI" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="neuralNetPrediction" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Programm" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/neuralNetPrediction.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -170,10 +169,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.prognose" />
+        <item itemvalue="Python.test" />
+        <item itemvalue="Python.neuralNetPrediction" />
         <item itemvalue="Python.GUI (1)" />
         <item itemvalue="Python.GUI" />
-        <item itemvalue="Python.test" />
-        <item itemvalue="Python.3D Walk test" />
       </list>
     </recent_temporary>
   </component>
@@ -199,20 +198,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1573549103499</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Seasonal Data forecast with holtwinter">
-      <created>1581936883981</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1581936883981</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Residual forecast using correct target für fehlerberechnung auf testdaten">
-      <created>1582105957309</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1582105957309</updated>
     </task>
     <task id="LOCAL-00005" summary="Multiple forecasts with random offsets able to plot and mean error of these">
       <created>1582205391092</created>
@@ -543,7 +528,21 @@
       <option name="project" value="LOCAL" />
       <updated>1588822454920</updated>
     </task>
-    <option name="localTasksCounter" value="52" />
+    <task id="LOCAL-00052" summary="Plotting für mass und singleprognosen ohne Probleme mit GUI anbindung">
+      <created>1588826722372</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1588826722372</updated>
+    </task>
+    <task id="LOCAL-00053" summary="Updated README.md&#10;config Gui um Eochs erweitert">
+      <created>1588861869688</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1588861869689</updated>
+    </task>
+    <option name="localTasksCounter" value="54" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -575,8 +574,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="Bevor gridearch über extern programm" />
-    <MESSAGE value="Gridsearch mit batch Datei" />
     <MESSAGE value="Runterladen Stromdaten von Smard.de" />
     <MESSAGE value="Neue datenverarbeitung, training funktioniert, Predictions noch falscher Dateityp" />
     <MESSAGE value="Fehlende stromdaten durch algged+differenz ersetzt" />
@@ -600,7 +597,9 @@
     <MESSAGE value="ARIMA Prediciton&#10;Statistical masspredicts&#10;Decomposed masspredict almost working&#10;deleted single timestep plots" />
     <MESSAGE value="All methods with mass predict working&#10;Code optimizations (memory leak fixed)&#10;code cleanup" />
     <MESSAGE value="GUI" />
-    <option name="LAST_COMMIT_MESSAGE" value="GUI" />
+    <MESSAGE value="Plotting für mass und singleprognosen ohne Probleme mit GUI anbindung" />
+    <MESSAGE value="Updated README.md&#10;config Gui um Eochs erweitert" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated README.md&#10;config Gui um Eochs erweitert" />
   </component>
   <component name="WindowStateProjectService">
     <state x="552" y="177" key="#Inspections" timestamp="1581671628942">
@@ -643,16 +642,16 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="756" y="371" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.1920.1040@0.0.1920.1040" timestamp="1581674267117" />
-    <state x="332" y="102" width="1227" height="814" key="CommitChangelistDialog2" timestamp="1588822453298">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="-1343" y="102" width="1227" height="814" key="CommitChangelistDialog2" timestamp="1588862009653">
+      <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state x="-1343" y="102" width="1227" height="814" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588790764949" />
-    <state x="332" y="102" width="1066" height="814" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588822453298" />
+    <state x="-1343" y="102" width="1227" height="814" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588862009653" />
+    <state x="332" y="102" width="1066" height="814" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826721382" />
     <state x="896" y="141" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1581936883381" />
-    <state width="1689" height="466" key="DebuggerActiveHint" timestamp="1588825757825">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1688" height="466" key="DebuggerActiveHint" timestamp="1588857845682">
+      <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1688" height="466" key="DebuggerActiveHint/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588666720674" />
+    <state width="1688" height="466" key="DebuggerActiveHint/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588857845682" />
     <state width="1689" height="466" key="DebuggerActiveHint/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588825757825" />
     <state width="1420" height="466" key="DebuggerActiveHint/0.0.1920.1040@0.0.1920.1040" timestamp="1581935191111" />
     <state x="92" y="92" width="1736" height="856" key="DiffContextDialog" timestamp="1588822410100">
@@ -684,52 +683,52 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="341" key="GridCell.Tab.-1.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1582725161544" />
-    <state width="1877" height="319" key="GridCell.Tab.0.bottom" timestamp="1588826410626">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1877" height="2" key="GridCell.Tab.0.bottom" timestamp="1588862317274">
+      <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
-    <state width="1877" height="319" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826410626" />
+    <state width="1877" height="2" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588862317274" />
+    <state width="1877" height="278" key="GridCell.Tab.0.bottom/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826924790" />
     <state width="1899" height="389" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705188" />
-    <state width="1877" height="319" key="GridCell.Tab.0.center" timestamp="1588826410626">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1877" height="2" key="GridCell.Tab.0.center" timestamp="1588862317274">
+      <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
-    <state width="1877" height="319" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826410626" />
+    <state width="1877" height="2" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588862317274" />
+    <state width="1877" height="278" key="GridCell.Tab.0.center/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826924790" />
     <state width="1899" height="389" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705187" />
-    <state width="1877" height="319" key="GridCell.Tab.0.left" timestamp="1588826410626">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1877" height="2" key="GridCell.Tab.0.left" timestamp="1588862317274">
+      <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
-    <state width="1877" height="319" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826410626" />
+    <state width="1877" height="2" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588862317274" />
+    <state width="1877" height="278" key="GridCell.Tab.0.left/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826924790" />
     <state width="1899" height="389" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705187" />
-    <state width="1877" height="319" key="GridCell.Tab.0.right" timestamp="1588826410626">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1877" height="2" key="GridCell.Tab.0.right" timestamp="1588862317274">
+      <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
-    <state width="1877" height="319" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826410626" />
+    <state width="1877" height="2" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588862317274" />
+    <state width="1877" height="278" key="GridCell.Tab.0.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826924790" />
     <state width="1899" height="389" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1582020705188" />
-    <state width="1877" height="319" key="GridCell.Tab.1.bottom" timestamp="1588826410626">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1877" height="2" key="GridCell.Tab.1.bottom" timestamp="1588862317274">
+      <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.1.bottom/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
+    <state width="1877" height="2" key="GridCell.Tab.1.bottom/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588862317274" />
     <state width="1877" height="319" key="GridCell.Tab.1.bottom/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826410626" />
     <state width="1899" height="348" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1581940877071" />
-    <state width="1877" height="319" key="GridCell.Tab.1.center" timestamp="1588826410626">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1877" height="2" key="GridCell.Tab.1.center" timestamp="1588862317274">
+      <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.1.center/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
+    <state width="1877" height="2" key="GridCell.Tab.1.center/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588862317274" />
     <state width="1877" height="319" key="GridCell.Tab.1.center/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826410626" />
     <state width="1899" height="348" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1581940877071" />
-    <state width="1877" height="319" key="GridCell.Tab.1.left" timestamp="1588826410626">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1877" height="2" key="GridCell.Tab.1.left" timestamp="1588862317274">
+      <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.1.left/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
+    <state width="1877" height="2" key="GridCell.Tab.1.left/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588862317274" />
     <state width="1877" height="319" key="GridCell.Tab.1.left/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826410626" />
     <state width="1899" height="348" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1581940877070" />
-    <state width="1877" height="319" key="GridCell.Tab.1.right" timestamp="1588826410626">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1877" height="2" key="GridCell.Tab.1.right" timestamp="1588862317274">
+      <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="384" key="GridCell.Tab.1.right/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588793745279" />
+    <state width="1877" height="2" key="GridCell.Tab.1.right/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588862317274" />
     <state width="1877" height="319" key="GridCell.Tab.1.right/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826410626" />
     <state width="1899" height="348" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1581940877071" />
     <state x="143" y="0" width="1762" height="912" key="MergeDialog" timestamp="1583014732562">
@@ -796,17 +795,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/prognose.py</url>
-          <line>105</line>
+          <line>96</line>
           <option name="timeStamp" value="51" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/prognose.py</url>
-          <line>48</line>
-          <option name="timeStamp" value="52" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/prognose.py</url>
-          <line>237</line>
+          <line>228</line>
           <option name="timeStamp" value="55" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -816,13 +810,23 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/prognose.py</url>
-          <line>226</line>
+          <line>217</line>
           <option name="timeStamp" value="57" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/prognose.py</url>
-          <line>209</line>
+          <line>200</line>
           <option name="timeStamp" value="58" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/neuralNetPrediction.py</url>
+          <line>24</line>
+          <option name="timeStamp" value="59" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/neuralNetPrediction.py</url>
+          <line>21</line>
+          <option name="timeStamp" value="177" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

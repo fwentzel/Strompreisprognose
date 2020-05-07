@@ -19,19 +19,23 @@ CONFIG_TO_ELEM = {("price_complete", "layer"): 'PC_LAYER',
                   ("price_complete", "past_history"): 'PC_PAST_HISTORY',
                   ("price_complete", "dropout"): 'PC_DROPOUT',
                   ("price_complete", "batch_size"): 'PC_BATCH_SIZE',
+                  ("price_complete", "epochs"): 'PC_EPOCHS',
                   ("remainder_complete", "layer"): 'RC_LAYER',
                   ("remainder_complete",
                    "past_history"): 'RC_PAST_HISTORY',
                   ("remainder_complete", "dropout"): 'RC_DROPOUT',
                   ("remainder_complete", "batch_size"): 'RC_BATCH_SIZE',
+                  ("remainder_complete", "epochs"): 'RC_EPOCHS',
                   ("price_day", "layer"): 'PD_LAYER',
                   ("price_day", "past_history"): 'PD_PAST_HISTORY',
                   ("price_day", "dropout"): 'PD_DROPOUT',
                   ("price_day", "batch_size"): 'PD_BATCH_SIZE',
+                  ("price_day", "epochs"): 'PD_EPOCHS',
                   ("remainder_day", "layer"): 'RD_LAYER',
                   ("remainder_day", "past_history"): 'RD_PAST_HISTORY',
                   ("remainder_day", "dropout"): 'RD_DROPOUT',
-                  ("remainder_day", "batch_size"): 'RD_BATCH_SIZE'}
+                  ("remainder_day", "batch_size"): 'RD_BATCH_SIZE',
+                  ("remainder_day", "epochs"): 'RD_EPOCHS', }
 
 
 def load_config():
@@ -52,7 +56,7 @@ def save_config(config, new_config):
     if new_config:  # if there are stuff specified by another window, fill in those new config values
         for key in CONFIG_TO_ELEM:
             try:
-                config[key[0]][key[1]] = new_config[CONFIG_TO_ELEM[key]]
+                config[key[0]][key[1]] = int(new_config[CONFIG_TO_ELEM[key]])
             except Exception as e:
                 print(
                     f'Problem updating config from window values. Key = {key}')
@@ -66,32 +70,42 @@ def save_config(config, new_config):
 def create_config_window(config):
     sg.theme('LightGrey6')
 
+    parameters = ["Additional layers", "Input length",
+                    "dropout strength", "Epochs*", "Batch size*"]
 
-    descriptions = ["Additional layers", "Input length",
-                    "dropout strength", "Batch size (Training)"]
-
-    headers = ["Parameter",'Price complete ', 'Remainder complete', 'Price day',
+    headers = ["Parameter", 'Price complete ', 'Remainder complete',
+               'Price day',
                'Remainder day']
     types = ["PC", "RC", "PD", "RD"]
-    variables = ["LAYER", "PAST_HISTORY", "DROPOUT", "BATCH_SIZE"]
+    variables = ["LAYER", "PAST_HISTORY", "DROPOUT","EPOCHS", "BATCH_SIZE"]
     possible_values = [[i for i in range(0, 10)],
                        [i for i in range(1, 500)],
                        [i for i in range(0, 10)],
                        [pow(2, i) for i in range(1, 10)]]
-    first_col_size = max([len(description) for description in descriptions])
-    header_row=[]
+    first_col_size = max(
+        [len(description) for description in parameters])
+    header_row = []
     for i in range(len(headers)):
-        elem=sg.Text(headers[i],pad=(15,0)) if i>0 else sg.Text(headers[i],size=(first_col_size,1))
-        header_row+=[elem]
-    col=[header_row]
-    for i in range(len(descriptions)):
-        layer_row=[sg.Text(descriptions[i],size=(first_col_size,1))]+ [sg.Spin(possible_values[0],size=(len(headers[t+1]),1),key="{}_{}".format(types[t],variables[i]) )for t in range(len(types))]
-        col+=[layer_row]
-    layout=col
+        elem = sg.Text(headers[i], pad=(15, 0)) if i > 0 else sg.Text(
+            headers[i], size=(first_col_size, 1))
+        header_row += [elem]
+    col = [header_row]
+    for i in range(len(parameters)):
+        layer_row = [sg.Text(parameters[i],
+                             size=(first_col_size, 1))] + [
+                        sg.Spin(possible_values[0],
+                                size=(len(headers[t + 1]), 1),
+
+                                key="{}_{}".format(types[t],
+                                                   variables[i])) for t
+                        in range(len(types))]
+        col += [layer_row]
+    layout = col
+    layout+=[[sg.T("* Nur für den Trainingsprozess relevant")]]
     layout += [[sg.Button('Save'), sg.Button('Exit')]]
 
     window = sg.Window('Net configurations', layout, keep_on_top=True,
-                       finalize=True,auto_size_text=True)
+                       finalize=True, auto_size_text=True)
 
     for key in CONFIG_TO_ELEM:  # update window with the new_config read from config file
         try:
@@ -110,13 +124,15 @@ def create_main_window(settings):
 
         [sg.T("TRAIN MODELS"),
          sg.CB("Price    ", default=False, key='train_complete'),
-         sg.CB("Remainder", default=False, key='train_remainder'),sg.B('Change Net Configuration')],
+         sg.CB("Remainder", default=False, key='train_remainder'),
+         sg.B('Change Net Configuration')],
         [sg.T("PREDICT:         "),
          sg.CB("Price     ", default=True, key='predict_complete'),
          sg.CB("remainder", default=False, key='predict_remainder'),
          sg.CB("decomposed (will override remainder)", default=True,
-               key='predict_decomposed'),],
-         [sg.T("",size=(len("PREDICT:    "),1)),sg.CB("SARIMA", default=True, key='predict_sarima'),
+               key='predict_decomposed'), ],
+        [sg.T("", size=(len("PREDICT:    "), 1)),
+         sg.CB("SARIMA", default=True, key='predict_sarima'),
          sg.CB("persistence (naive model for Price)", default=True,
                key='predict_naive_lagged'),
          sg.CB("naive 0-Model( for Remainder)", default=True,
@@ -124,10 +140,12 @@ def create_main_window(settings):
         [sg.T("DAY MODELS"),
          sg.CB("use daymodels for Prediciton", default=False,
                key='predict_with_day'),
-         sg.CB("Train all daymodels (for the nets that need to predict now)", default=False,
-               key='train_day_of_week')],
+         sg.CB(
+             "Train all daymodels (for the nets that need to predict now)",
+             default=False,
+             key='train_day_of_week')],
         [sg.T(
-            "specific forecast at timestep (will disable mass predictions):"),
+            "specific forecast at timestep (will disable mass predictions if not -1):"),
             sg.Spin([i for i in range(-1, 169)], initial_value=-1,
                     key="test_pred_start_hour")],
         [sg.Button(button_text="START", focus=True), sg.Cancel()]]
