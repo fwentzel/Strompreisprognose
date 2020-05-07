@@ -116,15 +116,15 @@ def create_main_window(settings):
          sg.CB("remainder", default=False, key='predict_remainder'),
          sg.CB("decomposed (will override remainder)", default=True,
                key='predict_decomposed'),],
-         [sg.T("",size=(len("PREDICT:    "),1)),sg.CB("SARIMA", default=True, key='predict_arima'),
-         sg.CB("naive (persistence model for Price)", default=True,
+         [sg.T("",size=(len("PREDICT:    "),1)),sg.CB("SARIMA", default=True, key='predict_sarima'),
+         sg.CB("persistence (naive model for Price)", default=True,
                key='predict_naive_lagged'),
-         sg.CB("naive (0-Model for Remainder)", default=True,
+         sg.CB("naive 0-Model( for Remainder)", default=True,
                key='predict_naive_0')],
         [sg.T("DAY MODELS"),
          sg.CB("use daymodels for Prediciton", default=False,
                key='predict_with_day'),
-         sg.CB("Train All daymodels", default=False,
+         sg.CB("Train all daymodels (for the nets that need to predict now)", default=False,
                key='train_day_of_week')],
         [sg.T(
             "specific forecast at timestep (will disable mass predictions):"),
@@ -164,12 +164,12 @@ def main():
     else:
         needed_plots = 0
         for key in ["predict_complete", "predict_naive_lagged",
-                    "predict_naive_0", "predict_arima"]:
+                    "predict_naive_0", "predict_sarima"]:
             if values[key]:
                 needed_plots += 1
         if values["predict_decomposed"] or values["predict_remainder"]:
             needed_plots += 1
-        return values, needed_plots
+        return values
 
 
 if __name__ == "__main__":

@@ -18,9 +18,9 @@ class StatisticalPrediction:
                 use_auto_arima=False,axis=None):
         if method == "AutoReg":
             self.autoreg(offset=offset, data_component=component)
-        elif method == "arima":
-            self.arima(offset=offset, use_auto_arima=use_auto_arima,
-                       data_component=component)
+        elif method == "sarima":
+            self.sarima(offset=offset, use_auto_arima=use_auto_arima,
+                        data_component=component)
         elif method == "naive_persistence":
             self.naive_lagged(data_component=component)
         elif method == "naive0":
@@ -65,7 +65,7 @@ class StatisticalPrediction:
 
     # LatexAutoRegMarkerEnd
 
-    def arima(self, use_auto_arima, data_component, offset=0):
+    def sarima(self, use_auto_arima, data_component, offset=0):
         start = self.start + offset
         train = self.data[data_component].iloc[start - 200:start]
         if use_auto_arima == True:
@@ -148,11 +148,8 @@ class StatisticalPrediction:
         axis.plot(range(12, len(error_array) - 12),
                  mean_error_over_time,
                  label="Moving average in 25 hour window")
-        axis.xticks(
-            [x for x in range(0, iterations + self.future_target, 12)])
         axis.set_title(method)
         axis.legend()
-        axis.show()
 
     def plot_prediction(self, ax,method):
 

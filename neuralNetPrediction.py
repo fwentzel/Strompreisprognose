@@ -319,8 +319,6 @@ class NeuralNetPrediction:
         axis.plot(range(12, len(error_array) - 12),
                  mean_error_over_time,
                  label="Moving average in 25 hour window")
-        axis.xticks(
-            [x for x in range(0, iterations + self.future_target, 12)])
         axis.set_title(self.net_type)
         axis.legend()
 
