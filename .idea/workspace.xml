@@ -6,6 +6,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68c788c7-5bf5-44ad-a565-79828c80a8e0" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
@@ -49,13 +50,14 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Felix\Dropbox\Uni-ty\7. Semester\Bachelorarbeit\Programm" />
+      <recent name="C:\Users\Felix\Dropbox\Uni-ty\7. Semester\Bachelorarbeit\Programm\Results" />
+      <recent name="C:\Users\Felix\Dropbox\Uni-ty\7. Semester\Bachelorarbeit\Programm\selenium_web_driver" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Felix\Dropbox\Uni-ty\7. Semester\Bachelorarbeit\Programm\Results" />
       <recent name="C:\Users\Felix\Dropbox\Uni-ty\7. Semester\Bachelorarbeit\Programm" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\Felix\Dropbox\Uni-ty\7. Semester\Bachelorarbeit\Programm\Results" />
-      <recent name="C:\Users\Felix\Dropbox\Uni-ty\7. Semester\Bachelorarbeit\Programm\selenium_web_driver" />
     </key>
   </component>
   <component name="RunManager" selected="Python.prognose">
@@ -196,27 +198,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1573549103499</updated>
-    </task>
-    <task id="LOCAL-00006" summary="Aufteilung der prognosen in klassen">
-      <created>1582287829822</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1582287829823</updated>
-    </task>
-    <task id="LOCAL-00007" summary="Predicitons in subplots dargestellt und Predictions addiert zu gesamtpreis">
-      <created>1582304544162</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1582304544162</updated>
-    </task>
-    <task id="LOCAL-00008" summary="Able to use Test or training data for Predictions synchronzied with other prediciton methods.">
-      <created>1582727402271</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1582727402271</updated>
     </task>
     <task id="LOCAL-00009" summary="commit für Laptop">
       <created>1582728088850</created>
@@ -540,7 +521,28 @@
       <option name="project" value="LOCAL" />
       <updated>1588863233233</updated>
     </task>
-    <option name="localTasksCounter" value="55" />
+    <task id="LOCAL-00055" summary="Updated README.md&#10;config Gui um Eochs erweitert">
+      <created>1588864729359</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1588864729359</updated>
+    </task>
+    <task id="LOCAL-00056" summary="Updated README.md">
+      <created>1588864816435</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1588864816435</updated>
+    </task>
+    <task id="LOCAL-00057" summary="Updated README.md">
+      <created>1588864851210</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1588864851210</updated>
+    </task>
+    <option name="localTasksCounter" value="58" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -572,7 +574,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="Runterladen Stromdaten von Smard.de" />
     <MESSAGE value="Neue datenverarbeitung, training funktioniert, Predictions noch falscher Dateityp" />
     <MESSAGE value="Fehlende stromdaten durch algged+differenz ersetzt" />
     <MESSAGE value="Wetteradten richtig eingelesen und fehlende sonnendaten durch 0 ersetzt, da nur nachts fehlend" />
@@ -597,7 +598,8 @@
     <MESSAGE value="GUI" />
     <MESSAGE value="Plotting für mass und singleprognosen ohne Probleme mit GUI anbindung" />
     <MESSAGE value="Updated README.md&#10;config Gui um Eochs erweitert" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated README.md&#10;config Gui um Eochs erweitert" />
+    <MESSAGE value="Updated README.md" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated README.md" />
   </component>
   <component name="WindowStateProjectService">
     <state x="552" y="177" key="#Inspections" timestamp="1581671628942">
@@ -640,10 +642,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="756" y="371" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.1920.1040@0.0.1920.1040" timestamp="1581674267117" />
-    <state x="-1343" y="102" width="1227" height="814" key="CommitChangelistDialog2" timestamp="1588864741506">
+    <state x="-1343" y="102" width="1227" height="814" key="CommitChangelistDialog2" timestamp="1588864963282">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state x="-1343" y="102" width="1227" height="814" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588864741506" />
+    <state x="-1343" y="102" width="1227" height="814" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588864963282" />
     <state x="332" y="102" width="1066" height="814" key="CommitChangelistDialog2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1588826721382" />
     <state x="896" y="141" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1581936883381" />
     <state width="1688" height="466" key="DebuggerActiveHint" timestamp="1588857845682">
@@ -747,10 +749,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="498" height="446" key="SwitcherDM/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1587287727564" />
-    <state x="-1444" y="257" width="985" height="536" key="Vcs.Push.Dialog.v2" timestamp="1588864750873">
+    <state x="-1444" y="257" width="985" height="536" key="Vcs.Push.Dialog.v2" timestamp="1588864852682">
       <screen x="-1920" y="0" width="1920" height="1040" />
     </state>
-    <state x="-1444" y="257" key="Vcs.Push.Dialog.v2/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588864750873" />
+    <state x="-1444" y="257" key="Vcs.Push.Dialog.v2/-1920.0.1920.1040/0.0.1920.1040@-1920.0.1920.1040" timestamp="1588864852682" />
     <state x="476" y="257" width="985" height="536" key="Vcs.Push.Dialog.v2/-1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1586023564546" />
     <state x="552" y="240" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1581936892272" />
     <state width="968" height="528" key="XDebugger.FullValuePopup" timestamp="1588825367706">
