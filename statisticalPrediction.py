@@ -1,113 +1,161 @@
 import numpy as np
-from statsmodels.tsa.arima_model import ARIMA
-from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.ar_model import AutoReg, ar_select_order
+import pmdarima as pm
+import pickle
+import matplotlib.pyplot as plt
 
 
 class StatisticalPrediction:
 
-    def __init__(self, data, future_target, component,
-                 test_split_at_hour, offset=0):
-        self.start = -test_split_at_hour + offset
-        self.component = component
+    def __init__(self, data, future_target,
+                 test_split_at_hour):
+        self.start = -test_split_at_hour
         self.data = data
         self.future_target = future_target
-        self.truth = data[component].iloc[
-                     self.start:self.start + future_target]
 
     # best Length 190 Best ARIMA(8, 0, 2) MSE=2.422
-    def predict(self, method):
+    def predict(self, component, method, offset=0,
+                use_auto_arima=False,axis=None):
         if method == "AutoReg":
-            self.AutoReg_prediction()
-        elif method == "ARIMA":
-            self.arima_prediction()
-        elif method == "naive":
-            self.naive_prediction()
+            self.autoreg(offset=offset, data_component=component)
+        elif method == "sarima":
+            self.sarima(offset=offset, use_auto_arima=use_auto_arima,
+                        data_component=component)
+        elif method == "naive_persistence":
+            self.naive_lagged(data_component=component)
+        elif method == "naive0":
+            self.naive0(data_component=component)
+        else:
+            print(
+                "{} is not recognized. Make sure it is written correctly. Efaulting to naive0 Prediction".format(
+                    method))
+            self.naive_lagged(data_component=component)
+        self.truth = self.data[component].iloc[
+                     self.start + offset:self.start + self.future_target + offset]
+
         try:  # TODO Hacky workaround für umgehen von .value call auf numpy array
             self.error = np.around(np.sqrt(np.mean(
                 np.square(self.truth.values - self.pred.values))), 2)
         except:
             self.error = np.around(
                 np.sqrt(np.mean(np.square(self.truth - self.pred))), 2)
+        if axis is not None:
+            self.plot_prediction(axis,method)
 
-    def naive_prediction(self):
-        self.pred = self.data[self.component].iloc[
+
+    def naive_lagged(self, data_component):
+        self.pred = self.data[data_component].iloc[
                     self.start - 2:self.start - 2 + self.future_target]
 
-    # self.pred = np.ones(shape=(self.future_target))*self.data[self.component].iloc[self.start-1]
-    # LatexAutoRegMarkerStart
-    def AutoReg_prediction(self):
-        train = self.data[self.component].iloc[
-                self.start - 160:self.start].asfreq("H")
-        lags = ar_select_order(endog=train,
-                               maxlag=70)
+    def naive0(self, data_component):
+        self.pred = np.zeros(self.future_target)
 
+    # LatexAutoRegMarkerStart
+    def autoreg(self, data_component, offset=0):
+        train = self.data[data_component].iloc[self.start + offset - 200
+                                               :self.start + offset].asfreq(
+            "H")
+        lags = ar_select_order(endog=train, maxlag=70)
         model = AutoReg(train, lags=lags.ar_lags)
         model_fit = model.fit()
         self.pred = model_fit.predict(start=len(train),
-                                      end=len(
-                                          train) + self.future_target - 1,
+                                      end=len(train)
+                                          + self.future_target - 1,
                                       dynamic=False)
-        # LatexAutoRegMarkerEnd
-        # **** IF USE EXOG VARIABLES ****
-        # exog_components = ["wind", "cloudiness", "air_temperature",
-        #                    "sun", 'Weekend', 'Hour', 'Holiday']
-        # exog = self.data[exog_components].iloc[
-        #        :self.start + self.future_target].asfreq("H")
-        # lags = ar_select_order(endog=train,
-        #                        exog=exog.iloc[:self.start],
-        #                        maxlag=len(train) - 50)
-        # lags = lags.ar_lags
-        # model = AutoReg(train, lags=lags,
-        #                 exog=exog.iloc[:self.start])
-        # model_fit = model.fit()
-        # self.pred = model_fit.predict(start=len(train),
-        #                               end=len(
-        #                                   train) + self.future_target - 1,
-        #                               dynamic=False,
-        #                               exog_oos=exog.iloc[
-        #                                        self.start:])
 
-    def arima_prediction(self, test_orders=False, order=(15, 0, 2)):
-        if test_orders == True:
-            order = self.test_orders()
+    # LatexAutoRegMarkerEnd
 
-        train = self.data[self.component].iloc[
-                self.start - 48:self.start]
-        model = ARIMA(train, order=order, freq="H")
-        model_fit = model.fit(disp=0)
-        start_index = len(train)
-        end_index = start_index + self.future_target - 1
-        prediction = model_fit.predict(start=start_index, end=end_index)
+    def sarima(self, use_auto_arima, data_component, offset=0):
+        start = self.start + offset
+        train = self.data[data_component].iloc[start - 200:start]
+        if use_auto_arima == True:
+            model = pm.auto_arima(train, start_p=1, start_q=1,
+                                  test='adf',
+                                  # use adftest to find optimal 'd'
+                                  max_p=4, max_q=12,  # maximum p and q
+                                  m=24,  # frequency of series
+                                  d=None,  # let model determine 'd'
+                                  seasonal=True,
+                                  start_P=0,
+                                  D=0,
+                                  trace=True,
+                                  error_action='ignore',
+                                  suppress_warnings=True,
+                                  stepwise=True)
+            print("model summary:", model.summary())
+            if offset == 0:
+                with open('./checkpoints/arima_model.pkl', 'wb') as pkl:
+                    pickle.dump(model, pkl)
+        else:
+            with open('./checkpoints/arima_model.pkl', 'rb') as pkl:
+                model = pickle.load(pkl)
+
+        prediction = model.predict(n_periods=self.future_target)
         self.pred = prediction
 
-    def test_orders(self):
-        p_values = range(15, 90)
-        q_values = range(0, 5)
-        d_values = range(0, 3)
+    def mass_predict(self, iterations,axis,method,component, use_auto_arima=False,
+                     step=1, ):
+        j = 0
+        single_errorlist = np.empty(
+            [round(iterations / step), self.future_target])
+        offsets = range(0, iterations, step)
+        error_array = np.empty((iterations + self.future_target, 1))
+        error_array[:] = np.nan
+        max = round(iterations / step)
+        for i in offsets:
+            print("\rmass predict {}: {}/{}".format(method,j, max),
+                  sep=' ', end='', flush=True)
 
-        best_score, best_cfg, best_length = float("inf"), None, None
-        data = self.data[self.component].iloc[
-               self.start - 48:self.start]
-        start_index = len(data)
-        end_index = start_index + self.future_target - 1
-        for p in p_values:
-            for d in d_values:
-                for q in q_values:
-                    order = (
-                        p, d,
-                        q)  # immer 0, da Series schon stationary ist
-                    try:
-                        model = ARIMA(data, order=order, freq="H")
-                        model_fit = model.fit(disp=0)
-                        prediction = model_fit.predict(
-                            start=start_index,
-                            end=end_index)
-                        rmse = np.sqrt(
-                            np.mean(np.square(self.truth - prediction)))
-                        if rmse < best_score:
-                            best_score, best_cfg = rmse, order
-                    except:
-                        continue
-        print('Best ARIMA%s MSE=%.3f ' % (best_cfg, best_score))
-        return best_cfg
+            self.predict(offset=i, method=method, component=component,
+                         use_auto_arima=use_auto_arima)
+
+            # overwrite error since it doesnt account for offset
+            start = self.start + i
+            truth = self.data[component].iloc[
+                    start:start + self.future_target]
+            self.error = np.around(
+                np.sqrt(np.mean(np.square(truth - self.pred))), 2)
+            # plt.plot(truth.index, self.pred,
+            #          label="pred {}".format(self.error))
+            # plt.plot(truth.index, truth,
+            #          label="truth")
+            # plt.legend()
+            # plt.savefig(
+            #     "./Abbildungen/{}/prediction_{}.png".format(method,
+            #         i),
+            #     dpi=300, bbox_inches='tight')
+            # plt.clf()
+            # plt.show()
+
+            single_errorlist[j] = np.around(
+                np.sqrt(np.square(self.truth.values - self.pred)), 2)
+
+            arr = np.nanmean([error_array[i:i + self.future_target],
+                              single_errorlist[j].reshape(
+                                  self.future_target, 1)], axis=0)
+            error_array[i:i + self.future_target] = arr
+            j += 1
+        cumulative_errorlist = np.around(
+            np.mean(single_errorlist, axis=0),
+            decimals=2)
+
+        mean_error_over_time = [np.mean(error_array[x - 12:x + 12])
+                                for x in
+                                range(12, len(error_array) - 12)]
+        axis.plot(error_array,
+                 label="mean error at timestep. Overall mean: {}".format(
+                     np.around(np.mean(cumulative_errorlist), 2)))
+        axis.plot(range(12, len(error_array) - 12),
+                 mean_error_over_time,
+                 label="Moving average in 25 hour window")
+        axis.set_title(method)
+        axis.legend()
+
+    def plot_prediction(self, ax,method):
+
+
+        ax.plot(self.truth.index, self.pred,
+                   label='prediction; RMSE: {}'.format(self.error))
+        ax.plot(self.truth.index, self.truth, label='Truth')
+        ax.set_title(method)
+        ax.legend()
