@@ -122,7 +122,17 @@ def predict_decomposed_or_remainder():
                                          test_split_at_hour=test_split_at_hour,
                                          net_type="remainder_complete",
                                          train_day_of_week=train_day_of_week)
-
+    if train_remainder:
+        rem_prediction.initialize_network()
+        rem_prediction.train_network(
+            savename="trainedLSTM_remainderUTC",
+            save=False,
+            lr_schedule="polynomal",
+            power=2)
+        # lr_schedule="polynomal" oder "STEP
+    elif rem_prediction.model is None:
+        rem_prediction.load_model(
+            savename="trainedLSTM_remainderUTC")
     components_combined_error = 0
     sum_pred = 0
     j = 0
@@ -142,17 +152,7 @@ def predict_decomposed_or_remainder():
             print("Calculating Remainder/component forecast...")
         if predict_remainder or predict_decomposed:
             # Remainder
-            if train_remainder:
-                rem_prediction.initialize_network()
-                rem_prediction.train_network(
-                    savename="trainedLSTM_remainderUTC",
-                    save=False,
-                    lr_schedule="polynomal",
-                    power=2)
-                # lr_schedule="polynomal" oder "STEP
-            elif rem_prediction.model is None:
-                rem_prediction.load_model(
-                    savename="trainedLSTM_remainderUTC")
+
 
             if MASS_PREDICT and not predict_decomposed:
                 rem_prediction.mass_predict(iterations=ITERATIONS,
