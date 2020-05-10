@@ -100,7 +100,7 @@ def sarima_pred():
         statistical_pred.mass_predict(iterations=ITERATIONS,
                                       step=STEP,
                                       component="Price",
-                                      use_auto_arima=False,
+                                      use_auto_arima=True,
                                       method="sarima",
                                       axis=axes[1, 1])
     else:
