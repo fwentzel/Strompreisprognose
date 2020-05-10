@@ -94,7 +94,7 @@ class StatisticalPrediction:
 
     def mass_predict(self, iterations, axis, method, component,
                      use_auto_arima=False,
-                     step=1, ):
+                     step=1, save=False):
         j = 0
         single_errorlist = np.empty(
             [round(iterations / step), self.future_target])
@@ -115,22 +115,23 @@ class StatisticalPrediction:
                     start:start + self.future_target]
             self.error = np.around(
                 np.sqrt(np.mean(np.square(truth - self.pred))), 2)
-            plt.plot(truth.index, self.pred,
-                     label="pred {}".format(self.error))
-            plt.plot(truth.index, truth,
-                     label="truth")
-            plt.legend()
-            if method == "sarima":
-                plt.savefig(
-                    "./Abbildungen/{}_{}/prediction_{}.png".format(
-                        method,use_auto_arima,i), dpi=300,
-                    bbox_inches='tight')
-            else:
-                plt.savefig(
-                    "./Abbildungen/{}/prediction_{}.png".format(
-                        method, i), dpi=300, bbox_inches='tight')
-            plt.clf()
-            # plt.show()
+            if save:
+                plt.plot(truth.index, self.pred,
+                         label="pred {}".format(self.error))
+                plt.plot(truth.index, truth,
+                         label="truth")
+                plt.legend()
+                if method == "sarima":
+                    plt.savefig(
+                        "./Abbildungen/{}_{}/prediction_{}.png".format(
+                            method,use_auto_arima,i), dpi=300,
+                        bbox_inches='tight')
+                else:
+                    plt.savefig(
+                        "./Abbildungen/{}/prediction_{}.png".format(
+                            method, i), dpi=300, bbox_inches='tight')
+                plt.clf()
+                # plt.show()
 
             single_errorlist[j] = np.around(
                 np.sqrt(np.square(self.truth.values - self.pred)), 2)
@@ -147,15 +148,16 @@ class StatisticalPrediction:
         mean_error_over_time = [np.mean(error_array[x - 12:x + 12])
                                 for x in
                                 range(12, len(error_array) - 12)]
-        plt.plot(error_array,
+        x_ticks = self.data.index[
+                  self.start:self.start + iterations + self.future_target]
+
+        axis.plot(x_ticks, error_array,
                   label="mean error at timestep. Overall mean: {}".format(
                       np.around(np.mean(cumulative_errorlist), 2)))
-        plt.plot(range(12, len(error_array) - 12),
-                  mean_error_over_time,
+        axis.plot(x_ticks[12:-12], mean_error_over_time,
                   label="Moving average in 25 hour window")
-        # axis.set_title(method)
-        plt.legend()
-        plt.show()
+        axis.set_title(method)
+        axis.legend()
 
     def plot_prediction(self, ax, method):
 

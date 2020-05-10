@@ -19,7 +19,7 @@ class NeuralNetPrediction:
                  test_split_at_hour, net_type, train_day_of_week=False):
         self.net_type = net_type
         self.read_json(net_type)
-        test_data = data.iloc[-test_split_at_hour - self.past_history:]
+
         train_data = data.iloc[:-test_split_at_hour]
 
         self.RELEVANT_COLUMNS = [datacolumn, "wind", "cloudiness",
@@ -28,11 +28,11 @@ class NeuralNetPrediction:
         self.data = data
         self.datacolumn = datacolumn
         self.test_split_at_hour = test_split_at_hour
+
         self.train_target = train_data[datacolumn]
         self.train_dataset = train_data[self.RELEVANT_COLUMNS].values
+        self.generate_test_data()
 
-        self.test_target = test_data[datacolumn]
-        self.test_dataset = test_data[self.RELEVANT_COLUMNS].values
 
         self.future_target = future_target  # timesteps into future
 
@@ -44,6 +44,10 @@ class NeuralNetPrediction:
             if (train_day_of_week):
                 self.manage_day_models(train_day_of_week)
 
+    def generate_test_data(self):
+        test_data = self.data.iloc[-self.test_split_at_hour - self.past_history:]
+        self.test_target = test_data[self.datacolumn]
+        self.test_dataset = test_data[self.RELEVANT_COLUMNS].values
     def manage_day_models(self, train_day_of_week, index=-1):
 
         day_indeces = range(7) if index == -1 else [index]
@@ -119,10 +123,10 @@ class NeuralNetPrediction:
             '.\checkpoints\{0}'.format(savename))
         model_input = model.layers[0].input.shape[1]
         if self.past_history != model_input and not "_day_" in savename:  # only throw "error" when its a "completed" net
-            print(
-                "Saved model expects {} Input steps. past History adjusted to fit this requirement".format(
-                    model_input))
+            print( "Saved model expects {} Input steps. {} steps are given. Past History adjusted to fit this requirement".format(
+                    model_input,self.past_history))
             self.past_history = model_input
+            self.generate_test_data()
         self.model = model
 
     # LatexMarkerDataStart
@@ -283,7 +287,7 @@ class NeuralNetPrediction:
         naive_error = 0
         max = round(iterations / step)
         for i in offsets:
-            print("\rmass predict {}net: {}/{}".format(self.net_type,j, max),
+            print("\rmass predict {} net: {}/{}".format(self.net_type,j, max),
                   sep=' ', end='', flush=True)
             self.predict(offset=i, use_day_model=use_day_model)
             single_errorlist[j] = self.single_errors
@@ -309,11 +313,12 @@ class NeuralNetPrediction:
         mean_error_over_time = [np.mean(error_array[x - 12:x + 12])
                                      for x in
                                      range(12, len(error_array) - 12)]
-        axis.plot(error_array,
+        x_ticks=self.data.index[self.test_split_at_hour:self.test_split_at_hour+iterations+self.future_target]
+
+        axis.plot(x_ticks,error_array,
                  label="mean error at timestep. Overall mean: {}".format(
                      np.around(np.mean(cumulative_errorlist), 2)))
-        axis.plot(range(12, len(error_array) - 12),
-                 mean_error_over_time,
+        axis.plot(x_ticks[12:-12],mean_error_over_time,
                  label="Moving average in 25 hour window")
         axis.set_title(self.net_type)
         axis.legend()

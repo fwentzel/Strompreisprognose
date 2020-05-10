@@ -80,6 +80,7 @@ def create_config_window(config):
     variables = ["LAYER", "PAST_HISTORY", "DROPOUT","EPOCHS", "BATCH_SIZE"]
     possible_values = [[i for i in range(0, 10)],
                        [i for i in range(1, 500)],
+                       [i for i in range(1, 500)],
                        [i for i in range(0, 10)],
                        [pow(2, i) for i in range(1, 10)]]
     first_col_size = max(
@@ -129,13 +130,13 @@ def create_main_window(settings):
         [sg.T("PREDICT:         "),
          sg.CB("Price     ", default=True, key='predict_complete'),
          sg.CB("remainder", default=False, key='predict_remainder'),
-         sg.CB("decomposed (will override remainder)", default=True,
+         sg.CB("decompesed components", default=False,
                key='predict_decomposed'), ],
         [sg.T("", size=(len("PREDICT:    "), 1)),
-         sg.CB("SARIMA", default=True, key='predict_sarima'),
+         sg.CB("SARIMA", default=False, key='predict_sarima'),
          sg.CB("persistence (naive model for Price)", default=True,
                key='predict_naive_lagged'),
-         sg.CB("naive 0-Model( for Remainder)", default=True,
+         sg.CB("naive 0-Model( for Remainder)", default=False,
                key='predict_naive_0')],
         [sg.T("DAY MODELS"),
          sg.CB("use daymodels for Prediciton", default=False,

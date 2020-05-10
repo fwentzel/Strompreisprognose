@@ -12,47 +12,44 @@ import ipykernel  # fix progress bar
 register_matplotlib_converters()
 
 FUTURE_TARGET = 24
-MASS_PREDICT = False
-ITERATIONS = 24 * 7  # amount of predicitons for mass predict
+ITERATIONS = 24 * 2 # amount of predicitons for mass predict
 STEP = 1
 
 use_setup_settings = True
 settings_dict = None
-if use_setup_settings:
-    config = GUI.main()
-    if config is None:
-        # User cancelled program
-        import sys
-
-        sys.exit()
-    else:
-        settings_dict = config
+config = GUI.main()
+if config is None:
+    # User cancelled program
+    import sys
+    sys.exit()
+else:
+    settings_dict = config
 
 figure, axes = plt.subplots(nrows=3, ncols=2)
 
+train_complete = settings_dict["train_complete"]
+train_remainder = settings_dict["train_remainder"]
+train_day_of_week = settings_dict["train_day_of_week"]
 
-train_complete = settings_dict["train_complete"] if use_setup_settings else False
-train_remainder = settings_dict[    "train_remainder"] if use_setup_settings else False
-train_day_of_week = settings_dict[    "train_day_of_week"] if use_setup_settings else False
+predict_complete = settings_dict["predict_complete"]
+predict_remainder = settings_dict["predict_remainder"]
+predict_decomposed = settings_dict["predict_decomposed"]
+predict_naive_lagged = settings_dict["predict_naive_lagged"]
+predict_naive_0 = settings_dict["predict_naive_0"]
+predict_sarima = settings_dict["predict_sarima"]
 
-predict_complete = settings_dict[    "predict_complete"] if use_setup_settings else True
-predict_remainder = settings_dict[    "predict_remainder"] if use_setup_settings else True
-predict_decomposed = settings_dict[    "predict_decomposed"] if use_setup_settings else True
-predict_naive_lagged = settings_dict[    "predict_naive_lagged"] if use_setup_settings else True
-predict_naive_0 = settings_dict[    "predict_naive_0"] if use_setup_settings else True
-predict_sarima = settings_dict[    "predict_sarima"] if use_setup_settings else True
+predict_with_day = settings_dict["predict_with_day"]
 
-predict_with_day = settings_dict[    "predict_with_day"] if use_setup_settings else False
-test_pred_start_hour = settings_dict[    "test_pred_start_hour"] if use_setup_settings else 0
+test_pred_start_hour = settings_dict["test_pred_start_hour"]
 
 if test_pred_start_hour < 0:
-    MASS_PREDICT = True
+    mass_predict = True
     test_pred_start_hour = 0
     print("Calculating forecast for up to 168 hours after training in a massforecast".format(
         test_pred_start_hour))
 else:
     print("Calculating forecast for: {} hours after Trainings".format(test_pred_start_hour))
-    MASS_PREDICT = False
+    mass_predict = False
 
 test_length = FUTURE_TARGET + 24 * 7  # Timesteps for testing.
 data = get_data()
@@ -79,7 +76,8 @@ def price_pred():
     else:
         price_prediciton.load_model(savename="trainedLSTM_priceUTC")
 
-    if MASS_PREDICT:
+
+    if mass_predict:
         price_prediciton.mass_predict(iterations=ITERATIONS,
                                       step=STEP,
                                       use_day_model=predict_with_day,
@@ -92,15 +90,14 @@ def price_pred():
                                  axis=axes[0, 0])
 
 
-
 def sarima_pred():
-    if MASS_PREDICT:
+    if mass_predict:
         # statistical_pred.predict(method="ARIMA", component="Price",
         #                          use_auto_arima=True, offset=0)
         statistical_pred.mass_predict(iterations=ITERATIONS,
                                       step=STEP,
                                       component="Price",
-                                      use_auto_arima=True,
+                                      use_auto_arima=False,
                                       method="sarima",
                                       axis=axes[1, 1])
     else:
@@ -125,52 +122,54 @@ def predict_decomposed_or_remainder():
     if train_remainder:
         rem_prediction.initialize_network()
         rem_prediction.train_network(
-            savename="trainedLSTM_remainderUTC",
-            save=False,
-            lr_schedule="polynomal",
-            power=2)
-        # lr_schedule="polynomal" oder "STEP
+            savename="trainedLSTM_remainderUTC", save=False,
+            lr_schedule="polynomal",power=2)
     elif rem_prediction.model is None:
-        rem_prediction.load_model(
-            savename="trainedLSTM_remainderUTC")
-    components_combined_error = 0
-    sum_pred = 0
-    j = 0
-    single_errorlist = np.empty(
-        [round(ITERATIONS / STEP), FUTURE_TARGET])
-    error_array = np.empty((ITERATIONS + FUTURE_TARGET, 1))
-    error_array[:] = np.nan
-    decomposed_iterations = ITERATIONS if MASS_PREDICT and predict_decomposed else 1
-    max = round(decomposed_iterations / STEP)
-    offsets = range(0, decomposed_iterations, STEP)
+        rem_prediction.load_model(savename="trainedLSTM_remainderUTC")
 
-    for i in offsets:
-        if decomposed_iterations > 1:
-            print("\rmass predict decomposed: {}/{}".format(j, max),
-                  sep=' ', end='', flush=True)
+    if predict_remainder:
+        # Remainder
+        if mass_predict:
+            rem_prediction.mass_predict(iterations=ITERATIONS,
+                                        step=STEP,
+                                        use_day_model=predict_with_day,
+                                        axis=axes[1, 0])
         else:
-            print("Calculating Remainder/component forecast...")
-        if predict_remainder or predict_decomposed:
             # Remainder
+            rem_prediction.predict(offset=0,
+                                   use_day_model=predict_with_day,
+                                   axis=axes[
+                                       1, 0] if not predict_decomposed else None)
 
-
-            if MASS_PREDICT and not predict_decomposed:
-                rem_prediction.mass_predict(iterations=ITERATIONS,
-                                            step=STEP,
-                                            use_day_model=predict_with_day,
-                                            axis=axes[1, 0])
+    if predict_decomposed:
+        components_combined_error = 0
+        sum_pred = 0
+        j = 0
+        single_errorlist = np.empty(
+            [round(ITERATIONS / STEP), FUTURE_TARGET])
+        error_array = np.empty((ITERATIONS + FUTURE_TARGET, 1))
+        error_array[:] = np.nan
+        decomposed_iterations = ITERATIONS if mass_predict and predict_decomposed else 1
+        max = round(decomposed_iterations / STEP)
+        offsets = range(0, decomposed_iterations, STEP)
+        for i in offsets:
+            if decomposed_iterations > 1:
+                print("\rmass predict decomposed: {}/{}".format(j, max),
+                      sep=' ', end='', flush=True)
             else:
-                # Remainder
-                rem_prediction.predict(offset=i,
-                                       use_day_model=predict_with_day,
-                                       axis=axes[1, 0] if not predict_decomposed else None)
+                print("Calculating component forecast...")
 
-        if predict_decomposed:
+
             timeframe = slice(i - test_split_at_hour,
                               FUTURE_TARGET + i - test_split_at_hour)
             truth = data["Price"].iloc[timeframe]
 
+            rem_prediction.predict(offset=i,
+                                   use_day_model=predict_with_day,
+                                   axis=axes[
+                                       1, 0] if not predict_decomposed else None)
             # copy so original doesnt get overwritten when adding other components
+
             sum_pred = rem_prediction.pred.copy()
             # plt.plot(rem_prediction.truth.index, sum_pred,
             #          label="pred {}".format(rem_prediction.error))
@@ -198,7 +197,7 @@ def predict_decomposed_or_remainder():
                 np.sqrt(np.mean(np.square(truth - sum_pred))), 2)
             single_errors = np.around(
                 np.sqrt(np.square(truth.values - sum_pred)), 2)
-            if MASS_PREDICT:
+            if mass_predict:
                 single_errorlist[j] = single_errors
                 arr = np.nanmean([error_array[i:i + FUTURE_TARGET],
                                   single_errorlist[j].reshape(
@@ -225,26 +224,23 @@ def predict_decomposed_or_remainder():
                 axes[0, 1].legend()
             j += 1
 
-    if MASS_PREDICT and predict_decomposed:
-        cumulative_errorlist = np.around(
-            np.mean(single_errorlist, axis=0),
-            decimals=2)
+        if mass_predict :
+            cumulative_errorlist = np.around(np.mean(single_errorlist, axis=0),
+                decimals=2)
 
-        mean_error_over_time = [np.mean(error_array[x - 12:x + 12])
-                                for x in
-                                range(12, len(error_array) - 12)]
-
-        axes[0, 1].plot(error_array,
-                        label="mean error at timestep. Overall mean: {}".format(
-                            np.around(np.mean(cumulative_errorlist),
-                                      2)))
-        axes[0, 1].plot(mean_error_over_time,
-                        label="Moving average in 25 hour window")
-        axes[0, 1].set_title ("combined components")
-        axes[0, 1].legend()
+            mean_error_over_time = [np.mean(error_array[x - 12:x + 12])
+                                    for x in range(12, len(error_array) - 12)]
+            x_ticks=data.index[test_split_at_hour:test_split_at_hour+ITERATIONS+FUTURE_TARGET]
+            axes[0, 1].plot(x_ticks,error_array,
+                            label="mean error at timestep. Overall mean: {}".format(
+                                np.around(np.mean(cumulative_errorlist),2)))
+            axes[0, 1].plot(x_ticks[12:-12],mean_error_over_time,
+                            label="Moving average in 25 hour window")
+            axes[0, 1].set_title ("combined components")
+            axes[0, 1].legend()
 
 def naive_lagged_pred():
-    if MASS_PREDICT:
+    if mass_predict:
         statistical_pred.mass_predict(method="naive_persistence",
                                       component="Price",
                                       iterations=ITERATIONS, step=STEP,
@@ -255,7 +251,7 @@ def naive_lagged_pred():
                                  component="Price", axis=axes[2, 0])
 
 def naive_0_pred():
-    if MASS_PREDICT:
+    if mass_predict:
         statistical_pred.mass_predict(method="naive0",
                                       component="Remainder",
                                       iterations=ITERATIONS, step=STEP,
@@ -281,5 +277,4 @@ if predict_naive_0:
     naive_0_pred()
 if predict_naive_lagged:
     naive_lagged_pred()
-
 plt.show()
