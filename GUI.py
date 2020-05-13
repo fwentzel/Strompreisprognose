@@ -80,6 +80,7 @@ def create_config_window(config):
     variables = ["LAYER", "PAST_HISTORY", "DROPOUT","EPOCHS", "BATCH_SIZE"]
     possible_values = [[i for i in range(0, 10)],
                        [i for i in range(1, 500)],
+                       [i for i in range(1, 500)],
                        [i for i in range(0, 10)],
                        [pow(2, i) for i in range(1, 10)]]
     first_col_size = max(
@@ -128,8 +129,8 @@ def create_main_window(settings):
          sg.B('Change Net Configuration')],
         [sg.T("PREDICT:         "),
          sg.CB("Price     ", default=True, key='predict_complete'),
-         sg.CB("remainder", default=False, key='predict_remainder'),
-         sg.CB("decomposed (will override remainder)", default=True,
+         sg.CB("remainder", default=True, key='predict_remainder'),
+         sg.CB("decompesed components", default=True,
                key='predict_decomposed'), ],
         [sg.T("", size=(len("PREDICT:    "), 1)),
          sg.CB("SARIMA", default=True, key='predict_sarima'),

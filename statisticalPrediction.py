@@ -6,14 +6,13 @@ import matplotlib.pyplot as plt
 
 
 class StatisticalPrediction:
-
     def __init__(self, data, future_target,
                  test_split_at_hour):
         self.start = -test_split_at_hour
         self.data = data
         self.future_target = future_target
+        self.sarima_model=None
 
-    # best Length 190 Best ARIMA(8, 0, 2) MSE=2.422
     def predict(self, component, method, offset=0,
                 use_auto_arima=False, axis=None):
         if method == "AutoReg":
@@ -63,51 +62,63 @@ class StatisticalPrediction:
                                       dynamic=False)
 
     # LatexAutoRegMarkerEnd
+    def fit_sarima_model(self,datacolumn,start,exog):
+        length=200
+        train = self.data[datacolumn].iloc[start - length:start]
+        model = pm.auto_arima(train,
+                              #exogenous=exog.iloc[start - length:start],
+                              start_p=1, start_q=1,
+                              test='adf',
+                              # use adftest to find optimal 'd'
+                              max_p=4, max_q=12,  # maximum p and q
+                              m=24,  # frequency of series
+                              d=None,  # let model determine 'd'
+                              seasonal=True,
+                              start_P=0,
+                              D=0,
+                              trace=True,
+                              error_action='ignore',
+                              suppress_warnings=True,
+                              stepwise=True)
+
+        print("model summary:", model.summary())
+        with open('./checkpoints/arima_model.pkl', 'wb') as pkl:
+            pickle.dump(model, pkl)
 
     def sarima(self, use_auto_arima, data_component, offset=0):
         start = self.start + offset
-        train = self.data[data_component].iloc[start - 200:start]
-        if use_auto_arima == True:
-            model = pm.auto_arima(train, start_p=1, start_q=1,
-                                  test='adf',
-                                  # use adftest to find optimal 'd'
-                                  max_p=4, max_q=12,  # maximum p and q
-                                  m=24,  # frequency of series
-                                  d=None,  # let model determine 'd'
-                                  seasonal=True,
-                                  start_P=0,
-                                  D=0,
-                                  trace=True,
-                                  error_action='ignore',
-                                  suppress_warnings=True,
-                                  stepwise=True)
-            print("model summary:", model.summary())
-            if offset == 0:
-                with open('./checkpoints/arima_model.pkl', 'wb') as pkl:
-                    pickle.dump(model, pkl)
-        else:
+        exog=self.data[[data_component, "wind", "cloudiness",
+                                 "air_temperature", "sun", 'DayOfWeek',
+                                 'Hour', 'Holiday']]
+        if self.sarima_model is None:
+            if use_auto_arima:
+                self.fit_sarima_model(data_component,start,exog)
             with open('./checkpoints/arima_model.pkl', 'rb') as pkl:
-                model = pickle.load(pkl)
+                self.sarima_model = pickle.load(pkl)
+        interval=1
+        if offset%interval==0 and offset >0:
+            update_values = self.data[data_component].iloc[start-interval:start]
+            self.sarima_model.update(update_values)#,exogenous=exog.iloc[start-interval:start]
 
-        prediction = model.predict(n_periods=self.future_target)
+        prediction = self.sarima_model.predict(n_periods=self.future_target)#,exogenous=exog.iloc[start:start+self.future_target]
         self.pred = prediction
 
     def mass_predict(self, iterations, axis, method, component,
-                     use_auto_arima=False,
-                     step=1, ):
+                     step=1, save=False):
         j = 0
         single_errorlist = np.empty(
             [round(iterations / step), self.future_target])
         offsets = range(0, iterations, step)
         error_array = np.empty((iterations + self.future_target, 1))
         error_array[:] = np.nan
-        max = round(iterations / step)
+        max_iter = round(iterations / step)
         for i in offsets:
-            print("\rmass predict {}: {}/{}".format(method, j, max),
+
+            print("\rmass predict {}: {}/{}".format(method, j, max_iter),
                   sep=' ', end='', flush=True)
 
             self.predict(offset=i, method=method, component=component,
-                         use_auto_arima=use_auto_arima)
+                         use_auto_arima=False)
 
             # overwrite error since it doesnt account for offset
             start = self.start + i
@@ -115,22 +126,23 @@ class StatisticalPrediction:
                     start:start + self.future_target]
             self.error = np.around(
                 np.sqrt(np.mean(np.square(truth - self.pred))), 2)
-            plt.plot(truth.index, self.pred,
-                     label="pred {}".format(self.error))
-            plt.plot(truth.index, truth,
-                     label="truth")
-            plt.legend()
-            if method == "sarima":
-                plt.savefig(
-                    "./Abbildungen/{}_{}/prediction_{}.png".format(
-                        method,use_auto_arima,i), dpi=300,
-                    bbox_inches='tight')
-            else:
-                plt.savefig(
-                    "./Abbildungen/{}/prediction_{}.png".format(
-                        method, i), dpi=300, bbox_inches='tight')
-            plt.clf()
-            # plt.show()
+            if save:
+                plt.plot(truth.index, self.pred,
+                         label="pred {}".format(self.error))
+                plt.plot(truth.index, truth,
+                         label="truth")
+                plt.legend()
+                if method == "sarima":
+                    plt.savefig(
+                        "./Abbildungen/{}/prediction_{}.png".format(
+                            method,i), dpi=300,
+                        bbox_inches='tight')
+                else:
+                    plt.savefig(
+                        "./Abbildungen/{}/prediction_{}.png".format(
+                            method, i), dpi=300, bbox_inches='tight')
+                plt.clf()
+                # plt.show()
 
             single_errorlist[j] = np.around(
                 np.sqrt(np.square(self.truth.values - self.pred)), 2)
@@ -144,18 +156,23 @@ class StatisticalPrediction:
             np.mean(single_errorlist, axis=0),
             decimals=2)
 
-        mean_error_over_time = [np.mean(error_array[x - 12:x + 12])
+        mean_error_over_time = [np.mean(error_array[x - 24:x + 12])
                                 for x in
                                 range(12, len(error_array) - 12)]
-        plt.plot(error_array,
+        x_ticks = self.data.index[
+                  self.start:self.start + iterations + self.future_target]
+        max_mean_error = max(error_array)
+        max_timestep=np.where(error_array==max_mean_error)
+        min_mean_error = min(error_array)
+        min_timestep=np.where(error_array==min_mean_error)
+        print(method,"max :",max_mean_error,"at:",x_ticks[max_timestep[0]][0], "min: ",min_mean_error,"at:",x_ticks[min_timestep[0]][0])
+        axis.plot(x_ticks, error_array,
                   label="mean error at timestep. Overall mean: {}".format(
                       np.around(np.mean(cumulative_errorlist), 2)))
-        plt.plot(range(12, len(error_array) - 12),
-                  mean_error_over_time,
+        axis.plot(x_ticks[12:-12], mean_error_over_time,
                   label="Moving average in 25 hour window")
-        # axis.set_title(method)
-        plt.legend()
-        plt.show()
+        axis.set_title(method)
+        axis.legend()
 
     def plot_prediction(self, ax, method):
 

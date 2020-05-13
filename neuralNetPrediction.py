@@ -1,9 +1,7 @@
-
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import json
-
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 import tensorflow as tf
@@ -19,8 +17,6 @@ class NeuralNetPrediction:
                  test_split_at_hour, net_type, train_day_of_week=False):
         self.net_type = net_type
         self.read_json(net_type)
-        test_data = data.iloc[-test_split_at_hour - self.past_history:]
-        train_data = data.iloc[:-test_split_at_hour]
 
         self.RELEVANT_COLUMNS = [datacolumn, "wind", "cloudiness",
                                  "air_temperature", "sun", 'DayOfWeek',
@@ -28,21 +24,26 @@ class NeuralNetPrediction:
         self.data = data
         self.datacolumn = datacolumn
         self.test_split_at_hour = test_split_at_hour
+        train_data = data.iloc[:-test_split_at_hour]
         self.train_target = train_data[datacolumn]
         self.train_dataset = train_data[self.RELEVANT_COLUMNS].values
-
-        self.test_target = test_data[datacolumn]
-        self.test_dataset = test_data[self.RELEVANT_COLUMNS].values
+        self.generate_test_data()
 
         self.future_target = future_target  # timesteps into future
 
-        self.model=None
+        self.model = None
         self.day_models = [None for x in range(7)]
         self.x, self.y = self.multivariate_data_single_step()
         # only read in day_models when its a "complete" net
         if not net_type.startswith("day_model_"):
             if (train_day_of_week):
                 self.manage_day_models(train_day_of_week)
+
+    def generate_test_data(self):
+        test_data = self.data.iloc[
+                    -self.test_split_at_hour - self.past_history:]
+        self.test_target = test_data[self.datacolumn]
+        self.test_dataset = test_data[self.RELEVANT_COLUMNS].values
 
     def manage_day_models(self, train_day_of_week, index=-1):
 
@@ -77,7 +78,9 @@ class NeuralNetPrediction:
 
     # LatexMarkerWeekdayStart
     def update_train_data_day_of_week(self, day_of_week):
-        indices = [self.train_target.index.dayofweek == day_of_week][0]
+        indices = (self.train_target.index.dayofweek == day_of_week)
+                  #& (self.train_target.index.hour == 0)
+
         indices = indices[self.past_history:]
         self.x = self.x[indices]
         self.y = self.y[indices]
@@ -118,11 +121,14 @@ class NeuralNetPrediction:
         model = tf.keras.models.load_model(
             '.\checkpoints\{0}'.format(savename))
         model_input = model.layers[0].input.shape[1]
-        if self.past_history != model_input and not "_day_" in savename:  # only throw "error" when its a "completed" net
+        if self.past_history != model_input:  # only throw "error" when its a "completed" net
             print(
-                "Saved model expects {} Input steps. past History adjusted to fit this requirement".format(
-                    model_input))
+                "Saved model {} expects {} Input steps. {} steps are given in configuration. "
+                "Past History adjusted to fit this requirement".format(
+                    savename,model_input, self.past_history))
+            print("if you wish to use the configuration's inputlength, train the models first")
             self.past_history = model_input
+            self.generate_test_data()
         self.model = model
 
     # LatexMarkerDataStart
@@ -142,8 +148,7 @@ class NeuralNetPrediction:
     # LatexMarkerDataEnd
 
     def train_network(self, savename, power=1, initAlpha=0.001,
-                      lr_schedule="polynomal", save=True,
-                      day_model=None):
+                      lr_schedule="polynomal", save=True):
 
         if lr_schedule == "polynomal":
             if power is None:
@@ -154,7 +159,7 @@ class NeuralNetPrediction:
             schedule = StepDecay(initAlpha=initAlpha, factor=0.8,
                                  dropEvery=15)
         # schedule.plot(self.epochs)
-        es = EarlyStopping(monitor='val_loss', mode='min', verbose=1,
+        es = EarlyStopping(monitor='val_loss', mode='min', verbose=0,
                            patience=5,
                            restore_best_weights=True)  # restore_best_weights=True
 
@@ -168,8 +173,6 @@ class NeuralNetPrediction:
                                  callbacks=[es,
                                             LearningRateScheduler(
                                                 schedule)])
-        # tf.keras.callbacks.LearningRateScheduler(schedule)
-
         # self.plot_train_history(history, 'Multi-Step Training
         # and validation loss')
         if save:
@@ -186,7 +189,7 @@ class NeuralNetPrediction:
         plt.legend()
         plt.show()
 
-    def predict(self, use_day_model=False, offset=0,axis=None):
+    def predict(self, use_day_model=False, offset=0, axis=None):
         if use_day_model:
             if self.day_models[0] is None:
                 self.manage_day_models(index=0, train_day_of_week=False)
@@ -223,8 +226,7 @@ class NeuralNetPrediction:
             self.multi_step_predict(inputs=input, model=model,
                                     target=target)
         if axis is not None:
-            self.plot_prediction(axis,self.datacolumn)
-
+            self.plot_prediction(axis, self.datacolumn)
 
     # LatexSingleStepMarkerStart
     def single_step_predict(self, inputs, model, target=None):
@@ -232,9 +234,9 @@ class NeuralNetPrediction:
         predictions = []
         inputCopy = np.copy(inputs)
         for j in range(self.future_target):
-            x_in = inputCopy[j:j + model_past_history]\
-                            .reshape(1,model_past_history,
-                                     inputCopy.shape[1])
+            x_in = inputCopy[j:j + model_past_history] \
+                .reshape(1, model_past_history,
+                         inputCopy.shape[1])
             if j > 0:
                 # replace last power price with forecast
                 x_in[-1, -1, 0] = predictions[j - 1]
@@ -245,11 +247,12 @@ class NeuralNetPrediction:
         target_rows = target.iloc[-self.future_target:]
         self.truth = target_rows
         self.pred = pd.Series(np.array(predictions).reshape(
-                    self.future_target),index=target_rows.index)
+            self.future_target), index=target_rows.index)
         self.error = np.around(np.sqrt(np.mean(np.square(
-                    self.truth.values - predictions))), 2)
+            self.truth.values - predictions))), 2)
         self.single_errors = np.around(np.sqrt(
             np.square(self.truth.values - predictions)), 2)
+
     # LatexSingleStepMarkerEnd
 
     def multi_step_predict(self, inputs, model, target=None):
@@ -272,8 +275,8 @@ class NeuralNetPrediction:
         self.single_errors = np.sqrt(
             np.square(self.truth.values - prediction))
 
-
-    def mass_predict(self, axis,iterations, step=1, use_day_model=False):
+    def mass_predict(self, axis, iterations, step=1,
+                     use_day_model=False):
         j = 0
         single_errorlist = np.empty(
             [round(iterations / step), self.future_target])
@@ -281,10 +284,22 @@ class NeuralNetPrediction:
         error_array = np.empty((iterations + self.future_target, 1))
         error_array[:] = np.nan
         naive_error = 0
-        max = round(iterations / step)
+        max_iter = round(iterations / step)
         for i in offsets:
-            print("\rmass predict {}net: {}/{}".format(self.net_type,j, max),
-                  sep=' ', end='', flush=True)
+            # if i > 0 and i % 24 == 0:
+            #     train_data = self.data.iloc[
+            #                  :-self.test_split_at_hour + i]
+            #     self.train_target = train_data[self.datacolumn]
+            #     self.train_dataset = train_data[
+            #         self.RELEVANT_COLUMNS].values
+            #     self.x, self.y = self.multivariate_data_single_step()
+            #     self.train_network(savename="trainedLSTM_priceUTC",
+            #                        save=False, lr_schedule="polynomal",
+            #                        power=2)
+            print(
+                "\rmass predict {} net: {}/{}".format(self.net_type, j,
+                                                      max_iter),
+                sep=' ', end='', flush=True)
             self.predict(offset=i, use_day_model=use_day_model)
             single_errorlist[j] = self.single_errors
             arr = np.nanmean([error_array[i:i + self.future_target],
@@ -303,24 +318,35 @@ class NeuralNetPrediction:
 
             j += 1
         mean_naive_error = np.around(naive_error / j, 2)
-        cumulative_errorlist = np.around(np.mean(single_errorlist, axis=0),
-                                   decimals=2)
+        cumulative_errorlist = np.around(
+            np.mean(single_errorlist, axis=0),
+            decimals=2)
 
         mean_error_over_time = [np.mean(error_array[x - 12:x + 12])
-                                     for x in
-                                     range(12, len(error_array) - 12)]
-        axis.plot(error_array,
-                 label="mean error at timestep. Overall mean: {}".format(
-                     np.around(np.mean(cumulative_errorlist), 2)))
-        axis.plot(range(12, len(error_array) - 12),
-                 mean_error_over_time,
-                 label="Moving average in 25 hour window")
+                                for x in
+                                range(12, len(error_array) - 12)]
+
+        x_ticks = self.data.index[
+                  -self.test_split_at_hour:-self.test_split_at_hour + iterations + self.future_target]
+        max_mean_error = max(error_array)
+        max_timestep = np.where(error_array == max_mean_error)
+        min_mean_error = min(error_array)
+        min_timestep = np.where(error_array == min_mean_error)
+        print(self.datacolumn, "max :", max_mean_error, "at:",
+              x_ticks[max_timestep[0]][0], "min: ", min_mean_error,
+              "at:",
+              x_ticks[min_timestep[0]][0])
+        axis.plot(x_ticks, error_array,
+                  label="mean error at timestep. Overall mean: {}".format(
+                      np.around(np.mean(cumulative_errorlist), 2)))
+        axis.plot(x_ticks[12:-12], mean_error_over_time,
+                  label="Moving average in 25 hour window")
         axis.set_title(self.net_type)
         axis.legend()
 
-    def plot_prediction(self, ax,method):
+    def plot_prediction(self, ax, method):
         ax.plot(self.truth.index, self.pred,
-                   label='prediction; RMSE: {}'.format(self.error))
+                label='prediction; RMSE: {}'.format(self.error))
         ax.plot(self.truth.index, self.truth, label='Truth')
         ax.set_title(method)
         ax.legend()

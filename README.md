@@ -5,8 +5,7 @@ Dieses Projekt behandelt die Prognose des Day Ahead-Strompreises für das Marktb
 Es werden standardmäßig für alleverwendeten Prognosemethoden (neuronale Netze/statistische Methoden) mit der bisher optimalsten Konfiguration für die neuronalen Netze und statistischen Methoden Prognosen berechnet und geplotted. 
 Über das GUI kann eingestellt werden, ob eine bestimmte Netzart trainiert werden soll*, wofür die Konfiguration für dieses Netz geändert werden sollte über den Button "Change Net Configuration". 
 Über die neue Eingabemaske können nun die Konfigurationen, die zuletzt für die Netze genutzt wurden, verändert werden. Nach der Veränderung einfach speichern.
-Anschließend kann gewählt werden, welche Methoden verwendet und angezeigt werden sollen. Das einzige, was zu beachten ist, ist, dass die Wahl des "decomposed" Modells (summierte Zeitreihenkomponenten) die Auswahl der Remainderkomopnente überschreibt.
-Soll nur die Remainderkomponente ausgegeben werden, sollte darauf geachtet werden, dass "decomposed" nicht genutzt wird.
+Anschließend kann gewählt werden, welche Methoden verwendet und angezeigt werden sollen. 
 Außerdem kann gewählt werden, ob die Tagesmodelle der Netze für die Prognosen genutzt werden sollen und ob diese dann auch vorher trainiert weden sollen. Sie werden nur trainiert, wenn sie auch für die Prognosen genutzt werden sollen.
 Zuletzt kann angegeben werden, ob eine spezifische Prognose für einen bestimmten Zeitpunkt nach Trainingsende berechnet werden soll (0-168) oder ob eine Massenprognose mit einem Durchschnitt von einer Woche durchgeührt und dargetellt werden soll. 
 
