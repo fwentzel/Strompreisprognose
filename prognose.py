@@ -1,8 +1,11 @@
 from __future__ import absolute_import, division, print_function, \
     unicode_literals
+
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from pandas.plotting import register_matplotlib_converters
+import matplotlib.dates as mdates
 from csv_reader import get_data
 from neuralNetPrediction import NeuralNetPrediction
 from statisticalPrediction import StatisticalPrediction
@@ -12,10 +15,10 @@ import ipykernel  # fix progress bar
 register_matplotlib_converters()
 
 FUTURE_TARGET = 24
-ITERATIONS = 24 * 2 # amount of predicitons for mass predict
+ITERATIONS = 24 *7 # amount of predicitons for mass predict
 STEP = 1
-
 use_setup_settings = True
+test_length = FUTURE_TARGET + 24 * 7  # Timesteps for testing.
 settings_dict = None
 config = GUI.main()
 if config is None:
@@ -25,34 +28,24 @@ if config is None:
 else:
     settings_dict = config
 
-figure, axes = plt.subplots(nrows=3, ncols=2)
-
-train_complete = settings_dict["train_complete"]
-train_remainder = settings_dict["train_remainder"]
-train_day_of_week = settings_dict["train_day_of_week"]
-
-predict_complete = settings_dict["predict_complete"]
-predict_remainder = settings_dict["predict_remainder"]
-predict_decomposed = settings_dict["predict_decomposed"]
-predict_naive_lagged = settings_dict["predict_naive_lagged"]
-predict_naive_0 = settings_dict["predict_naive_0"]
-predict_sarima = settings_dict["predict_sarima"]
+figure, axes = plt.subplots(nrows=3, ncols=2,figsize=(16, 9))
 
 predict_with_day = settings_dict["predict_with_day"]
-
 test_pred_start_hour = settings_dict["test_pred_start_hour"]
 
 if test_pred_start_hour < 0:
     mass_predict = True
     test_pred_start_hour = 0
-    print("Calculating forecast for up to 168 hours after training in a massforecast".format(
+    print("Calculating forecast for 168 timesteps after training ".format(
         test_pred_start_hour))
 else:
-    print("Calculating forecast for: {} hours after Trainings".format(test_pred_start_hour))
+    print("Calculating forecast for {} hours into the week".format(test_pred_start_hour))
     mass_predict = False
 
-test_length = FUTURE_TARGET + 24 * 7  # Timesteps for testing.
 data = get_data()
+low=data["Price"][data["Price"] < 10 ]
+low=low[low.index.dayofweek==0]
+low=low[low.index.hour==12]
 test_split_at_hour = data.index[
                          -test_length].hour - test_pred_start_hour + test_length
 
@@ -63,9 +56,9 @@ def price_pred():
                                            future_target=FUTURE_TARGET,
                                            test_split_at_hour=test_split_at_hour,
                                            net_type="price_complete",
-                                           train_day_of_week=train_day_of_week)
+                                           train_day_of_week=settings_dict["train_day_of_week"])
 
-    if train_complete:
+    if settings_dict["train_complete"]:
         price_prediciton.initialize_network()
         price_prediciton.train_network(
             savename="trainedLSTM_priceUTC",
@@ -97,7 +90,6 @@ def sarima_pred():
         statistical_pred.mass_predict(iterations=ITERATIONS,
                                       step=STEP,
                                       component="Price",
-                                      use_auto_arima=False,
                                       method="sarima",
                                       axis=axes[1, 1])
     else:
@@ -118,8 +110,8 @@ def predict_decomposed_or_remainder():
                                          future_target=FUTURE_TARGET,
                                          test_split_at_hour=test_split_at_hour,
                                          net_type="remainder_complete",
-                                         train_day_of_week=train_day_of_week)
-    if train_remainder:
+                                         train_day_of_week=settings_dict["train_day_of_week"])
+    if settings_dict["train_remainder"]:
         rem_prediction.initialize_network()
         rem_prediction.train_network(
             savename="trainedLSTM_remainderUTC", save=False,
@@ -127,7 +119,7 @@ def predict_decomposed_or_remainder():
     elif rem_prediction.model is None:
         rem_prediction.load_model(savename="trainedLSTM_remainderUTC")
 
-    if predict_remainder:
+    if settings_dict["predict_remainder"]:
         # Remainder
         if mass_predict:
             rem_prediction.mass_predict(iterations=ITERATIONS,
@@ -138,10 +130,9 @@ def predict_decomposed_or_remainder():
             # Remainder
             rem_prediction.predict(offset=0,
                                    use_day_model=predict_with_day,
-                                   axis=axes[
-                                       1, 0] if not predict_decomposed else None)
+                                   axis=axes[1, 0] )
 
-    if predict_decomposed:
+    if settings_dict["predict_decomposed"]:
         components_combined_error = 0
         sum_pred = 0
         j = 0
@@ -149,12 +140,12 @@ def predict_decomposed_or_remainder():
             [round(ITERATIONS / STEP), FUTURE_TARGET])
         error_array = np.empty((ITERATIONS + FUTURE_TARGET, 1))
         error_array[:] = np.nan
-        decomposed_iterations = ITERATIONS if mass_predict and predict_decomposed else 1
-        max = round(decomposed_iterations / STEP)
+        decomposed_iterations = ITERATIONS if mass_predict else 1
+        max_iter = round(decomposed_iterations / STEP)
         offsets = range(0, decomposed_iterations, STEP)
         for i in offsets:
             if decomposed_iterations > 1:
-                print("\rmass predict decomposed: {}/{}".format(j, max),
+                print("\rmass predict decomposed: {}/{}".format(j, max_iter),
                       sep=' ', end='', flush=True)
             else:
                 print("Calculating component forecast...")
@@ -165,9 +156,7 @@ def predict_decomposed_or_remainder():
             truth = data["Price"].iloc[timeframe]
 
             rem_prediction.predict(offset=i,
-                                   use_day_model=predict_with_day,
-                                   axis=axes[
-                                       1, 0] if not predict_decomposed else None)
+                                   use_day_model=predict_with_day)
             # copy so original doesnt get overwritten when adding other components
 
             sum_pred = rem_prediction.pred.copy()
@@ -225,15 +214,25 @@ def predict_decomposed_or_remainder():
             j += 1
 
         if mass_predict :
-            cumulative_errorlist = np.around(np.mean(single_errorlist, axis=0),
+            overall_error = np.around(np.mean(single_errorlist, axis=0),
                 decimals=2)
 
             mean_error_over_time = [np.mean(error_array[x - 12:x + 12])
                                     for x in range(12, len(error_array) - 12)]
-            x_ticks=data.index[test_split_at_hour:test_split_at_hour+ITERATIONS+FUTURE_TARGET]
+            x_ticks=data.index[-test_split_at_hour:-test_split_at_hour+ITERATIONS+FUTURE_TARGET]
+
+            max_mean_error = max(error_array)
+            max_timestep = np.where(error_array == max_mean_error)
+            min_mean_error = min(error_array)
+            min_timestep = np.where(error_array == min_mean_error)
+            print("components", "max :", max_mean_error, "at:",
+                  x_ticks[max_timestep[0]][0], "min: ", min_mean_error,
+                  "at:",
+                  x_ticks[min_timestep[0]][0])
+
             axes[0, 1].plot(x_ticks,error_array,
                             label="mean error at timestep. Overall mean: {}".format(
-                                np.around(np.mean(cumulative_errorlist),2)))
+                                np.around(np.mean(overall_error),2)))
             axes[0, 1].plot(x_ticks[12:-12],mean_error_over_time,
                             label="Moving average in 25 hour window")
             axes[0, 1].set_title ("combined components")
@@ -266,15 +265,46 @@ statistical_pred = StatisticalPrediction(data=data,
                                          future_target=FUTURE_TARGET,
                                          test_split_at_hour=test_split_at_hour,
                                          )
-
-if predict_complete:
+# statistical_pred.mass_predict(iterations=ITERATIONS,
+#                               method="AutoReg",
+#                              component="Seasonal",
+#                               axis=axes[2, 0] )
+# statistical_pred.mass_predict(iterations=ITERATIONS,
+#                               method="AutoReg",
+#                              component="Trend",
+#                               axis=axes[2, 1] )
+if settings_dict["predict_complete"]:
     price_pred()
-if predict_sarima:
+if settings_dict["predict_sarima"]:
     sarima_pred()
-if predict_decomposed or predict_remainder:
+if settings_dict["predict_decomposed"] or settings_dict["predict_remainder"]:
     predict_decomposed_or_remainder()
-if predict_naive_0:
+if settings_dict["predict_naive_0"]:
     naive_0_pred()
-if predict_naive_lagged:
+if settings_dict["predict_naive_lagged"]:
     naive_lagged_pred()
+
+for ax in figure.axes:
+    plt.sca(ax)
+    ax.xaxis_date()
+    if mass_predict:
+        plt.xticks(rotation=45)
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%d.%m %H"))
+        ax.xaxis.set_minor_formatter(mdates.DateFormatter("%d.%m %H"))
+    else:
+        ax.xaxis.set_major_formatter(
+            mdates.DateFormatter("%d.%m %H"))
+        ax.xaxis.set_minor_formatter(
+            mdates.DateFormatter("%d.%m %H"))
+plt.subplots_adjust(hspace=.29)
+if not mass_predict:
+    figure.suptitle('Single forecasts for {} hours into the week'.format(test_pred_start_hour),
+                 fontsize=16)
+    folder="Results,Hour based, day" if predict_with_day else "Results,Hour based, complete"
+    save_prediction=True
+    if save_prediction:
+        plt.savefig(
+            "./Abbildungen/{}/{}.png".format(
+                folder,test_pred_start_hour), dpi=300)
+
 plt.show()
