@@ -173,8 +173,7 @@ class NeuralNetPrediction:
                                  callbacks=[es,
                                             LearningRateScheduler(
                                                 schedule)])
-        # self.plot_train_history(history, 'Multi-Step Training
-        # and validation loss')
+        # self.plot_train_history(history, 'Training and validation loss')
         if save:
             self.model.save('.\checkpoints\{0}'.format(savename))
 

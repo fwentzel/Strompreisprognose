@@ -21,14 +21,14 @@ class StatisticalPrediction:
             self.sarima(offset=offset, use_auto_arima=use_auto_arima,
                         data_component=component)
         elif method == "naive_persistence":
-            self.naive_lagged(data_component=component,offset=offset)
+            self.naive_persistence(data_component=component, offset=offset)
         elif method == "naive0":
             self.naive0(data_component=component)
         else:
             print(
                 "{} is not recognized. Make sure it is written correctly. Efaulting to naive0 Prediction".format(
                     method))
-            self.naive_lagged(data_component=component)
+            self.naive_persistence(data_component=component)
         self.truth = self.data[component].iloc[
                      self.start + offset:self.start + self.future_target + offset]
 
@@ -41,9 +41,10 @@ class StatisticalPrediction:
         if axis is not None:
             self.plot_prediction(axis, method)
 
-    def naive_lagged(self, data_component,offset=0):
+    def naive_persistence(self, data_component, offset=0):
         self.pred = self.data[data_component].iloc[
-                    self.start+offset - 2:self.start+offset - 2 + self.future_target]
+                    self.start+offset - 1:self.start+offset - 1 + self.future_target]
+
 
     def naive0(self, data_component):
         self.pred = np.zeros(self.future_target)
