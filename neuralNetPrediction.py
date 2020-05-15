@@ -79,8 +79,6 @@ class NeuralNetPrediction:
     # LatexMarkerWeekdayStart
     def update_train_data_day_of_week(self, day_of_week):
         indices = (self.train_target.index.dayofweek == day_of_week)
-                  #& (self.train_target.index.hour == 0)
-
         indices = indices[self.past_history:]
         self.x = self.x[indices]
         self.y = self.y[indices]
@@ -97,6 +95,7 @@ class NeuralNetPrediction:
         self.batch_size = models_dict[net_type]["batch_size"]
 
     # LatexMarkerNetInitStart
+
     def initialize_network(self):
         model = tf.keras.models.Sequential()
         model.add(tf.keras.layers.LSTM(self.past_history,
@@ -125,8 +124,9 @@ class NeuralNetPrediction:
             print(
                 "Saved model {} expects {} Input steps. {} steps are given in configuration. "
                 "Past History adjusted to fit this requirement".format(
-                    savename,model_input, self.past_history))
-            print("if you wish to use the configuration's inputlength, train the models first")
+                    savename, model_input, self.past_history))
+            print(
+                "if you wish to use the configuration's inputlength, train the models first")
             self.past_history = model_input
             self.generate_test_data()
         self.model = model
@@ -140,11 +140,10 @@ class NeuralNetPrediction:
             multivariate_data.append(self.train_dataset[indices])
             labels.append(self.train_target[i])
         multivariate_data = np.array(multivariate_data).astype(float)
-        return multivariate_data.reshape(multivariate_data.shape[0],
-                                         multivariate_data.shape[1],
-                                         -1), np.array(labels).astype(
-            float)
-
+        x = multivariate_data.reshape(multivariate_data.shape[0],
+                                      multivariate_data.shape[1], -1)
+        y = np.array(labels).astype(float)
+        return x, y
     # LatexMarkerDataEnd
 
     def train_network(self, savename, power=1, initAlpha=0.001,
@@ -173,8 +172,7 @@ class NeuralNetPrediction:
                                  callbacks=[es,
                                             LearningRateScheduler(
                                                 schedule)])
-        # self.plot_train_history(history, 'Multi-Step Training
-        # and validation loss')
+        # self.plot_train_history(history, 'Training and validation loss')
         if save:
             self.model.save('.\checkpoints\{0}'.format(savename))
 

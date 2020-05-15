@@ -44,7 +44,7 @@ else:
 
 data = get_data()
 low=data["Price"][data["Price"] < 10 ]
-low=low[low.index.dayofweek==0]
+low=low[low.index.dayofweek==3]
 low=low[low.index.hour==12]
 test_split_at_hour = data.index[
                          -test_length].hour - test_pred_start_hour + test_length
@@ -248,6 +248,7 @@ def naive_lagged_pred():
         print("Calculating naive persistance forecast...")
         statistical_pred.predict(method="naive_persistence",
                                  component="Price", axis=axes[2, 0])
+
 
 def naive_0_pred():
     if mass_predict:
