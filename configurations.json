@@ -14,11 +14,11 @@
         "batch_size": 64
     },
     "price_day": {
-        "layer": 0,
-        "past_history": 48,
-        "dropout": 0,
+        "layer": 1,
+        "past_history": 168,
+        "dropout": 2,
         "epochs": 300,
-        "batch_size": 64
+        "batch_size": 128
     },
     "remainder_day": {
         "layer": 2,

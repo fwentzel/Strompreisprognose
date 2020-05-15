@@ -80,6 +80,7 @@ def decompose_data(price_series):
     new_frame["Seasonal"] = components_day.seasonal
     new_frame["Trend"] = components_day.trend
     #drop differenced Price Column since its not needed anymore
+    #drop differenced Price Column since its not needed anymore
     new_frame=new_frame.drop("diff_price",axis=1)
     return new_frame
 # LatexDecomposeMarkerEnd

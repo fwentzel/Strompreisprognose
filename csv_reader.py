@@ -13,7 +13,7 @@ hour_scaler = MinMaxScaler(feature_range=(0, 1))
 def get_data():
     # Only download new Data when the Data is 1 day old
     # power_last_index = read_power_data().index[-1]
-    # weather_last_index = read_weather_data().index[-1]
+    # weather_last_index = read_weather_data().index[-1]s
     # yesterday = datetime.today().day - 1
     # get_new_power_data = power_last_index.day < yesterday or \
     #                      power_last_index.month < datetime.today().month
@@ -29,9 +29,6 @@ def get_data():
     power_price_frame=power_price_frame.iloc[1:]
 
     data = power_price_frame.join(weather_frame, how='inner')
-    # data["Price"].plot()
-    # plt.ylabel("Strompreis €/MWh")
-    # plt.show()
     data['DayOfWeek'] = pd.DatetimeIndex(data.index).dayofweek.astype(int)
     data["Hour"] = data.index.hour
 

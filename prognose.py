@@ -43,9 +43,9 @@ else:
     mass_predict = False
 
 data = get_data()
-# low=data["Price"][data["Price"] < 10 ]
-# low=low[low.index.dayofweek==0]
-# low=low[low.index.hour==12]
+low=data["Price"][data["Price"] < 10 ]
+low=low[low.index.dayofweek==3]
+low=low[low.index.hour==12]
 test_split_at_hour = data.index[
                          -test_length].hour - test_pred_start_hour + test_length
 

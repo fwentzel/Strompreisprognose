@@ -11,7 +11,7 @@ class StatisticalPrediction:
         self.start = -test_split_at_hour
         self.data = data
         self.future_target = future_target
-        self.sarima_model=None
+        self.sarima_model = None
 
     def predict(self, component, method, offset=0,
                 use_auto_arima=False, axis=None):
@@ -21,7 +21,8 @@ class StatisticalPrediction:
             self.sarima(offset=offset, use_auto_arima=use_auto_arima,
                         data_component=component)
         elif method == "naive_persistence":
-            self.naive_persistence(data_component=component, offset=offset)
+            self.naive_persistence(data_component=component,
+                                   offset=offset)
         elif method == "naive0":
             self.naive0(data_component=component)
         else:
@@ -43,17 +44,16 @@ class StatisticalPrediction:
 
     def naive_persistence(self, data_component, offset=0):
         self.pred = self.data[data_component].iloc[
-                    self.start+offset - 1:self.start+offset - 1 + self.future_target]
-
+                    self.start + offset - 1:self.start + offset - 1 + self.future_target]
 
     def naive0(self, data_component):
         self.pred = np.zeros(self.future_target)
 
     # LatexAutoRegMarkerStart
     def autoreg(self, data_component, offset=0):
-        train = self.data[data_component].iloc[self.start + offset - 200
-                                               :self.start + offset].asfreq(
-            "H")
+        train = self.data[data_component].iloc[
+                        self.start + offset - 200:
+                        self.start + offset].asfreq("H")
         lags = ar_select_order(endog=train, maxlag=70)
         model = AutoReg(train, lags=lags.ar_lags)
         model_fit = model.fit()
@@ -61,13 +61,14 @@ class StatisticalPrediction:
                                       end=len(train)
                                           + self.future_target - 1,
                                       dynamic=False)
-
     # LatexAutoRegMarkerEnd
-    def fit_sarima_model(self,datacolumn,start,exog):
-        length=200
+
+
+    def fit_sarima_model(self, datacolumn, start, exog):
+        length = 200
         train = self.data[datacolumn].iloc[start - length:start]
         model = pm.auto_arima(train,
-                              #exogenous=exog.iloc[start - length:start],
+                              # exogenous=exog.iloc[start - length:start],
                               start_p=1, start_q=1,
                               test='adf',
                               # use adftest to find optimal 'd'
@@ -88,20 +89,23 @@ class StatisticalPrediction:
 
     def sarima(self, use_auto_arima, data_component, offset=0):
         start = self.start + offset
-        exog=self.data[[data_component, "wind", "cloudiness",
-                                 "air_temperature", "sun", 'DayOfWeek',
-                                 'Hour', 'Holiday']]
+        exog = self.data[[data_component, "wind", "cloudiness",
+                          "air_temperature", "sun", 'DayOfWeek',
+                          'Hour', 'Holiday']]
         if self.sarima_model is None:
             if use_auto_arima:
-                self.fit_sarima_model(data_component,start,exog)
+                self.fit_sarima_model(data_component, start, exog)
             with open('./checkpoints/arima_model.pkl', 'rb') as pkl:
                 self.sarima_model = pickle.load(pkl)
-        interval=1
-        if offset%interval==0 and offset >0:
-            update_values = self.data[data_component].iloc[start-interval:start]
-            self.sarima_model.update(update_values)#,exogenous=exog.iloc[start-interval:start]
+        interval = 1
+        if offset % interval == 0 and offset > 0:
+            update_values = self.data[data_component].iloc[
+                            start - interval:start]
+            self.sarima_model.update(
+                update_values)  # ,exogenous=exog.iloc[start-interval:start]
 
-        prediction = self.sarima_model.predict(n_periods=self.future_target)#,exogenous=exog.iloc[start:start+self.future_target]
+        prediction = self.sarima_model.predict(
+            n_periods=self.future_target)  # ,exogenous=exog.iloc[start:start+self.future_target]
         self.pred = prediction
 
     def mass_predict(self, iterations, axis, method, component,
@@ -115,8 +119,9 @@ class StatisticalPrediction:
         max_iter = round(iterations / step)
         for i in offsets:
 
-            print("\rmass predict {}: {}/{}".format(method, j, max_iter),
-                  sep=' ', end='', flush=True)
+            print(
+                "\rmass predict {}: {}/{}".format(method, j, max_iter),
+                sep=' ', end='', flush=True)
 
             self.predict(offset=i, method=method, component=component,
                          use_auto_arima=False)
@@ -136,7 +141,7 @@ class StatisticalPrediction:
                 if method == "sarima":
                     plt.savefig(
                         "./Abbildungen/{}/prediction_{}.png".format(
-                            method,i), dpi=300,
+                            method, i), dpi=300,
                         bbox_inches='tight')
                 else:
                     plt.savefig(
@@ -163,10 +168,12 @@ class StatisticalPrediction:
         x_ticks = self.data.index[
                   self.start:self.start + iterations + self.future_target]
         max_mean_error = max(error_array)
-        max_timestep=np.where(error_array==max_mean_error)
+        max_timestep = np.where(error_array == max_mean_error)
         min_mean_error = min(error_array)
-        min_timestep=np.where(error_array==min_mean_error)
-        print(method,"max :",max_mean_error,"at:",x_ticks[max_timestep[0]][0], "min: ",min_mean_error,"at:",x_ticks[min_timestep[0]][0])
+        min_timestep = np.where(error_array == min_mean_error)
+        print(method, "max :", max_mean_error, "at:",
+              x_ticks[max_timestep[0]][0], "min: ", min_mean_error,
+              "at:", x_ticks[min_timestep[0]][0])
         axis.plot(x_ticks, error_array,
                   label="mean error at timestep. Overall mean: {}".format(
                       np.around(np.mean(cumulative_errorlist), 2)))
