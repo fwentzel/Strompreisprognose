@@ -43,8 +43,8 @@ class StatisticalPrediction:
             self.plot_prediction(axis, method)
 
     def naive_persistence(self, data_component, offset=0):
-        self.pred = self.data[data_component].iloc[
-                    self.start + offset - 1:self.start + offset - 1 + self.future_target]
+        self.pred =np.ones(self.future_target)*self.data[data_component].iloc[self.start+offset-1]
+
 
     def naive0(self, data_component):
         self.pred = np.zeros(self.future_target)
